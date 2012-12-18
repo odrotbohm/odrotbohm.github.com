@@ -1,0 +1,127 @@
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+   <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+   <title>Oliver Gierke - Effective bug smashing with test cases</title>
+   <meta name="author" content="Oliver Gierke" />
+   <link href="/atom.xml" rel="alternate" title="Blog Atom Feed" type="application/atom+xml" />
+
+   <!-- syntax highlighting CSS -->
+   <link rel="stylesheet" href="/assets/themes/tom/css/syntax.css" type="text/css" />
+
+   <!-- Homepage CSS -->
+   <link rel="stylesheet" href="/assets/themes/tom/css/screen.css" type="text/css" media="screen, projection" />
+
+   <!-- Typekit -->
+   <script type="text/javascript" src="http://use.typekit.com/jpd0pfm.js"></script>
+   <script type="text/javascript">try{Typekit.load();}catch(e){}</script>
+</head>
+<body>
+
+  <div class="site">
+    <div class="title">
+      <a href="/">Oliver Gierke</a>
+
+      <a class="extra" href="/archive.html">Archive</a>
+      <a class="extra" href="/about.html">About</a>
+      <a class="extra" href="/tags.html">Tags</a>
+    </div>
+  
+    
+<div id="post">
+  <h1>Effective bug smashing with test cases</h1>
+  <p class="meta">
+    01 July 2008 
+    
+  </p>
+  <p>There are a lot of opinions buzzing around about how testing and test driven development helps you writing better software. Reading <a href='http://www.amazon.de/Secrets-Rockstar-Programmers-Riding-Crest/dp/0071490833/ref=sr_1_1?ie=UTF8&amp;amp;s=books-intl-de&amp;amp;qid=1214904407&amp;amp;sr=8-1'>Secrets of the rockstar programmers</a> just now, I&#8217;ve stumbled over an intresting interview with <a href='http://www.bileblog.org/about/'>Hani Suleiman</a>, co-author of <a href='http://www.amazon.de/Next-Generation-Java-Testing-Advanced/dp/0321503104/ref=sr_1_1?ie=UTF8&amp;amp;s=books-intl-de&amp;amp;qid=1214904551&amp;amp;sr=8-1'>Next Generation Java Testing</a>. As this is a book purely on testing, you could expect him to be a fervent advocat of TDD. Surprisingly, he takes a very pragmatic approach to testing and simply states, that it should be as easy as possible to be done while understanding that deadlines often prevent you from equipping your polished code with the last 20 percent of test coverage.</p>
+
+<p>Nevertheless, the quote, that pinged my mind, was this one:</p>
+
+<blockquote>
+<p>The user said, &#8220;This thing doesn&#8217;t work.&#8221; You&#8217;re gonna test something that potentially doesn&#8217;t work. And so, once you have that test, it&#8217;s very easy, because you have that verifiable bug.</p>
+</blockquote>
+<p style='text-align: right;'>(Hani Suleiman on testing and bugs)</p>
+<p>Let me elaborate on that a little bit. Hani&#8217;s observations largely correspond to the way I usually get started swinging my swat. So suppose you have system in state A in your version control system and a bug report claiming that there is something wrong in this state. Starting to find the cause for the bug you typically accept the ticket, indicating that you are currently working on it. Assume you can reproduce the issue with a test case you fix the according code snippets, make sure you get that green bar and commit everything to the VCS again. Finally you mark the ticket as fixed and add &#8220;fixed with revision XYZ&#8221; as comment to guarantee tracability, that&#8217;s it.</p>
+
+<p>That sound really proficient, doesn&#8217;t it? Where the hell is the problem? I have to admit, that this is the way I am working currently, and I really feel comfortable with it. So here is, what the quote made me think about:</p>
+
+<p>Comparing the original state of the VCS (revision XYZ - 1) and the fixed state of the VCS (revision XYZ) you only see one more test case and some modified. Who really tells you that the test case did not work before? As you have committed the already working test case along with the changes, you don&#8217;t have a possibility to check, whether the test case is really tight enough to reproduce the problem correctly. So wouldn&#8217;t it be better to add the following step to the bug fixing heuristic described above:</p>
+
+<ul>
+<li>After you have completed the test case reproducing the issue you check that one in into the VCS (although this is not buildable, due to the failing testcase!)</li>
+
+<li>You add a comment to the ticket that the current revision lets you reproduce the bug</li>
+
+<li>Continue, like described above</li>
+</ul>
+
+<p>Perhaps I am to addicted to traceability but I really like to be able to track what&#8217;s going on, what&#8217;s going wrong, what could be solved how and so on.</p>
+
+<p>What do you think about this?</p>
+</div>
+
+<div id="related">
+  <h2>Related Posts</h2>
+  <ul class="posts">
+    
+      <li><span>16 Dec 2012</span> &raquo; <a href="/2012/12/hello-world">Hello World</a></li>
+    
+      <li><span>01 Oct 2010</span> &raquo; <a href="/2010/10/spring-logging-and-jmx">Spring, logging and JMX</a></li>
+    
+      <li><span>15 Sep 2010</span> &raquo; <a href="/2010/09/enabling-hibernate-critera-query-statistics-with-aspectj">Enabling Hibernate criteria query statistics with AspectJ</a></li>
+    
+  </ul>
+</div>
+
+
+
+
+  <div id="disqus_thread"></div>
+<script type="text/javascript">
+    var disqus_developer = 1;
+    var disqus_shortname = 'olivergierke'; // required: replace example with your forum shortname
+    
+    /* * * DON'T EDIT BELOW THIS LINE * * */
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+
+
+
+
+
+  
+    <div class="footer">
+      <div class="contact">
+        <p>
+          Oliver Gierke<br />
+          Soul Power!<br />
+        </p>
+      </div>
+      <div class="contact">
+        <p>
+          <a href="http://github.com/olivergierke/">github.com/olivergierke</a><br />
+          <a href="http://twitter.com/olivergierke/">twitter.com/olivergierke</a><br />
+          <a href='mailto:info@olivergierke.de'>info@olivergierke.de</a>
+        </p>
+      </div>
+      <div class="rss">
+        <a href="/atom.xml">
+          <img src="/assets/themes/tom/images/rss.png" alt="Subscribe to Atom Feed" />
+        </a>
+      </div>
+    </div>
+  </div>
+  <a href="http://github.com/olivergierke"><img style="position: absolute; top: 0; right: 0; border: 0;" src="http://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png" alt="Fork me on GitHub" /></a>
+
+  
+</body>
+</html>
+

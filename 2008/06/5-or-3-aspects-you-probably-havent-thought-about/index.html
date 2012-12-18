@@ -1,0 +1,109 @@
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+   <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+   <title>Oliver Gierke - 5 (or 3) aspects you probably haven't thought about</title>
+   <meta name="author" content="Oliver Gierke" />
+   <link href="/atom.xml" rel="alternate" title="Blog Atom Feed" type="application/atom+xml" />
+
+   <!-- syntax highlighting CSS -->
+   <link rel="stylesheet" href="/assets/themes/tom/css/syntax.css" type="text/css" />
+
+   <!-- Homepage CSS -->
+   <link rel="stylesheet" href="/assets/themes/tom/css/screen.css" type="text/css" media="screen, projection" />
+
+   <!-- Typekit -->
+   <script type="text/javascript" src="http://use.typekit.com/jpd0pfm.js"></script>
+   <script type="text/javascript">try{Typekit.load();}catch(e){}</script>
+</head>
+<body>
+
+  <div class="site">
+    <div class="title">
+      <a href="/">Oliver Gierke</a>
+
+      <a class="extra" href="/archive.html">Archive</a>
+      <a class="extra" href="/about.html">About</a>
+      <a class="extra" href="/tags.html">Tags</a>
+    </div>
+  
+    
+<div id="post">
+  <h1>5 (or 3) aspects you probably haven't thought about</h1>
+  <p class="meta">
+    11 June 2008 
+    
+  </p>
+  <p>Alef Arendsen started by giving a short introduction into basic AOP concepts. After that he presented a sample project using Hibernate and JDBC data access together. He construted a business case where the Hibernate property of delaying actual data insert to the database until transaction commit. The solution to the problem would be to flush the hibernate session appropriately. But what means appropriately in this case? Who is responsible to execute the flush? Alef constructed an aspect that watches JdbcTemplate operations and executes the flush accordingly.<!--more--></p>
+
+<p>The next example was about retrieving localized data. Localized in the sense, that Alef wanted to access all car parts available in a given area. He introduced a view localizing the data into the database and let Hibernate work against that view. Finally he let the current area to retrieve the data for be propagated. This was realized applying an advice to transaction begin time to write the session state area context into the database. To prevent duplicate propagation Alef introduced the AspectJ cflow concept allowing to define pointcuts in the context of anoher pointcut. This means you can describe a pointcut to match a transactional method and only get it fired on the first transactional method even if it triggers other transactional methods that would fire the advice again otherwise. The neat thing about this advice application was, that the filter logic is kept in the database. The aspect itself is only the controller for the actually transparent logic.</p>
+
+<p>Alefs last example was first failure capturing adressing the need to trigger logic on the first occurrence of an exception avoiding to handle the exception twice. Once again he made heavy use of cflow ponitcut definitions. Alef also used a custom aspect instatiation model - instance per pointcut call in this case.</p>
+
+<p>This was a really awesome talk as it showed up the enormous power of AOP and the things you actually can achieve with it.</p>
+</div>
+
+<div id="related">
+  <h2>Related Posts</h2>
+  <ul class="posts">
+    
+      <li><span>16 Dec 2012</span> &raquo; <a href="/2012/12/hello-world">Hello World</a></li>
+    
+      <li><span>01 Oct 2010</span> &raquo; <a href="/2010/10/spring-logging-and-jmx">Spring, logging and JMX</a></li>
+    
+      <li><span>15 Sep 2010</span> &raquo; <a href="/2010/09/enabling-hibernate-critera-query-statistics-with-aspectj">Enabling Hibernate criteria query statistics with AspectJ</a></li>
+    
+  </ul>
+</div>
+
+
+
+
+  <div id="disqus_thread"></div>
+<script type="text/javascript">
+    var disqus_developer = 1;
+    var disqus_shortname = 'olivergierke'; // required: replace example with your forum shortname
+    var disqus_identifier = '65 http://www.olivergierke.de/?p=65';
+    /* * * DON'T EDIT BELOW THIS LINE * * */
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+
+
+
+
+
+  
+    <div class="footer">
+      <div class="contact">
+        <p>
+          Oliver Gierke<br />
+          Soul Power!<br />
+        </p>
+      </div>
+      <div class="contact">
+        <p>
+          <a href="http://github.com/olivergierke/">github.com/olivergierke</a><br />
+          <a href="http://twitter.com/olivergierke/">twitter.com/olivergierke</a><br />
+          <a href='mailto:info@olivergierke.de'>info@olivergierke.de</a>
+        </p>
+      </div>
+      <div class="rss">
+        <a href="/atom.xml">
+          <img src="/assets/themes/tom/images/rss.png" alt="Subscribe to Atom Feed" />
+        </a>
+      </div>
+    </div>
+  </div>
+  <a href="http://github.com/olivergierke"><img style="position: absolute; top: 0; right: 0; border: 0;" src="http://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png" alt="Fork me on GitHub" /></a>
+
+  
+</body>
+</html>
+

@@ -1,0 +1,161 @@
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+   <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+   <title>Oliver Gierke - Devoxx 2008</title>
+   <meta name="author" content="Oliver Gierke" />
+   <link href="/atom.xml" rel="alternate" title="Blog Atom Feed" type="application/atom+xml" />
+
+   <!-- syntax highlighting CSS -->
+   <link rel="stylesheet" href="/assets/themes/tom/css/syntax.css" type="text/css" />
+
+   <!-- Homepage CSS -->
+   <link rel="stylesheet" href="/assets/themes/tom/css/screen.css" type="text/css" media="screen, projection" />
+
+   <!-- Typekit -->
+   <script type="text/javascript" src="http://use.typekit.com/jpd0pfm.js"></script>
+   <script type="text/javascript">try{Typekit.load();}catch(e){}</script>
+</head>
+<body>
+
+  <div class="site">
+    <div class="title">
+      <a href="/">Oliver Gierke</a>
+
+      <a class="extra" href="/archive.html">Archive</a>
+      <a class="extra" href="/about.html">About</a>
+      <a class="extra" href="/tags.html">Tags</a>
+    </div>
+  
+    
+<div id="post">
+  <h1>Devoxx 2008</h1>
+  <p class="meta">
+    11 December 2008 
+    
+  </p>
+  <p>I&#8217;m taking a break currently, skipping one of the talks here. Devoxx is actually the most exciting conference I ever attended and I want to take the chance to recap some of the impressions I got here. After 4 days of non-daylight, lots of coffee and coke, I really have to say that I liked it very much. I will see a presentation by <a href='http://www.devoxx.com/display/JV08/The+next+versions+of+Parleys.com'>Stephan Janssen</a> on the new <a href='http://www.parleys.com'>Parleys.com</a> as well as some other ones tomorrow but as The days were so fully packed, I&#8217;ll try to organize stuff a little.</p>
+
+<h2 id='monday'>Monday</h2>
+
+<p>The first university day, I especially remember a <a href='http://www.devoxx.com/display/JV08/The+Scala+Experience'>talk</a> of Ted Neward and Bill Vinner on <a href='http://www.scala-lang.org/'>Scala</a>. They gave an impressive introduction on it explaining some of the philosophical stuff, as well a lot of hands on demos. Ted coined a nice quote, when someone was about to ask if he could turn a Scala class into an EJB he answered:</p>
+
+<blockquote>
+<p>No, I will not make this an EJB! Get out!</p>
+</blockquote>
+
+<p>Of course he was not serious (well, actually I don&#8217;t know).</p>
+
+<h2 id='tuesday'>Tuesday</h2>
+
+<p>Tuesday started out with a presentation of Holly Cummins and Kirk Pepperdine on <a href='http://www.devoxx.com/display/JV08/Java+Performance'>Java performance tools</a>. The talk had quite a balanced weight between theoretical introduction and tools in action to discover and track performance bottlenecks.</p>
+
+<p>In the lunch break I had my quicky session on Hades, with actually worked out quite well. Actually I stripped it down to be more demo centric the night before. You can download the slides <a href='http://www.olivergierke.de/wordpress/wp-content/uploads/2008/12/generic-daos-with-hades.pdf'>here</a>.</p>
+
+<p>The <a href='http://www.devoxx.com/display/JV08/Pro+Spring+2.5'>Pro Spring 2.5</a> talk actually summed up all the neat features introduced in 2.5. One thing I got stuck on was the fact that you can use <code>@Autowired</code> on a property of type <code>List</code> and it will get all Spring beans injected implementing the <code>Foo</code> interface. Of course this raises the question of how Spring can detect the generic type at runtime. Seems like <code>org.sfw.core.GenericCollectionTypeResolver</code> does the trick.</p>
+
+<h2 id='wednesday'>Wednesday</h2>
+
+<p>The session day ended with a <a href='http://www.devoxx.com/display/JV08/RESTful+Design%2C+Patterns+and+Anti-Patterns'>talk</a> of <a href='http://www.innoq.com/blog/st/'>Stefan Tilkov</a> on REST Webservices. He could not have given a better and shorter REST introduction than he did. He very nicely unfolded the - sometimes absurd - concepts and abuses SOAP does to HTTP. Just two small examples: have you ever thought about the SOAP notion of an <strong>endpoint</strong>? As the web is build to be interconnected, the term is just ridiculous. The same applies to tunneling every call through POST or GET, not only freeing HTTP verbs from all its semantics, but intentionally abusing them. As Stefan said:</p>
+
+<blockquote>
+<p>It&#8217;s like overriding a <code>plus</code> method, with formatting your harddrive.&#8221;</p>
+</blockquote>
+
+<p>Note, that same as to the quote of Ted - exeggeration serves descriptiveness. ;)</p>
+
+<p>Yesterday evening was a <a href='http://www.devoxx.com/display/JV08/European+JUG+Gathering'>BOF session of JUG leaders</a>. As I&#8217;m not an official leader of any but helping the Mannheim JUG to kickstart these days, I took the chance to map names to faces a little. Some kind of networking activity. Belgian JUG leader Stephan Janssen raised the idea to get more interconnected between local JUGs as well as on European scale. Synchronizing scedules or even build some kind of umbrella organization could help get more famous speakers to smaller JUGs and help attracting more meeting members as well as speakers, too.</p>
+
+<h2 id='thursday'>Thursday</h2>
+
+<p>Today started with the keynote of Josh Bloch who introduced the Generics and Enum chapters from his book. Unfortunately I read it already so there were no big surprises. Josh was followed by Mark Reinhold who spoke about the process of modularizing the JRE into profiles.Â  Furthermore he gave more detailled insights into the release plan for Java 7, which shall be released in early 2010. The main topics I can remember were</p>
+
+<ul>
+<li>no closures (jihaa! let&#8217;s simply talk another 3 years about it)&lt;/li&gt;</li>
+
+<li>no Properties</li>
+
+<li>no reimplemented Generics</li>
+
+<li>small language changes: ** multiple exceptions in catchclause: <code>catch (Foo, Bar e)</code> ** null-safe object traversal: <code>a?.foo()?.bar()?</code> -&gt; returns <code>null</code> if one of the values in between is <code>null</code> ** type inference: <code>Map&lt;String, Object&gt; map = new HashMap();</code> &lt;- gets <code>new HashMap&lt;String, Object&gt;();</code> automatically</li>
+
+<li>modularity on language level</li>
+</ul>
+
+<p>Furthermore Mark mentioned that Sun is thinking about dropping backwards compatibility in one of the next version for the sake of cleaning things up. I suspect that to happen with Java 8, as Alex explicitly rejected changes to the Generics implementation which could be done in a clean rewrite.</p>
+
+<p>More detailled information can be found in <a href='http://hamletdarcy.blogspot.com/2008/12/java-7-update-from-mark-reinhold-at.html'>Hamlet D&#8217;Arcy&#8217;s blog</a>, who I occasionally met discussing the language changes with Josh Bloch at the whiteboards.</p>
+
+<p>After that I had a lot of hallway conversions as it is nice to get the chance to talk to people being directly involved. With <a href='http://en.wikipedia.org/wiki/Joshua_Bloch'>Josh Bloch</a> I discussed a possible bug in either the Eclipse or Sun compiler, I discovered implementing the static factory method pattern from his Effective Java 2. I&#8217;m about to hand this one over to <a href='http://blogs.sun.com/abuckley/'>Alex Buckley</a> an try to keep track on it.</p>
+
+<p>Furthermore I had a chat with Michael Keith of Oracle about EclipseLink as we had some issues with it implementing support for it in Hades. Here I will also keep in touch with him, hoping to fix the problems.</p>
+
+<p>The most funny part - as I could have predicted - was the <a href='http://www.javaposse.org'>Java Posse</a> Live recording. Carl Quinn and Dick Wall were leading it, Tor Norbye and Joe Nuxoll got connected via iChat. I turned out that Tor&#8217;s internet connection was not the best and so there was no sound from his side. The guys recapped the stuff they saw so far and it was fun as expected. Ocassionally I met Carl and Dick in the hallways and we had the chance to have a quick chat. As I proudly wore my JavaPosse tshirt, they noticed that the Java code printed on it would not compile actually. If you also own one and haven&#8217;t noticed already - go and take a look. I will do so, too.</p>
+
+<p>The day finished with a talk of Stephan Janssen about the future of Parleys.com. Perleys is a platform to publish talks and provide functionality like comments and bookmarks around them. The 3.0 version of it will come with a new publisher module, that eases the post processing of the talks a lot easier. Furthermore channels are to be introduced and you can rent your one space in it. The will be free access for all Java Groups</p>
+</div>
+
+<div id="related">
+  <h2>Related Posts</h2>
+  <ul class="posts">
+    
+      <li><span>16 Dec 2012</span> &raquo; <a href="/2012/12/hello-world">Hello World</a></li>
+    
+      <li><span>01 Oct 2010</span> &raquo; <a href="/2010/10/spring-logging-and-jmx">Spring, logging and JMX</a></li>
+    
+      <li><span>15 Sep 2010</span> &raquo; <a href="/2010/09/enabling-hibernate-critera-query-statistics-with-aspectj">Enabling Hibernate criteria query statistics with AspectJ</a></li>
+    
+  </ul>
+</div>
+
+
+
+
+  <div id="disqus_thread"></div>
+<script type="text/javascript">
+    var disqus_developer = 1;
+    var disqus_shortname = 'olivergierke'; // required: replace example with your forum shortname
+    
+    /* * * DON'T EDIT BELOW THIS LINE * * */
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+
+
+
+
+
+  
+    <div class="footer">
+      <div class="contact">
+        <p>
+          Oliver Gierke<br />
+          Soul Power!<br />
+        </p>
+      </div>
+      <div class="contact">
+        <p>
+          <a href="http://github.com/olivergierke/">github.com/olivergierke</a><br />
+          <a href="http://twitter.com/olivergierke/">twitter.com/olivergierke</a><br />
+          <a href='mailto:info@olivergierke.de'>info@olivergierke.de</a>
+        </p>
+      </div>
+      <div class="rss">
+        <a href="/atom.xml">
+          <img src="/assets/themes/tom/images/rss.png" alt="Subscribe to Atom Feed" />
+        </a>
+      </div>
+    </div>
+  </div>
+  <a href="http://github.com/olivergierke"><img style="position: absolute; top: 0; right: 0; border: 0;" src="http://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png" alt="Fork me on GitHub" /></a>
+
+  
+</body>
+</html>
+

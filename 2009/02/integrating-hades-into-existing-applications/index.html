@@ -1,0 +1,118 @@
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+   <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+   <title>Oliver Gierke - Integrating Hades into existing applications</title>
+   <meta name="author" content="Oliver Gierke" />
+   <link href="/atom.xml" rel="alternate" title="Blog Atom Feed" type="application/atom+xml" />
+
+   <!-- syntax highlighting CSS -->
+   <link rel="stylesheet" href="/assets/themes/tom/css/syntax.css" type="text/css" />
+
+   <!-- Homepage CSS -->
+   <link rel="stylesheet" href="/assets/themes/tom/css/screen.css" type="text/css" media="screen, projection" />
+
+   <!-- Typekit -->
+   <script type="text/javascript" src="http://use.typekit.com/jpd0pfm.js"></script>
+   <script type="text/javascript">try{Typekit.load();}catch(e){}</script>
+</head>
+<body>
+
+  <div class="site">
+    <div class="title">
+      <a href="/">Oliver Gierke</a>
+
+      <a class="extra" href="/archive.html">Archive</a>
+      <a class="extra" href="/about.html">About</a>
+      <a class="extra" href="/tags.html">Tags</a>
+    </div>
+  
+    
+<div id="post">
+  <h1>Integrating Hades into existing applications</h1>
+  <p class="meta">
+    06 February 2009 
+    
+  </p>
+  <p>Today I&#8217;ve got an email by <a href='https://www.xing.com/profile/Thomas_Braun14/N1.1.4.2.b6504d'>Thomas Braun</a> who considered to play around with Hades. He is facing an application with an existing data access layer based on Spring&#8217;s <code>HibernateDaoSupport</code> class. This raised the question of how to integrate Hades into the app without changing existing code.</p>
+
+<p>Thomas was using <code>AnnotationSessionFactoryBean</code> to create the <code>SessionFactory</code> from annotation metadata. As Hades relies on JPA <code>EntityManager</code> interface the basic question was how to use it next to the SessionFactory while avoiding duplicate metadata evaluation and thus two entity handling infrastructure.</p>
+
+<p>The solutions is unexpectedly simple. Supposed you use <code>LocalContainerEntityManagerFactoryBean</code> as you normally would do in plain JPA setup and register it under <code>entityManagerFactory</code> in your Spring configuration file you can configure DAOs based on <code>HibernateDaoSupport</code> as follows:</p>
+
+<pre><code>&lt;bean class=&quot;your.dao.based.on.HibernateDaoSupport&quot;&gt;
+  &lt;property name=&quot;sessionFactory&quot;&gt;
+    &lt;bean factory-bean=&quot;entityManagerFactory&quot;
+      factory-method=&quot;getSessionFactory&quot; /&gt;
+  &lt;/property&gt;
+&lt;/bean&gt;</code></pre>
+
+<p>The key here is, that <code>HibernateEntityManagerFactory</code> (which is the type that will be created by the LCEMFB if you use the <code>HibernateVendorAdaptor</code>) offers a method <code>getSessionFactory</code> to get access to the underlying SessionFactory instance.</p>
+
+<p>Once again nice to see how easy Spring helps integrating applications, existing code with new approaches.</p>
+</div>
+
+<div id="related">
+  <h2>Related Posts</h2>
+  <ul class="posts">
+    
+      <li><span>16 Dec 2012</span> &raquo; <a href="/2012/12/hello-world">Hello World</a></li>
+    
+      <li><span>01 Oct 2010</span> &raquo; <a href="/2010/10/spring-logging-and-jmx">Spring, logging and JMX</a></li>
+    
+      <li><span>15 Sep 2010</span> &raquo; <a href="/2010/09/enabling-hibernate-critera-query-statistics-with-aspectj">Enabling Hibernate criteria query statistics with AspectJ</a></li>
+    
+  </ul>
+</div>
+
+
+
+
+  <div id="disqus_thread"></div>
+<script type="text/javascript">
+    var disqus_developer = 1;
+    var disqus_shortname = 'olivergierke'; // required: replace example with your forum shortname
+    
+    /* * * DON'T EDIT BELOW THIS LINE * * */
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+
+
+
+
+
+  
+    <div class="footer">
+      <div class="contact">
+        <p>
+          Oliver Gierke<br />
+          Soul Power!<br />
+        </p>
+      </div>
+      <div class="contact">
+        <p>
+          <a href="http://github.com/olivergierke/">github.com/olivergierke</a><br />
+          <a href="http://twitter.com/olivergierke/">twitter.com/olivergierke</a><br />
+          <a href='mailto:info@olivergierke.de'>info@olivergierke.de</a>
+        </p>
+      </div>
+      <div class="rss">
+        <a href="/atom.xml">
+          <img src="/assets/themes/tom/images/rss.png" alt="Subscribe to Atom Feed" />
+        </a>
+      </div>
+    </div>
+  </div>
+  <a href="http://github.com/olivergierke"><img style="position: absolute; top: 0; right: 0; border: 0;" src="http://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png" alt="Fork me on GitHub" /></a>
+
+  
+</body>
+</html>
+
