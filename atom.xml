@@ -4,7 +4,7 @@
  <title>Oliver Gierke</title>
  <link href="http://www.olivergierke.de/atom.xml" rel="self"/>
  <link href="http://www.olivergierke.de"/>
- <updated>2012-12-18T18:11:17+01:00</updated>
+ <updated>2012-12-18T18:35:43+01:00</updated>
  <id>http://www.olivergierke.de</id>
  <author>
    <name>Oliver Gierke</name>
@@ -269,9 +269,9 @@ GenericDao&lt;/code&gt;) with appropriate defaults (&lt;code&gt;readOnly&lt;/cod
  
  <entry>
    <title>Neglected classes in Spring - Part II</title>
-   <link href="http://www.olivergierke.de/2010/01/neglected-classes-in-spring-part-II"/>
+   <link href="http://www.olivergierke.de/2010/01/neglected-classes-in-spring-part-ii"/>
    <updated>2010-01-24T19:16:06+01:00</updated>
-   <id>http://www.olivergierke.de/2010/01/neglected-classes-in-spring-part-II</id>
+   <id>http://www.olivergierke.de/2010/01/neglected-classes-in-spring-part-ii</id>
    <content type="html">&lt;p&gt;If you have worked with Spring 2.5 annotation based web MVC framework you know that it allows you to freely design you controller method signatures:&lt;/p&gt;
 
 &lt;pre&gt;&lt;code&gt;@RequestMapping(value = &amp;quot;users&amp;quot;, method = GET)

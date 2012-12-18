@@ -17,7 +17,7 @@ http://www.olivergierke.de/2010/04/hades-1-5-released
 http://www.olivergierke.de/2010/04/neglected-classes-in-spring-part-iii
 http://www.olivergierke.de/2010/04/rest-based-web-applications-with-spring-3
 http://www.olivergierke.de/2010/02/new-challenges
-http://www.olivergierke.de/2010/01/neglected-classes-in-spring-part-II
+http://www.olivergierke.de/2010/01/neglected-classes-in-spring-part-ii
 http://www.olivergierke.de/2009/06/article-on-hades-in-current-issue-of-german-javamagazin
 http://www.olivergierke.de/2009/05/diggin-into-spring-3-transactional-test-facilities
 http://www.olivergierke.de/2009/05/using-springs-configurable-in-three-easy-steps
