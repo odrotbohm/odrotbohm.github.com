@@ -4,13 +4,105 @@
  <title>Oliver Gierke</title>
  <link href="http://www.olivergierke.de/atom.xml" rel="self"/>
  <link href="http://www.olivergierke.de"/>
- <updated>2012-12-18T18:35:43+01:00</updated>
+ <updated>2013-01-14T14:04:16+01:00</updated>
  <id>http://www.olivergierke.de</id>
  <author>
    <name>Oliver Gierke</name>
    <email>info@olivergierke.de</email>
  </author>
 
+ 
+ <entry>
+   <title>Whoops! Where did my architecture go</title>
+   <link href="http://www.olivergierke.de/2013/01/whoops-where-did-my-architecture-go"/>
+   <updated>2013-01-15T00:00:00+01:00</updated>
+   <id>http://www.olivergierke.de/2013/01/whoops-where-did-my-architecture-go</id>
+   <content type="html">&lt;p&gt;I am currently travelling conferences and Java User Groups with a talk called &amp;#8220;Whoops! Where did my architecture go?&amp;#8221;. It discusses approaches to create and maintain logical architectues in Java code bases, challenges, tools and tries to outline some ideas how one can accomplish this. A core part of the argumentation is the discussion about the importance of Java packages. Jens Schauder has written a &lt;a href='http://blog.schauderhaft.de/2013/01/13/the-importance-of-packages/'&gt;blog post&lt;/a&gt; about that topic recently and I felt I had some things to add. The more I though about it I got the conclusion that a comment I envision would exceed the length of a reasonable reply I thought I&amp;#8217;ll write up a blog post. I will point to the slides of the presentation in places where it comes in handy. The talk is also based on a lot of sample code which we will get to a bit later. The code can be found on &lt;a href='https://github.com/olivergierke/Whoops-Architecture'&gt;GitHub&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;I&amp;#8217;d like to take a step back at first and briefly discuss some general concepts and ideas that will be necessary to understand the approach I&amp;#8217;ll present later. I&amp;#8217;ll use the Java software development space as posterchild for this to make sure we can build relations into the day-to-day practice but the concepts apply to software systems in other languages, too.&lt;/p&gt;
+
+&lt;h2 id='divide_and_conquer'&gt;Divide and conquer&lt;/h2&gt;
+
+&lt;p&gt;A core principle of complex problem solving is &amp;#8220;divide and conquer&amp;#8221;. We split up a complex probelm into smaller ones and approach those smaller ones individually. In Java software this is usually done in several artifact levels: deployment units (WARs, JARs), packages and classes eventually. As a side effect of that we create dependencies between these artifacts and we need some means to manage them.&lt;/p&gt;
+
+&lt;p&gt;As a consequence of that we create artifacts with different (in)stability metrics (see &lt;a href='http://en.wikipedia.org/wiki/Software_package_metrics'&gt;Wikipedia&lt;/a&gt; for details). This metric essentially expresses the &lt;em&gt;risk of a change&lt;/em&gt; made to an artifact. Assume we have two artifacts A and B, A depending on B. A change in A will never affect B, whereas a change in B potentially breaks A. Thus, there&amp;#8217;s value in potentially splitting up a big artifact into two smaller ones with a defined dependency direction as it reduces the risk of a change in (in my just given case) A. If a dependency from B to A is introduced, both artifacts essentially become a single one from an &amp;#8220;the effect of change&amp;#8221; point of view as we cannot touch one without potentially affecting the other.&lt;/p&gt;
+
+&lt;h2 id='layers'&gt;Layers&lt;/h2&gt;
+
+&lt;p&gt;A practical example of this aproach is the layered architecture pattern where you split up you system in presentation layer, service layer and repository layer with directed dependencies from top to bottom. The exact number and names don&amp;#8217;t really matter. Still you can see that you can definitely change the presentation layer without any chance of breaking something in the repsoitory layer given you haven&amp;#8217;t violated the dependency rules.&lt;/p&gt;
+
+&lt;p&gt;Layering is a reasonably understood by developers as it&amp;#8217;s decomposes the software system by by a &lt;em&gt;technical aspect&lt;/em&gt;. It&amp;#8217;s tought in university, probably practitioned in most of the development shops out there. So here&amp;#8217;s the interesting question:&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;If we understand and value the benefits of the general approach of slicing code horizontally, why do we so horribly neglect that approach when it comes to vertical decomposition, i.e. business functionality?&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;I know this is a bold question, but it&amp;#8217;s essentially what I&amp;#8217;ve seen through most of the code reviews I&amp;#8217;ve done in the last couple of years. In general, I&amp;#8217;d even argue that splitting up business functionality in dedicated slices and monitoring and making sure the allowed defined dependencies are not violated is much more important for long-term maintainability of software. This is mostly do the cost of a change correlating to the risk of a change.&lt;/p&gt;
+
+&lt;h2 id='slices'&gt;Slices&lt;/h2&gt;
+
+&lt;p&gt;Take a CRM system as example: you&amp;#8217;ll probably have a Core slice that contains some code that other slices will depend on. You&amp;#8217;ll find a Customer management slice, that keeps track of customers, their addresses etc. On top of that you might then build a Contract management slice that clearly needs to know about the Customer and use the Core slice as well (see &lt;a href='https://speakerdeck.com/olivergierke/whoops-where-did-my-architecture-go-2?slide=10'&gt;this slide&lt;/a&gt;).&lt;/p&gt;
+
+&lt;h2 id='architecture_vs_codebase'&gt;Architecture VS. Codebase&lt;/h2&gt;
+
+&lt;p&gt;So let&amp;#8217;s assume we defined both slices and layers as architectural concepts, how do we make sure these architecture concepts are embodied in our Java codebase? What we usually do is creating naming conventions and map our layers and slices into package and class names. There are some great tools like &lt;a href='http://www.hello2morrow.com/products/sonargraph'&gt;Sonargraph&lt;/a&gt; and &lt;a href='http://structure101.com/products/'&gt;Structure 101&lt;/a&gt; available out there that help you at doing exactly that. Being a happy day-to-day user of Sonargraph I still asked myself: &amp;#8220;How far could we actually get with plain Java (language, compiler runtime) means only?&amp;#8221;.&lt;/p&gt;
+
+&lt;p&gt;We already identified that controlling dependencies between code artifacts is key to reduce the risk of change effectively. Let&amp;#8217;s have a look how this is approached in general. A key aspect to dependency control is that an artifact is able to explicitly express a dependency. Interestingly we have solutions to do exactly that for two of the three artifact levels (JARs, packages, classes) mentioned above.&lt;/p&gt;
+
+&lt;p&gt;Deployment units are usually managed through either Gradle, Maven or Ivy. At the class level dependency injection comes into play as a core aspect of it is to expose dependencies through either constructor arguments or setters (an interesting &lt;a href='http://blog.schauderhaft.de/2012/01/01/the-one-correct-way-to-do-dependency-injection'&gt;post&lt;/a&gt; on this at Jens Schauders blog again). Still this is not entirely sufficient cause at runtime the type space in the JVM is flat and a class can potentially &amp;#8220;ask&amp;#8221; for a dependency it shouldn&amp;#8217;t be able to and get it injected. This is where the aforementioned tools would step in again and veto at build time. But yeah, we wanted to see how far we can get without them.&lt;/p&gt;
+
+&lt;p&gt;At this point, I&amp;#8217;d like to throw in another question:&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;Dear Java developer, have you ever wondered why you make your class&amp;#8217; properties private by default but the class itself public by default? Hint: &amp;#8216;Because my IDE generates it this way&amp;#8217; is not a valid answer.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;The observation that should lead you to is that Java developers usually just skip packages as means to control visibility of types. We practice information hiding in classes/properties (we actually don&amp;#8217;t as most developers run &amp;#8220;Generate getters and setters&amp;#8221; right away) but don&amp;#8217;t on the classes-in-a-package level. We just discovered that inside a JAR we essentially have to manage which type can see which other type as the class space of public types is flat in a JVM. Essentially this means that if a class is not public (i.e. package private), we don&amp;#8217;t have to dependency manage it on the global level but within the package only.&lt;/p&gt;
+
+&lt;h2 id='packages'&gt;Packages&lt;/h2&gt;
+
+&lt;p&gt;The reason packages are usually not used as dependency managment mean is that designing packages is not a trivial task, even you use an architecture tool like Sonargraph to help you. An aspect of that is that there are hardly any guidelines on how to do it and thus various kinds of crazy patterns have evolved over the years. Arbitrarily restricting the number of classes in a package is just - arbitrary (actually one of the few points I disagree with Jens Schauder&amp;#8217;s blog post). Simply grouping all exception types into a &lt;code&gt;exceptions&lt;/code&gt; package is not really reasonable either as it groups types by technical commonalities which usually doesn&amp;#8217;t provide any architectural benefit.&lt;/p&gt;
+
+&lt;p&gt;Assuming we&amp;#8217;d like to map our previously defined architecture onto Java packages, here&amp;#8217;s what you&amp;#8217;ll probably see something like this. You find actual code backing this approach in the &lt;a href='https://github.com/olivergierke/Whoops-Architecture/tree/master/packages-before'&gt;packages-before project&lt;/a&gt; of this GitHub repo:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;….account.domain
+….account.presentation
+….account.repository
+….account.service
+….core.domain
+….customer.domain
+….customer.presentation
+….customer.service
+….customer.repository&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This is not bad in general but there are a few things to consider here. First, having the slice first is a good idea as you can easily separate or externalice and entire chunk of functionality. Remember that in our example, the &lt;code&gt;account&lt;/code&gt; slice was not depended on by anything else so we should be able to remove this package and all of it&amp;#8217;s sub folders to ditch the features implemented in the slice and the app should still work with the customer features only.&lt;/p&gt;
+
+&lt;p&gt;Second, you see that the core slice does not have code in any of the actual layers, but a &lt;code&gt;domain&lt;/code&gt; package only. This essentially shows that we expose something that can be considered an implementation detail to the public: the layering. That might be considered not too important but it has a consequence that completely subverts our idea of reducing the number of types to manage. Let&amp;#8217;s have a more detailed look at that:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;….customer.domain
+  + Customer
+….customer.service
+  + CustomerManagement
+  + CustomerManagementImpl
+  + CustomerNumberGenerator
+….customer.repository
+  + CustomerRepository&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Assume the following: &lt;code&gt;CustomerRepository&lt;/code&gt; is simply persisting &lt;code&gt;Customer&lt;/code&gt; instances. The core part of the service implementation is generating customer numbers when a new &lt;code&gt;Customer&lt;/code&gt; is created. This creates the need to make sure all customers are created through the service interface to make sure this behavior gets applied. Unfortunately, &lt;code&gt;CustomerRepository&lt;/code&gt; needs to be a public type so that it can be referred to from the service implementation. This opens it up to be an injection candidate into virtually any other component of the system, which is exactly what we want to avoid. So what if we ditched the layer packages entirely? (The code can be found &lt;a href='https://github.com/olivergierke/Whoops-Architecture/tree/master/packages-after'&gt;here&lt;/a&gt;.)&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;….customer
+  + Customer
+  + CustomerManagement
+  o CustomerManagementImpl
+  o CustomerNumberGenerator
+  o CustomerRepository&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;We end up with less then a half of public types to manage. &lt;code&gt;CustomerRepository&lt;/code&gt; cannot be used from anywhere else as the Java compiler prevents us from doing so. &lt;code&gt;CustomerNumberGenerator&lt;/code&gt; and the layering in general becomes an implementation detail. Architecturally this creates stronger gates between the slices (the packages actually) and thinner ones between the layers (simple class-to-class dependencies) as illustrated in &lt;a href='https://speakerdeck.com/olivergierke/whoops-where-did-my-architecture-go-2?slide=35'&gt;this slide&lt;/a&gt; (compare to the slide before to see the difference).&lt;/p&gt;
+
+&lt;h2 id='summary'&gt;Summary&lt;/h2&gt;
+
+&lt;p&gt;The basic approach I recommend is to move the vertical slices into the focus of the package naming and try to model them in a way that the public API of a slice is as tiny as possible in the first place. This is of course no silver bullet approach as packages can grow significantly and it might make sense to extract certain types into a sub-package or the like which then usually leads you to the need to use an architecture management tool. The core idea here is to try to use the means of visibility control that are available in Java to write code that is not a giant potential dependency mess in the first place. Packages can actually help you to achieve exactly that.&lt;/p&gt;</content>
+ </entry>
  
  <entry>
    <title>Hello World</title>
