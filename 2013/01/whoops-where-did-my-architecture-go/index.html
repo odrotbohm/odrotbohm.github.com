@@ -41,7 +41,7 @@
 
 <h2 id='divide_and_conquer'>Divide and conquer</h2>
 
-<p>A core principle of complex problem solving is &#8220;divide and conquer&#8221;. We split up a complex probelm into smaller ones and approach those smaller ones individually. In Java software this is usually done in several artifact levels: deployment units (WARs, JARs), packages and classes eventually. As a side effect of that we create dependencies between these artifacts and we need some means to manage them.</p>
+<p>A core principle of complex problem solving is &#8220;divide and conquer&#8221;. We split up a complex problem into smaller ones and approach those smaller ones individually. In Java software this is usually done in several artifact levels: deployment units (WARs, JARs), packages and classes eventually. As a side effect of that we create dependencies between these artifacts and we need some means to manage them.</p>
 
 <p>As a consequence of that we create artifacts with different (in)stability metrics (see <a href='http://en.wikipedia.org/wiki/Software_package_metrics'>Wikipedia</a> for details). This metric essentially expresses the <em>risk of a change</em> made to an artifact. Assume we have two artifacts A and B, A depending on B. A change in A will never affect B, whereas a change in B potentially breaks A. Thus, there&#8217;s value in potentially splitting up a big artifact into two smaller ones with a defined dependency direction as it reduces the risk of a change in (in my just given case) A. If a dependency from B to A is introduced, both artifacts essentially become a single one from an &#8220;the effect of change&#8221; point of view as we cannot touch one without potentially affecting the other.</p>
 

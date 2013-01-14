@@ -4,7 +4,7 @@
  <title>Oliver Gierke</title>
  <link href="http://www.olivergierke.de/atom.xml" rel="self"/>
  <link href="http://www.olivergierke.de"/>
- <updated>2013-01-14T14:04:16+01:00</updated>
+ <updated>2013-01-14T15:09:05+01:00</updated>
  <id>http://www.olivergierke.de</id>
  <author>
    <name>Oliver Gierke</name>
@@ -23,7 +23,7 @@
 
 &lt;h2 id='divide_and_conquer'&gt;Divide and conquer&lt;/h2&gt;
 
-&lt;p&gt;A core principle of complex problem solving is &amp;#8220;divide and conquer&amp;#8221;. We split up a complex probelm into smaller ones and approach those smaller ones individually. In Java software this is usually done in several artifact levels: deployment units (WARs, JARs), packages and classes eventually. As a side effect of that we create dependencies between these artifacts and we need some means to manage them.&lt;/p&gt;
+&lt;p&gt;A core principle of complex problem solving is &amp;#8220;divide and conquer&amp;#8221;. We split up a complex problem into smaller ones and approach those smaller ones individually. In Java software this is usually done in several artifact levels: deployment units (WARs, JARs), packages and classes eventually. As a side effect of that we create dependencies between these artifacts and we need some means to manage them.&lt;/p&gt;
 
 &lt;p&gt;As a consequence of that we create artifacts with different (in)stability metrics (see &lt;a href='http://en.wikipedia.org/wiki/Software_package_metrics'&gt;Wikipedia&lt;/a&gt; for details). This metric essentially expresses the &lt;em&gt;risk of a change&lt;/em&gt; made to an artifact. Assume we have two artifacts A and B, A depending on B. A change in A will never affect B, whereas a change in B potentially breaks A. Thus, there&amp;#8217;s value in potentially splitting up a big artifact into two smaller ones with a defined dependency direction as it reduces the risk of a change in (in my just given case) A. If a dependency from B to A is introduced, both artifacts essentially become a single one from an &amp;#8220;the effect of change&amp;#8221; point of view as we cannot touch one without potentially affecting the other.&lt;/p&gt;
 
