@@ -4,13 +4,61 @@
  <title>Oliver Gierke</title>
  <link href="http://www.olivergierke.de/atom.xml" rel="self"/>
  <link href="http://www.olivergierke.de"/>
- <updated>2013-01-14T15:09:05+01:00</updated>
+ <updated>2013-02-21T15:11:18+01:00</updated>
  <id>http://www.olivergierke.de</id>
  <author>
    <name>Oliver Gierke</name>
    <email>info@olivergierke.de</email>
  </author>
 
+ 
+ <entry>
+   <title>Websites VS. APIs</title>
+   <link href="http://www.olivergierke.de/2013/02/websites-vs-apis"/>
+   <updated>2013-02-21T00:00:00+01:00</updated>
+   <id>http://www.olivergierke.de/2013/02/websites-vs-apis</id>
+   <content type="html">&lt;p&gt;I&amp;#8217;ve been recently pulled into some Twitter conversations about the quality of the new open data portal &amp;#8220;launched&amp;#8221; by the German government available at &lt;a href='http://govdata.de'&gt;govdata.de&lt;/a&gt;. I put launched in quotation marks as the launch has been a rather rocky one critized &lt;a href='http://www.dw.de/net-activists-slam-germanys-open-data-portal/a-16611003'&gt;through out&lt;/a&gt; &lt;a href='http://opengovgermany.com/2013/02/04/german-government-screws-up-open-data/'&gt;the web&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;I in particular made fun of the very verbose &lt;a href='http://www.govdata.de/ckan/api'&gt;&lt;code&gt;api&lt;/code&gt;&lt;/a&gt; resource the portal exposes. If you do a &lt;code&gt;GET&lt;/code&gt; on it all you get returned is a:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;{ &amp;quot;version&amp;quot; : 1 }&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;What I was trying to point at - and I think most of my Twitter followers are aware that I am into the field of REST web services a bit - is that it&amp;#8217;s absolutely sad that it&amp;#8217;s 2013 and we still see &amp;#8220;APIs&amp;#8221; published to the web that lack any kind of hypermedia elements. My &lt;a href='https://twitter.com/olivergierke/status/304562182350315520'&gt;initial tweet&lt;/a&gt; caused a bit of response and started some interesting conversation.&lt;/p&gt;
+
+&lt;p&gt;&lt;a href='https://twitter.com/ischieferdecker'&gt;Ina Schiefendecker&lt;/a&gt; (I assume to be related to the GovData project as she is working for &lt;a href='http://www.fokus.fraunhofer.de/de/motion/index.html'&gt;Fraunhofer FOKUS&lt;/a&gt;, responsible for implementing the portal) &lt;a href='https://twitter.com/ischieferdecker/status/304567001819525121'&gt;pointed me&lt;/a&gt; to the documentation:&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;Just have a look: &lt;a href='http://t.co/cA4Q0pXzKQ'&gt;http://t.co/cA4Q0pXzKQ&lt;/a&gt; or &lt;a href='http://t.co/Qd114XnfbG'&gt;http://t.co/Qd114XnfbG&lt;/a&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;I &lt;a href='https://twitter.com/olivergierke/status/304568799187832832'&gt;replied&lt;/a&gt; that adding hypermedia elements to the responses would turn the chunks of data into a usable API, which she &lt;a href='https://twitter.com/ischieferdecker/status/304570536229474304'&gt;responded&lt;/a&gt; to with:&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;If you want hypermedia take the portal, if you want to program take the API&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;My initial reaction to this was a deep *sigh* and thinking that the team apparently hasn&amp;#8217;t understood the value of hypermedia in API design. But taking a step back, this statement contains an interesting aspect:&lt;/p&gt;
+
+&lt;h4 id='for_the_govdata_team_the_website_is_something_different_than_the_api'&gt;For the GovData team the website is something different than the API&lt;/h4&gt;
+
+&lt;p&gt;Why is that the case? If it&amp;#8217;s on the web, embrace the web, period. Why would you choose the web as the platform of choice if the first thing you do right after that is starting to ignore it&amp;#8217;s core traits? Hypermedia is essential to way the web works, thus so should it be to your web site &lt;em&gt;and&lt;/em&gt; APIs you expose to the web.&lt;/p&gt;
+
+&lt;p&gt;To me it feels like implementation aspects leaking through at this point. According to some leaked stack traces, the portal is built with JBoss, Liferay and JSF (&lt;em&gt;sigh&lt;/em&gt;), the API with &lt;a href='http://ckan.org/'&gt;CKAN&lt;/a&gt;. Totally different technology stacks, but does that impose a real conceptual difference to a web site and a web API?&lt;/p&gt;
+
+&lt;p&gt;Playing devil&amp;#8217;s advocate a bit one now could ask:&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;If a web site is the same as an API and you have a website, why do you need something you call &amp;#8220;a dedicated API&amp;#8221; at all?&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;The core point here is what makes up &amp;#8220;dedicated&amp;#8221; in the first place. To stay with REST terms, in my opinion &amp;#8220;dedicated&amp;#8221; is embodied in the &lt;em&gt;representation design for different client types&lt;/em&gt;. Even for &lt;a href='http://roca-style.org/'&gt;well designed websites&lt;/a&gt; you usually serve a representation that consists of certain elements that serve the purpose of being displayed to a user through a browser. This is essentially a core principle of REST: you choose a media type tailored for a specific use case to optimize on bandwidth, performance and client (the browser in this case) usability. And so do web APIs, except the driving factors being others: potentially much more focused on limiting bandwidth usage, the numer of requests necessary and ease of extracting data from responses. You also do so when exposing your web site content to feed readers by choosing Atom or RSS. But in the end it&amp;#8217;s all about &lt;em&gt;designing representations&lt;/em&gt; for clients with different requirements. So here&amp;#8217;s what it boils down to:&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;Both your website and your API benefit from being considered &amp;#8216;the same thing&amp;#8217; with different representations.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;There&amp;#8217;s absolutely no point in differentiating between the apparently different things &amp;#8220;website&amp;#8221; and &amp;#8220;web API&amp;#8221;, especially when it comes to the aspect of hypermedia: &lt;strong&gt;if it&amp;#8217;s on the web, embrace the web.&lt;/strong&gt;&lt;/p&gt;</content>
+ </entry>
  
  <entry>
    <title>Whoops! Where did my architecture go</title>
