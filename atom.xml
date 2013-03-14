@@ -4,7 +4,7 @@
  <title>Oliver Gierke</title>
  <link href="http://www.olivergierke.de/atom.xml" rel="self"/>
  <link href="http://www.olivergierke.de"/>
- <updated>2013-03-14T18:27:02+01:00</updated>
+ <updated>2013-03-14T18:41:41+01:00</updated>
  <id>http://www.olivergierke.de</id>
  <author>
    <name>Oliver Gierke</name>
@@ -21,7 +21,7 @@
 
 &lt;p&gt;The process of turning code to solve a problem at hand that might look sufficient at the first glance into rock solid, quality assured, perfectly documented and extensible code. This process might consist of a complete rewrite of the code that originally made it into the process (Karma level 0) to only minor modifications (Karma level 10), usually depending on how often the author of the code to be jürgenized has made it through the process yet.&lt;/p&gt;
 
-&lt;p&gt;The term originates from Jürgen Höller, Spring framework lead developer, coining this kind process to deal with code contributions about to make it into the Spring framework. To get your code into the core codebase, you and the code get jürgenized.&lt;/p&gt;
+&lt;p&gt;The term originates from &lt;a href='https://twitter.com/springjuergen'&gt;Jürgen Höller&lt;/a&gt;, Spring framework lead developer, coining this kind process to deal with code contributions about to make it into the Spring framework. To get your code into the core codebase, you and the code get jürgenized.&lt;/p&gt;
 
 &lt;p&gt;Nowadays the term usually relates to the process of code quality assurance, in particular around Spring eco-system projects.&lt;/p&gt;</content>
  </entry>
