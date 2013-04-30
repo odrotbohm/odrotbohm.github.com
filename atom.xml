@@ -4,7 +4,7 @@
  <title>Oliver Gierke</title>
  <link href="http://www.olivergierke.de/atom.xml" rel="self"/>
  <link href="http://www.olivergierke.de"/>
- <updated>2013-03-14T18:41:41+01:00</updated>
+ <updated>2013-04-30T03:41:02+02:00</updated>
  <id>http://www.olivergierke.de</id>
  <author>
    <name>Oliver Gierke</name>
@@ -71,7 +71,9 @@
 &lt;p&gt;Both your website and your API benefit from being considered &amp;#8216;the same thing&amp;#8217; with different representations.&lt;/p&gt;
 &lt;/blockquote&gt;
 
-&lt;p&gt;There&amp;#8217;s absolutely no point in differentiating between the apparently different things &amp;#8220;website&amp;#8221; and &amp;#8220;web API&amp;#8221;, especially when it comes to the aspect of hypermedia: &lt;strong&gt;if it&amp;#8217;s on the web, embrace the web.&lt;/strong&gt;&lt;/p&gt;</content>
+&lt;p&gt;There&amp;#8217;s absolutely no point in differentiating between the apparently different things &amp;#8220;website&amp;#8221; and &amp;#8220;web API&amp;#8221;, especially when it comes to the aspect of hypermedia: &lt;strong&gt;if it&amp;#8217;s on the web, embrace the web.&lt;/strong&gt;&lt;/p&gt;
+&lt;hr /&gt;
+&lt;p&gt;Edit - 2013-04-30: &lt;a href='https://twitter.com/owolf'&gt;Oliver Wolf&lt;/a&gt; has a great &lt;a href='https://speakerdeck.com/owolf/turning-passive-apis-into-active-apis'&gt;presentation&lt;/a&gt; on active VS. passive APIs on speakerdeck.com. It uses the issues with GovData (or the CKAN API to be precise) to suggest improvements to the APIs.&lt;/p&gt;</content>
  </entry>
  
  <entry>
