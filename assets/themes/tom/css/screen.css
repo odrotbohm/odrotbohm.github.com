@@ -99,6 +99,16 @@ iframe {
   display: block;
 }
 
+hr {
+  border: 0;
+  height: 0;
+  width: 50%;
+  margin: 1.3em auto;
+  margin-right: auto;
+  border-top: 1px solid rgba(0, 0, 0, 0.2);
+  border-bottom: 5px solid rgba(255, 255, 255, 1);
+}
+
 .continue {
   text-align: right;
 }
