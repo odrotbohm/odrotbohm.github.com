@@ -1,0 +1,254 @@
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+   <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+   <title>Oliver Gierke - 666 - Hell not found</title>
+   <meta name="author" content="Oliver Gierke" />
+   <link href="/atom.xml" rel="alternate" title="Blog Atom Feed" type="application/atom+xml" />
+
+   <!-- syntax highlighting CSS -->
+   <link rel="stylesheet" href="/assets/themes/tom/css/syntax.css" type="text/css" />
+
+   <!-- Homepage CSS -->
+   <link rel="stylesheet" href="/assets/themes/tom/css/screen.css" type="text/css" media="screen, projection" />
+
+   <!-- Typekit -->
+   <script type="text/javascript" src="http://use.typekit.com/jpd0pfm.js"></script>
+   <script type="text/javascript">try{Typekit.load();}catch(e){}</script>
+</head>
+<body>
+
+  <div class="site">
+    <div class="title">
+      <a href="/">Oliver Gierke</a>
+
+      <a class="extra" href="/archive.html">Archive</a>
+      <a class="extra" href="/about.html">About</a>
+      <a class="extra" href="/tags.html">Tags</a>
+    </div>
+  
+    
+<div id="post">
+  <h1>666 - Hell not found</h1>
+  <p class="meta">
+    20 September 2013 
+    
+  </p>
+  <p>Yesterday evening, a few tweets made it into my Tweetbot column listening to tweets related to Spring Data. The one raising my attention was pointing to a blog post creatively entitled &#8221;<a href='http://movingfulcrum.tumblr.com/post/61693014502/spring-data-and-mongodb-a-mismatch-made-in-hell'>Spring Data MongoDB - A Mismatch Made In Hell</a>&#8221;. As the title already suggests, it contains a rather rigid critique of the features and design approaches we chose for the MongoDB module in the Spring Data project. The post has a very harsh tone and is equipped with a whole bunch of either deep misconceptions or deliberate refusal to see facts, which I found quite surprising. Let me go through it bit by bit and clear the dust it created.</p>
+
+<p>But let&#8217;s start with the blog post:</p>
+
+<blockquote>
+<p>The Spring guys love to tout their support for MongoDb as an advantage over frameworks like JEE. However, using it in a real life project shows how severely lacking and fundamentally mis-designed the framework is. Spring Data MongoDB tries to shoehorn an ORM style strictness to a fundamentally non-relational database, resulting in it being rendered useless in real life.</p>
+</blockquote>
+
+<p>Quite an intro, right? Rest assured, the tone doesn&#8217;t get any less aggressive throughout the post. Having that said, what&#8217;s more important to me here is that it would&#8217;ve been tremendously helpful to what this ORM-style strictness is, that we impose onto users. Just to give you an impression, here&#8217;s what it looks like to persist a raw <code>String</code> or MongoDB <code>DBObject</code> using our <code>MongoTemplate</code>:</p>
+
+<pre><code>String document = &quot;{&#39;firstname&#39; : &#39;Dave&#39;, &#39;lastname&#39; : &#39;Matthews&#39;}&quot;;
+template.save(document, &quot;myCollection&quot;);
+
+DBObject document = new BasicDBObject();
+document.put(&quot;firstname&quot;, &quot;Dave&quot;);
+document.put(&quot;lastname&quot;, &quot;Matthews&quot;);
+template.save(document, &quot;myCollection&quot;);
+
+template.findAll(Map.class, &quot;myCollection&quot;)</code></pre>
+
+<p>Not very ORMish, right? You don&#8217;t even need types to persist data and get it out of the store again. &#8220;What is <code>MongoTemplate</code> then even good for?&#8221;, you might ask. First, you <em>can</em> make use of the extensive object-to-store mapping we provide if you like to. However, even if you opt out of that, what you definitely get is appropriate resource mapping and exception translation from MongoDB specific exceptions into Spring&#8217;s <code>DataAccessException</code>s. Just the way Spring developers expect it when using a template provided by us. In general the automatic object-to-store mapping is one of the key reasons developers use Spring Data MongoDB over the raw driver, but let&#8217;s go on…</p>
+
+<h2 id='cant_retrieve_fields__full_document_only'>Can&#8217;t retrieve fields - Full document only</h2>
+
+<blockquote>
+<p>This is the biggest indicator of how flawed Spring Mongo’s design is. It tries to model documents like rows in a SQL database and wants you to make ‘entity’ classes like an ORM. Guess what, the two are not the same. A document can be far more complex and larger than a typical row in sql database.</p>
+</blockquote>
+
+<p>So first of all - no we don&#8217;t. As indicated above it&#8217;s perfectly fine to use Spring Data MongoDB with plain <code>Map</code>s or <code>DBObjects</code>. However, writing Java application, developers are used to interact with types to write type safe code. Hence it&#8217;s an extremely valuable feature to be able to get the documents retrieved from the store mapped onto domain classes automatically. A friendly reminder: an entity is not a concept tied to ORM. Feel free to read up on this in Eric Evans&#8217; &#8220;Domain Driven Design&#8221; - a highly recommended book anyway.</p>
+
+<blockquote>
+<p>With a row in a sql db, it is assumed that you will pull out all of it on most queries, otherwise the data is usually split in multiple tables. But documents are a different beast. Documents are nested within each other, and most of the time you only want to pull out a small subset of it from your database.</p>
+
+<p>But with Spring Mongo’s ‘entity’ modelling, you are forced to pull out your entire document on each query.</p>
+</blockquote>
+
+<p>I am terribly sorry, but this is wrong again. There are a few ways to skin the cat here: first of all, on the reading side, you&#8217;re not forced to use the same types as you might have used when writing the data. So it&#8217;s perfectly fine to persist a <code>Person</code>, but trigger a query for <code>PersonSummary</code> and which only consists of firstname, lastname and email address.</p>
+
+<p>The second approach is just staying with <code>Person</code> but equip the <code>Query</code> instance you use with a field spec to in- or exclude the fields you&#8217;d like:</p>
+
+<pre><code>Query query = new Query().fields().include(&quot;firstname&quot;).include(&quot;lastname&quot;);
+template.find(query, Person.class);</code></pre>
+
+<p>This would essentially populate only the <code>firstname</code> and <code>lastname</code> field of the type handed into the template.</p>
+
+<h2 id='no_dbref_lazy_loading'>No DBRef lazy loading</h2>
+
+<blockquote>
+<p>This one is pure insane.</p>
+</blockquote>
+
+<p>At this point I got used to the cursing :).</p>
+
+<blockquote>
+<p>If you use a DBRefs to refer to another document, Spring Mongo will pull out the entire document, instead of just the reference. So if you have a bunch of documents connected to each other via dbrefs, a small query where you really only want to access a couple fields will end up pulling out the entire document graph!</p>
+</blockquote>
+
+<p>If you have a lot of documents related to each other, there are two things to consider here: first, I&#8217;d raise the question if MongoDB is the right store for this kind of data. The argument feels a bit like a &#8220;It&#8217;s frickin&#8217; complicated to store a tree in a relational database. JDBC is awful!&#8221;. Maybe have a look into Neo4j for highly interconnected data.</p>
+
+<blockquote>
+<p>The fact that the bug report on this is almost 2 years old and has been assigned a ‘minor’ status with no resolution in sight is mindboggling, and shows how misaligned Spring Mongo’s visions are with its usage in the real world.</p>
+</blockquote>
+
+<p>Admittedly <a href='https://jira.springsource.org/browse/DATAMONGO-348'>DATAMONGO-348</a> has been open for quite a while. Still, we&#8217;ve seen tons of customer projects working perfectly fine with eagerly loaded <code>DBRef</code>s or - if that was a problem - simply using manually maintained references. In fact, the MongoDB reference documentation actually recommends <a href='http://docs.mongodb.org/manual/reference/database-references/'><em>not to use DBRefs</em></a> but manual references. So what constitutes the &#8220;real world&#8221; is a matter of perspective.</p>
+
+<h2 id='no_cursor_support'>No cursor support</h2>
+
+<blockquote>
+<p>Want to use a cursor to stream and iterate through a collection. No dice. Either pull out the entire collection or fall back to the native Mongo Java driver.</p>
+</blockquote>
+
+<p>Exactly! However, what&#8217;s so utterly wrong with that? A few lines ago we&#8217;ve got complaints about abstracting too much, now we&#8217;re back to too little. Here&#8217;s how it goes:</p>
+
+<pre><code>template.execute(new CollectionCallback&lt;Void&gt;() {
+    Void doInCollection(DBCollection collection) {
+
+        DBObject query = new BasicDBObject(&quot;lastname&quot;, &quot;Matthews&quot;);
+        DBCurson cursor = collection.find(query);
+
+        while (cursor.hasNext()) {
+            // … do something
+        }
+
+        return null;
+    }
+})</code></pre>
+
+<p>It&#8217;s not really &#8220;falling back&#8221; but rather using the template mechanisms of resource management and exception translation but still getting access to the driver API to perform operations closer to the store. For plain iterating we have <a href='https://jira.springsource.org/browse/DATAMONGO-203'>DATAMONGO-203</a>. It hasn&#8217;t got many votes so far but we&#8217;re of course happy to implement it.</p>
+
+<h2 id='incomplete_aggregation_framework_support'>Incomplete aggregation framework support</h2>
+
+<blockquote>
+<p>Spring Mongo only very recently started supporting the Mongo Aggregation framework, and like the rest of Spring Mongo, it is a half hearted effort.</p>
+</blockquote>
+
+<p>I&#8217;d like to see a list of other Java-based MongoDB libraries that already support the aggregation framework.</p>
+
+<blockquote>
+<p>The framework documentation is sparse and confusing and most of your real world aggregation queries wont end up fitting with Spring Mongo’s implementation (not without nonsensical workarounds anyway); forcing you yet again to fall back to the native driver.</p>
+</blockquote>
+
+<p><a href='http://docs.spring.io/spring-data/mongodb/docs/current/reference/htmlsingle/#mongo.aggregation'>This</a> is the &#8220;sparse&#8221; documentation about what&#8217;s currently implemented. The design of the API has been closely aligned with the examples in the MongoDB reference documentation, made a review round through the MongoDB Java driver development team and has been pre-release applied to a hand full of real world projects where it had worked just fine.</p>
+
+<p>I am not saying the support is perfect, but trying to create the impression it&#8217;s the dumbest thing since JPA for NoSQL is a bit off, I think.</p>
+
+<h2 id='incomplete_index_support'>Incomplete index support</h2>
+
+<p>I have to admit, I couldn&#8217;t make too much sense of that section. Maybe an example would have been helpful here as there seems to be some obvious confusion.</p>
+
+<blockquote>
+<p>Spring also has an <code>ensureIndex()</code> method to manually create indexes on fields, without using annotations, but there are no guidelines whatsoever as to when and how frequently it should be called and what the performance implications of calling it are.</p>
+</blockquote>
+
+<p>Spring doesn&#8217;t have methods. <code>MongoTemplate</code> has, the said one in particular. No guidelines? What are the performance implications? We assume basic knowledge of MongoDB indexing but generally speaking the usage of <code>ensureIndex()</code> is recommended over the use of annotations mostly as you&#8217;ll probably like to create the indexes in your app explicitly rather than the mapping sub-system create the them on the fly when you bootstrap the app.</p>
+
+<h2 id='cant_switch_database'>Can&#8217;t switch database</h2>
+
+<blockquote>
+<p>A lot of times you will want to store data in different databases on a single instance of Mongo for things like keeping data of individual customers separate.</p>
+
+<p>With the native Mongo driver, switching between the databases is a simple matter of calling getDb(dbName). With Spring however, this is close to impossible unless you are willing to write a chunk of the framework yourself (which may change underneath you across releases).</p>
+</blockquote>
+
+<p>What is described as &#8220;close to impossible&#8221; here is essentially a <code>MongoTemplate</code> instance per database you want to interact with. I even described an approach to multi-tenancy with Spring Data MongoDB using our <code>MongoDbFactory</code> abstraction in a <a href='http://stackoverflow.com/questions/16325606/making-spring-data-mongodb-multi-tenant'>post</a> on StackOverflow recently. Not sure you want to get more dynamic than that. By the way, the approach is close to what you get with <code>AbstractRoutingDataSource</code> in the Spring JDBC world. I&#8217;d also argue it&#8217;s good practice not to actively reach out for resources from within application code, so hiding this behind configuration and using dependency injection to access such components has been agreed on to be the right way to go for almost a decade.</p>
+
+<p>Regarding the changing APIs: first, I fail to see something utterly hacky is necessary to achieve the flexibility and second we stick to semantic versioning and don&#8217;t deliberately break APIs.</p>
+
+<h2 id='surprise_logging_framework'>Surprise Logging Framework</h2>
+
+<blockquote>
+<p>I have already written about Spring’s documentation issues. The Spring documentation says it uses Jakarta Commons Logging, but Spring Data apparently uses SLF4J. However, the Spring Data documentation makes absolutely no mention of this fact. This means if you are starting out with Spring Data, your very first experience will consist of a bunch of undocumented runtime errors, which you will figure out only after banging your head for a few hours on Stack Overflow.</p>
+</blockquote>
+
+<p>The reason Spring is still on Commons Logging is backwards compatibility and has been <a href='https://spring.io/blog/2009/12/04/logging-dependencies-in-spring'>outlined in 2009</a> already. If we started the core framework from scratch we&#8217;d use Slf4j. If you write Java software today and still you&#8217;re still on Commons Logging, you have quite a different problem anyway. The usage of Slf4j is consistent amongst all the Spring Data modules in the release train.</p>
+
+<p>We don&#8217;t explicitly include this in the reference documentation as we strongly recommend to use tools like Maven or Gradle for dependency management. Using those it&#8217;s a matter of e.g. <code>mvn dependency:tree</code> to see what get&#8217;s pulled in from where. Explicitly listing dependencies in the reference documentation creates redundancy and increases the risk of inconsistencies which we want to avoid.</p>
+
+<p>I haven&#8217;t really heard of people being heavily plagued by runtime errors related to logging when starting with Spring Data modules. Especially if you follow the sample projects or even use Spring Boot to get started finding dependencies is either really simple or even being taken care of for you.</p>
+
+<h2 id='no_support_for_dynamic_nature_of_documents'>No support for dynamic nature of documents</h2>
+
+<blockquote>
+<p>The biggest reason to use a document-oriented database like MongoDb is for its dynamic nature. Things like the fact that one document can be different from the other, so I can have multiple versions in the same collection and progressively upgrade my users. Documents can be nested. Key names don’t have to be known in advance, so I can insert a map of properties directly into my document.</p>
+</blockquote>
+
+<p>I am not sure where this comes from, and would be highly interested what triggered the impression. You can have totally diverse documents in a collection with Spring Data, you can of course nest documents, you can also persist Maps or nested Maps easily. All of these original claims are so utterly and obviously wrong, they really make me wonder how you use Spring Data MongoDB, play with the smallest examples and still come with statements like these. It&#8217;s a bit like stating: &#8220;The bad thing about the Spring framework is that it doesn&#8217;t support transactions.&#8221;</p>
+
+<h1 id='conclusion'>Conclusion</h1>
+
+<p>In general the entire Spring Data team is very open to feedback from the community - we do our best to regularly answer questions in our forums and on stack overflow, usually have a look at incoming JIRA issues quickly. I can&#8217;t remember the blog author to have reached out for support or help in any of those - if I&#8217;ve overseen something here, I am sorry. Beyond that, we&#8217;ve seen an increasing amount of pull requests being submitted against Spring Data MongoDB recently and we happily go ahead and integrate them. So if there&#8217;s really something incredibly missing but important to you, there&#8217;s always the option to roll up your sleeves and give the feature a spike.</p>
+
+<p>On a final note: if you&#8217;re a software developer ever being so frustrated about a piece of technology, that it makes you want to write a blogpost like the just discussed one - you know you&#8217;ve done something wrong. You could have reached out for help, raised your voice way before you reached this level of frustration. I encourage everyone to go ahead and ask questions, file bugs and get in touch with us. We&#8217;re eager to get better in any way we can and do our best to continuously improve - the software we write and the processes we work in. Feedback helps, rage posts do not.</p>
+</div>
+
+<div id="related">
+  <h2>Related Posts</h2>
+  <ul class="posts">
+    
+      <li><span>14 Mar 2013</span> &raquo; <a href="/2013/03/juergenized">Jürgenized</a></li>
+    
+      <li><span>21 Feb 2013</span> &raquo; <a href="/2013/02/websites-vs-apis">Websites VS. APIs</a></li>
+    
+      <li><span>15 Jan 2013</span> &raquo; <a href="/2013/01/whoops-where-did-my-architecture-go">Whoops! Where did my architecture go</a></li>
+    
+  </ul>
+</div>
+
+
+
+
+  <div id="disqus_thread"></div>
+<script type="text/javascript">
+    var disqus_developer = 1;
+    var disqus_shortname = 'olivergierke'; // required: replace example with your forum shortname
+    
+    /* * * DON'T EDIT BELOW THIS LINE * * */
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+
+
+
+
+
+  
+    <div class="footer">
+      <div class="contact">
+        <p>
+          Oliver Gierke<br />
+          Soul Power!<br />
+        </p>
+      </div>
+      <div class="contact">
+        <p>
+          <a href="http://github.com/olivergierke/">github.com/olivergierke</a><br />
+          <a href="http://twitter.com/olivergierke/">twitter.com/olivergierke</a><br />
+          <a href='mailto:info@olivergierke.de'>info@olivergierke.de</a>
+        </p>
+      </div>
+      <div class="rss">
+        <a href="/atom.xml">
+          <img src="/assets/themes/tom/images/rss.png" alt="Subscribe to Atom Feed" />
+        </a>
+      </div>
+    </div>
+  </div>
+  <a href="http://github.com/olivergierke"><img style="position: absolute; top: 0; right: 0; border: 0;" src="http://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png" alt="Fork me on GitHub" /></a>
+
+  
+</body>
+</html>
+

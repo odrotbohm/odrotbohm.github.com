@@ -4,13 +4,172 @@
  <title>Oliver Gierke</title>
  <link href="http://www.olivergierke.de/atom.xml" rel="self"/>
  <link href="http://www.olivergierke.de"/>
- <updated>2013-04-30T03:41:02+02:00</updated>
+ <updated>2013-09-20T23:35:09+02:00</updated>
  <id>http://www.olivergierke.de</id>
  <author>
    <name>Oliver Gierke</name>
    <email>info@olivergierke.de</email>
  </author>
 
+ 
+ <entry>
+   <title>666 - Hell not found</title>
+   <link href="http://www.olivergierke.de/2013/09/666-hell-not-found"/>
+   <updated>2013-09-20T20:16:00+02:00</updated>
+   <id>http://www.olivergierke.de/2013/09/666-hell-not-found</id>
+   <content type="html">&lt;p&gt;Yesterday evening, a few tweets made it into my Tweetbot column listening to tweets related to Spring Data. The one raising my attention was pointing to a blog post creatively entitled &amp;#8221;&lt;a href='http://movingfulcrum.tumblr.com/post/61693014502/spring-data-and-mongodb-a-mismatch-made-in-hell'&gt;Spring Data MongoDB - A Mismatch Made In Hell&lt;/a&gt;&amp;#8221;. As the title already suggests, it contains a rather rigid critique of the features and design approaches we chose for the MongoDB module in the Spring Data project. The post has a very harsh tone and is equipped with a whole bunch of either deep misconceptions or deliberate refusal to see facts, which I found quite surprising. Let me go through it bit by bit and clear the dust it created.&lt;/p&gt;
+
+&lt;p&gt;But let&amp;#8217;s start with the blog post:&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;The Spring guys love to tout their support for MongoDb as an advantage over frameworks like JEE. However, using it in a real life project shows how severely lacking and fundamentally mis-designed the framework is. Spring Data MongoDB tries to shoehorn an ORM style strictness to a fundamentally non-relational database, resulting in it being rendered useless in real life.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;Quite an intro, right? Rest assured, the tone doesn&amp;#8217;t get any less aggressive throughout the post. Having that said, what&amp;#8217;s more important to me here is that it would&amp;#8217;ve been tremendously helpful to what this ORM-style strictness is, that we impose onto users. Just to give you an impression, here&amp;#8217;s what it looks like to persist a raw &lt;code&gt;String&lt;/code&gt; or MongoDB &lt;code&gt;DBObject&lt;/code&gt; using our &lt;code&gt;MongoTemplate&lt;/code&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;String document = &amp;quot;{&amp;#39;firstname&amp;#39; : &amp;#39;Dave&amp;#39;, &amp;#39;lastname&amp;#39; : &amp;#39;Matthews&amp;#39;}&amp;quot;;
+template.save(document, &amp;quot;myCollection&amp;quot;);
+
+DBObject document = new BasicDBObject();
+document.put(&amp;quot;firstname&amp;quot;, &amp;quot;Dave&amp;quot;);
+document.put(&amp;quot;lastname&amp;quot;, &amp;quot;Matthews&amp;quot;);
+template.save(document, &amp;quot;myCollection&amp;quot;);
+
+template.findAll(Map.class, &amp;quot;myCollection&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Not very ORMish, right? You don&amp;#8217;t even need types to persist data and get it out of the store again. &amp;#8220;What is &lt;code&gt;MongoTemplate&lt;/code&gt; then even good for?&amp;#8221;, you might ask. First, you &lt;em&gt;can&lt;/em&gt; make use of the extensive object-to-store mapping we provide if you like to. However, even if you opt out of that, what you definitely get is appropriate resource mapping and exception translation from MongoDB specific exceptions into Spring&amp;#8217;s &lt;code&gt;DataAccessException&lt;/code&gt;s. Just the way Spring developers expect it when using a template provided by us. In general the automatic object-to-store mapping is one of the key reasons developers use Spring Data MongoDB over the raw driver, but let&amp;#8217;s go on…&lt;/p&gt;
+
+&lt;h2 id='cant_retrieve_fields__full_document_only'&gt;Can&amp;#8217;t retrieve fields - Full document only&lt;/h2&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;This is the biggest indicator of how flawed Spring Mongo’s design is. It tries to model documents like rows in a SQL database and wants you to make ‘entity’ classes like an ORM. Guess what, the two are not the same. A document can be far more complex and larger than a typical row in sql database.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;So first of all - no we don&amp;#8217;t. As indicated above it&amp;#8217;s perfectly fine to use Spring Data MongoDB with plain &lt;code&gt;Map&lt;/code&gt;s or &lt;code&gt;DBObjects&lt;/code&gt;. However, writing Java application, developers are used to interact with types to write type safe code. Hence it&amp;#8217;s an extremely valuable feature to be able to get the documents retrieved from the store mapped onto domain classes automatically. A friendly reminder: an entity is not a concept tied to ORM. Feel free to read up on this in Eric Evans&amp;#8217; &amp;#8220;Domain Driven Design&amp;#8221; - a highly recommended book anyway.&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;With a row in a sql db, it is assumed that you will pull out all of it on most queries, otherwise the data is usually split in multiple tables. But documents are a different beast. Documents are nested within each other, and most of the time you only want to pull out a small subset of it from your database.&lt;/p&gt;
+
+&lt;p&gt;But with Spring Mongo’s ‘entity’ modelling, you are forced to pull out your entire document on each query.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;I am terribly sorry, but this is wrong again. There are a few ways to skin the cat here: first of all, on the reading side, you&amp;#8217;re not forced to use the same types as you might have used when writing the data. So it&amp;#8217;s perfectly fine to persist a &lt;code&gt;Person&lt;/code&gt;, but trigger a query for &lt;code&gt;PersonSummary&lt;/code&gt; and which only consists of firstname, lastname and email address.&lt;/p&gt;
+
+&lt;p&gt;The second approach is just staying with &lt;code&gt;Person&lt;/code&gt; but equip the &lt;code&gt;Query&lt;/code&gt; instance you use with a field spec to in- or exclude the fields you&amp;#8217;d like:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;Query query = new Query().fields().include(&amp;quot;firstname&amp;quot;).include(&amp;quot;lastname&amp;quot;);
+template.find(query, Person.class);&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This would essentially populate only the &lt;code&gt;firstname&lt;/code&gt; and &lt;code&gt;lastname&lt;/code&gt; field of the type handed into the template.&lt;/p&gt;
+
+&lt;h2 id='no_dbref_lazy_loading'&gt;No DBRef lazy loading&lt;/h2&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;This one is pure insane.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;At this point I got used to the cursing :).&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;If you use a DBRefs to refer to another document, Spring Mongo will pull out the entire document, instead of just the reference. So if you have a bunch of documents connected to each other via dbrefs, a small query where you really only want to access a couple fields will end up pulling out the entire document graph!&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;If you have a lot of documents related to each other, there are two things to consider here: first, I&amp;#8217;d raise the question if MongoDB is the right store for this kind of data. The argument feels a bit like a &amp;#8220;It&amp;#8217;s frickin&amp;#8217; complicated to store a tree in a relational database. JDBC is awful!&amp;#8221;. Maybe have a look into Neo4j for highly interconnected data.&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;The fact that the bug report on this is almost 2 years old and has been assigned a ‘minor’ status with no resolution in sight is mindboggling, and shows how misaligned Spring Mongo’s visions are with its usage in the real world.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;Admittedly &lt;a href='https://jira.springsource.org/browse/DATAMONGO-348'&gt;DATAMONGO-348&lt;/a&gt; has been open for quite a while. Still, we&amp;#8217;ve seen tons of customer projects working perfectly fine with eagerly loaded &lt;code&gt;DBRef&lt;/code&gt;s or - if that was a problem - simply using manually maintained references. In fact, the MongoDB reference documentation actually recommends &lt;a href='http://docs.mongodb.org/manual/reference/database-references/'&gt;&lt;em&gt;not to use DBRefs&lt;/em&gt;&lt;/a&gt; but manual references. So what constitutes the &amp;#8220;real world&amp;#8221; is a matter of perspective.&lt;/p&gt;
+
+&lt;h2 id='no_cursor_support'&gt;No cursor support&lt;/h2&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;Want to use a cursor to stream and iterate through a collection. No dice. Either pull out the entire collection or fall back to the native Mongo Java driver.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;Exactly! However, what&amp;#8217;s so utterly wrong with that? A few lines ago we&amp;#8217;ve got complaints about abstracting too much, now we&amp;#8217;re back to too little. Here&amp;#8217;s how it goes:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;template.execute(new CollectionCallback&amp;lt;Void&amp;gt;() {
+    Void doInCollection(DBCollection collection) {
+
+        DBObject query = new BasicDBObject(&amp;quot;lastname&amp;quot;, &amp;quot;Matthews&amp;quot;);
+        DBCurson cursor = collection.find(query);
+
+        while (cursor.hasNext()) {
+            // … do something
+        }
+
+        return null;
+    }
+})&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;It&amp;#8217;s not really &amp;#8220;falling back&amp;#8221; but rather using the template mechanisms of resource management and exception translation but still getting access to the driver API to perform operations closer to the store. For plain iterating we have &lt;a href='https://jira.springsource.org/browse/DATAMONGO-203'&gt;DATAMONGO-203&lt;/a&gt;. It hasn&amp;#8217;t got many votes so far but we&amp;#8217;re of course happy to implement it.&lt;/p&gt;
+
+&lt;h2 id='incomplete_aggregation_framework_support'&gt;Incomplete aggregation framework support&lt;/h2&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;Spring Mongo only very recently started supporting the Mongo Aggregation framework, and like the rest of Spring Mongo, it is a half hearted effort.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;I&amp;#8217;d like to see a list of other Java-based MongoDB libraries that already support the aggregation framework.&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;The framework documentation is sparse and confusing and most of your real world aggregation queries wont end up fitting with Spring Mongo’s implementation (not without nonsensical workarounds anyway); forcing you yet again to fall back to the native driver.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;&lt;a href='http://docs.spring.io/spring-data/mongodb/docs/current/reference/htmlsingle/#mongo.aggregation'&gt;This&lt;/a&gt; is the &amp;#8220;sparse&amp;#8221; documentation about what&amp;#8217;s currently implemented. The design of the API has been closely aligned with the examples in the MongoDB reference documentation, made a review round through the MongoDB Java driver development team and has been pre-release applied to a hand full of real world projects where it had worked just fine.&lt;/p&gt;
+
+&lt;p&gt;I am not saying the support is perfect, but trying to create the impression it&amp;#8217;s the dumbest thing since JPA for NoSQL is a bit off, I think.&lt;/p&gt;
+
+&lt;h2 id='incomplete_index_support'&gt;Incomplete index support&lt;/h2&gt;
+
+&lt;p&gt;I have to admit, I couldn&amp;#8217;t make too much sense of that section. Maybe an example would have been helpful here as there seems to be some obvious confusion.&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;Spring also has an &lt;code&gt;ensureIndex()&lt;/code&gt; method to manually create indexes on fields, without using annotations, but there are no guidelines whatsoever as to when and how frequently it should be called and what the performance implications of calling it are.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;Spring doesn&amp;#8217;t have methods. &lt;code&gt;MongoTemplate&lt;/code&gt; has, the said one in particular. No guidelines? What are the performance implications? We assume basic knowledge of MongoDB indexing but generally speaking the usage of &lt;code&gt;ensureIndex()&lt;/code&gt; is recommended over the use of annotations mostly as you&amp;#8217;ll probably like to create the indexes in your app explicitly rather than the mapping sub-system create the them on the fly when you bootstrap the app.&lt;/p&gt;
+
+&lt;h2 id='cant_switch_database'&gt;Can&amp;#8217;t switch database&lt;/h2&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;A lot of times you will want to store data in different databases on a single instance of Mongo for things like keeping data of individual customers separate.&lt;/p&gt;
+
+&lt;p&gt;With the native Mongo driver, switching between the databases is a simple matter of calling getDb(dbName). With Spring however, this is close to impossible unless you are willing to write a chunk of the framework yourself (which may change underneath you across releases).&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;What is described as &amp;#8220;close to impossible&amp;#8221; here is essentially a &lt;code&gt;MongoTemplate&lt;/code&gt; instance per database you want to interact with. I even described an approach to multi-tenancy with Spring Data MongoDB using our &lt;code&gt;MongoDbFactory&lt;/code&gt; abstraction in a &lt;a href='http://stackoverflow.com/questions/16325606/making-spring-data-mongodb-multi-tenant'&gt;post&lt;/a&gt; on StackOverflow recently. Not sure you want to get more dynamic than that. By the way, the approach is close to what you get with &lt;code&gt;AbstractRoutingDataSource&lt;/code&gt; in the Spring JDBC world. I&amp;#8217;d also argue it&amp;#8217;s good practice not to actively reach out for resources from within application code, so hiding this behind configuration and using dependency injection to access such components has been agreed on to be the right way to go for almost a decade.&lt;/p&gt;
+
+&lt;p&gt;Regarding the changing APIs: first, I fail to see something utterly hacky is necessary to achieve the flexibility and second we stick to semantic versioning and don&amp;#8217;t deliberately break APIs.&lt;/p&gt;
+
+&lt;h2 id='surprise_logging_framework'&gt;Surprise Logging Framework&lt;/h2&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;I have already written about Spring’s documentation issues. The Spring documentation says it uses Jakarta Commons Logging, but Spring Data apparently uses SLF4J. However, the Spring Data documentation makes absolutely no mention of this fact. This means if you are starting out with Spring Data, your very first experience will consist of a bunch of undocumented runtime errors, which you will figure out only after banging your head for a few hours on Stack Overflow.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;The reason Spring is still on Commons Logging is backwards compatibility and has been &lt;a href='https://spring.io/blog/2009/12/04/logging-dependencies-in-spring'&gt;outlined in 2009&lt;/a&gt; already. If we started the core framework from scratch we&amp;#8217;d use Slf4j. If you write Java software today and still you&amp;#8217;re still on Commons Logging, you have quite a different problem anyway. The usage of Slf4j is consistent amongst all the Spring Data modules in the release train.&lt;/p&gt;
+
+&lt;p&gt;We don&amp;#8217;t explicitly include this in the reference documentation as we strongly recommend to use tools like Maven or Gradle for dependency management. Using those it&amp;#8217;s a matter of e.g. &lt;code&gt;mvn dependency:tree&lt;/code&gt; to see what get&amp;#8217;s pulled in from where. Explicitly listing dependencies in the reference documentation creates redundancy and increases the risk of inconsistencies which we want to avoid.&lt;/p&gt;
+
+&lt;p&gt;I haven&amp;#8217;t really heard of people being heavily plagued by runtime errors related to logging when starting with Spring Data modules. Especially if you follow the sample projects or even use Spring Boot to get started finding dependencies is either really simple or even being taken care of for you.&lt;/p&gt;
+
+&lt;h2 id='no_support_for_dynamic_nature_of_documents'&gt;No support for dynamic nature of documents&lt;/h2&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;The biggest reason to use a document-oriented database like MongoDb is for its dynamic nature. Things like the fact that one document can be different from the other, so I can have multiple versions in the same collection and progressively upgrade my users. Documents can be nested. Key names don’t have to be known in advance, so I can insert a map of properties directly into my document.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;I am not sure where this comes from, and would be highly interested what triggered the impression. You can have totally diverse documents in a collection with Spring Data, you can of course nest documents, you can also persist Maps or nested Maps easily. All of these original claims are so utterly and obviously wrong, they really make me wonder how you use Spring Data MongoDB, play with the smallest examples and still come with statements like these. It&amp;#8217;s a bit like stating: &amp;#8220;The bad thing about the Spring framework is that it doesn&amp;#8217;t support transactions.&amp;#8221;&lt;/p&gt;
+
+&lt;h1 id='conclusion'&gt;Conclusion&lt;/h1&gt;
+
+&lt;p&gt;In general the entire Spring Data team is very open to feedback from the community - we do our best to regularly answer questions in our forums and on stack overflow, usually have a look at incoming JIRA issues quickly. I can&amp;#8217;t remember the blog author to have reached out for support or help in any of those - if I&amp;#8217;ve overseen something here, I am sorry. Beyond that, we&amp;#8217;ve seen an increasing amount of pull requests being submitted against Spring Data MongoDB recently and we happily go ahead and integrate them. So if there&amp;#8217;s really something incredibly missing but important to you, there&amp;#8217;s always the option to roll up your sleeves and give the feature a spike.&lt;/p&gt;
+
+&lt;p&gt;On a final note: if you&amp;#8217;re a software developer ever being so frustrated about a piece of technology, that it makes you want to write a blogpost like the just discussed one - you know you&amp;#8217;ve done something wrong. You could have reached out for help, raised your voice way before you reached this level of frustration. I encourage everyone to go ahead and ask questions, file bugs and get in touch with us. We&amp;#8217;re eager to get better in any way we can and do our best to continuously improve - the software we write and the processes we work in. Feedback helps, rage posts do not.&lt;/p&gt;</content>
+ </entry>
  
  <entry>
    <title>Jürgenized</title>
