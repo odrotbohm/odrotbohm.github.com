@@ -4,13 +4,121 @@
  <title>Oliver Gierke</title>
  <link href="http://www.olivergierke.de/atom.xml" rel="self"/>
  <link href="http://www.olivergierke.de"/>
- <updated>2013-09-20T23:35:09+02:00</updated>
+ <updated>2013-11-22T16:09:36+01:00</updated>
  <id>http://www.olivergierke.de</id>
  <author>
    <name>Oliver Gierke</name>
    <email>info@olivergierke.de</email>
  </author>
 
+ 
+ <entry>
+   <title>Why field injection is evil</title>
+   <link href="http://www.olivergierke.de/2013/11/why-field-injection-is-evil"/>
+   <updated>2013-11-22T14:17:00+01:00</updated>
+   <id>http://www.olivergierke.de/2013/11/why-field-injection-is-evil</id>
+   <content type="html">&lt;p&gt;I&amp;#8217;m quite frequently getting pulled into discussions on Twitter about the different flavors of &lt;a href='http://en.wikipedia.org/wiki/Dependency_injection'&gt;Dependency Injection&lt;/a&gt;. Also, I&amp;#8217;ve repeatedly expressed my &lt;a href='https://twitter.com/olivergierke/status/314704198908403713'&gt;distaste for field injection&lt;/a&gt; but as Twitter is not the right communication channel to give an in-depth rational about my opinion. So here we go.&lt;/p&gt;
+
+&lt;p&gt;Let&amp;#8217;s discuss this stuff with a bit of (quite generic) context: we want to code a component that has a collaborator. As we know, Dependency Injection is the means to connect the two the apparently easiest way to achieve this is the following:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;class MyComponent {
+ 
+  @Inject MyCollaborator collaborator;
+  
+  public void myBusinessMethod() {
+    collaborator.doSomething();
+  }
+}&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;So what&amp;#8217;s wrong with this code?&lt;/p&gt;
+
+&lt;h2 id='its_nullpointerexceptions_begging_to_happen'&gt;It&amp;#8217;s NullpointerExceptions begging to happen&lt;/h2&gt;
+
+&lt;p&gt;Well, first of all it&amp;#8217;s broken by default. What&amp;#8217;s the API you get to create instances of this class which you will need in your unit test?&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;MyComponent component = new MyComponent();
+component.myBusinessMethod(); // -&amp;gt; NullPointerException&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The core of the problem here is that code you&amp;#8217;ve written allows clients to create instances of the class in an invalid state. The whole purpose of a type is clients being able to rely on the invariants it enforces. It&amp;#8217;s one of the reasons you use an &lt;code&gt;EmailAddress&lt;/code&gt; type over a plain &lt;code&gt;String&lt;/code&gt; to represent email adresses in your code: clients can be sure the instance they get is a valid email address as the value object enforces this constraint during construction. A &lt;code&gt;String&lt;/code&gt; can potentially be anything, validated or not - how do you know?&lt;/p&gt;
+
+&lt;p&gt;So you can probably guess what this is heading to: constructor injection. Let&amp;#8217;s rewrite the code shown before in a way it actually enforces the traits I just outlined:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;class MyComponent {
+ 
+  private final MyCollaborator collaborator;
+  
+  @Inject
+  public MyComponent(MyCollaborator collaborator) {
+    Assert.notNull(collaborator, &amp;quot;MyCollaborator must not be null!&amp;quot;);
+    this.collaborator = collaborator;
+  }
+
+  public void myBusinessMethod() {
+    collaborator.doSomething();
+  }
+}&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&amp;#8220;Ohh boy!&amp;#8221;, I can hear you say, &amp;#8220;So much boilerplate code!&amp;#8221;. Let me get back to this argument in a bit and just recap, what we&amp;#8217;ve achieved:&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;&lt;em&gt;You can only create instances of &lt;code&gt;MyComponent&lt;/code&gt; by providing a &lt;code&gt;MyCollaborator&lt;/code&gt;&lt;/em&gt;. You &lt;em&gt;force&lt;/em&gt; clients to provide mandatory dependencies, making sure every object created is in a valid state after construction.&lt;/li&gt;
+
+&lt;li&gt;&lt;em&gt;You communicate mandatory dependencies publicly.&lt;/em&gt; Remember when we bashed service locators for hiding dependencies in the implementations? Field injections is just lipstick on the pig in that regard. You still don&amp;#8217;t know about the dependencies just looking at the public interface of the type (e.g. while skimming the JavaDoc). Especially if you share code amongst projects field injection based types become a &amp;#8220;run-and-wait-for-the-NPE-to-happen,-declare-missing-beans-and-repeat&amp;#8221; kind of approach.&lt;/li&gt;
+
+&lt;li&gt;&lt;em&gt;Final fields also add to the immutable nature application components get.&lt;/em&gt; You can clearly distinguish between mandatory dependencies (&lt;code&gt;final&lt;/code&gt;) and optional ones (non-&lt;code&gt;final&lt;/code&gt;) usually injected through setter injection.&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;An often faced argument I get is: &amp;#8220;Constructors just get too verbose if I have 6 or 7 dependencies. With fields only, this is fine&amp;#8221;. Awesome, you&amp;#8217;ve effectively worked around a clear indicator that the code you write is doing way too much. An increase in the number of dependencies a type has &lt;em&gt;should&lt;/em&gt; hurt, as it makes you think about whether you should split up the component into multiple ones. You want to really cure the pain, not blindly apply pain killers to it, don&amp;#8217;t you?&lt;/p&gt;
+
+&lt;h1 id='testability'&gt;Testability&lt;/h1&gt;
+
+&lt;p&gt;Coming back to the amount of code to be written for the constructor injection based variant. Assuming we sticked to the field injection variant, we would have much less code to write, right? Well, I guess you&amp;#8217;re writing tests for your code, right? So how do you actually inject a dependency into your component while testing?&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;MyCollaborator collaborator = … // mock dependency
+MyComponent component = new MyComponent();
+// Inject dependency by some reflection magic
+component.myBusinessMethod();&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Reflection is the answer here, fine. No matter how comfortable you make this by using a helper method or the like, it&amp;#8217;s still a messy workaround isn&amp;#8217;t it? Especially if the alternative to that is a simple:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;MyCollaborator collaborator = … // mock dependency
+MyComponent component = new MyComponent(collaborator);
+component.myBusinessMethod();&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;You get code completion on the constructor call, when you add a dependency to the type under test, refactoring applies, no unset dependencies etc.&lt;/p&gt;
+
+&lt;h1 id='boilerplate_buster_lombok'&gt;Boilerplate buster Lombok&lt;/h1&gt;
+
+&lt;p&gt;Admittedly I&amp;#8217;ve been turned off by the amount of code to be written for constructor injection in the first place as well. This is clearly a shortcoming of Java as a languages. Unfortunately a lot of good OO practices like value objects, favoring delegation over inheritance and constructor DI are significantly easier to implement in languages like Scala.&lt;/p&gt;
+
+&lt;p&gt;However, &lt;a href='http://projectlombok.org/'&gt;Project Lombok&lt;/a&gt; is a really awesome helper to reduce the amount of boilerplate you have to write to do &amp;#8220;the right things&amp;#8221; (™). There&amp;#8217;s a ton of helpful features in Lombok but I want to concentrate on the one related to the discussion here. With Lombok the constructor DI based variant of my component up there would look something like this:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;@RequiredArgsConstructor(onConstructor = @__(@Inject))
+class MyComponent {
+    
+  private final @NonNull MyCollaborator collaborator;
+
+  public void myBusinessMethod() {
+    collaborator.doSomething();
+  }
+}&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The &lt;code&gt;@RequiredArgsAnnotation&lt;/code&gt; will cause a constructor being added during the compilation process taking all final fields as parameters. The additional &lt;code&gt;@NonNull&lt;/code&gt; annotation will cause the parameter be checked for &lt;code&gt;null&lt;/code&gt; as well. The weird looking &lt;code&gt;onConstructor&lt;/code&gt; is Lombok&amp;#8217;s way of letting you add annotations to the constructor generated. So with an additional annotation you effectively get the API we&amp;#8217;re looking for.&lt;/p&gt;
+
+&lt;p&gt;To summarize, here are the results of the comparison that I get to:&lt;/p&gt;
+
+&lt;h3 id='field_injection'&gt;Field injection:&lt;/h3&gt;
+
+&lt;pre&gt;&lt;code&gt;++ less code to write
+-- unsafe code
+ - more complicated to test&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id='constructor_injection'&gt;Constructor injection:&lt;/h3&gt;
+
+&lt;pre&gt;&lt;code&gt;++ safe code
+ - more code to write (see the hint to Lombok)
+ + easy to test&lt;/code&gt;&lt;/pre&gt;</content>
+ </entry>
  
  <entry>
    <title>666 - Hell not found</title>
@@ -1620,7 +1728,7 @@ PluginRegistry&amp;lt;Plugin&amp;lt;String&amp;gt;, String&amp;gt; registry =
  </entry>
  
  <entry>
-   <title>EclipseLink - Hig performance persistence for Spring</title>
+   <title>EclipseLink - High performance persistence for Spring</title>
    <link href="http://www.olivergierke.de/2008/06/eclipselink-hig-performance-persistence-for-spring"/>
    <updated>2008-06-11T17:57:14+02:00</updated>
    <id>http://www.olivergierke.de/2008/06/eclipselink-hig-performance-persistence-for-spring</id>
@@ -1745,7 +1853,7 @@ PluginRegistry&amp;lt;Plugin&amp;lt;String&amp;gt;, String&amp;gt; registry =
    <link href="http://www.olivergierke.de/2008/06/clueso-so-sehr-dabei"/>
    <updated>2008-06-01T20:23:38+02:00</updated>
    <id>http://www.olivergierke.de/2008/06/clueso-so-sehr-dabei</id>
-   <content type="html">&lt;p&gt;Zufrüh geflucht. Donnerstag abend schneite die Versandbenachrichtigung in meinen Strompostkasten. &amp;#8220;Dann ist die nie und nimmer morgen Mittag da.&amp;#8221;, dachte ich und war schon etwas geknickt. Als ich Freitag Mittag nach Hause kam, lag der Benachichtigungszettel im Briefkasten ;). Da ich es allerdings nicht erwarten konnte die Platte schon Freitag zu hören, gabs früh um 6 einfach noch die iTunes Edition. Da das Wochenende gespickt war mit 17 Stunden Autofahren, gab es reichlich Gelegenheit &amp;#8220;So sehr dabei&amp;#8221; zu sein und Eindrücke zu verarbeiten. Zeit, nach gefühltem 10 Mal hören ResumÃ© zu ziehen.&lt;!--more--&gt;&lt;/p&gt;
+   <content type="html">&lt;p&gt;Zufrüh geflucht. Donnerstag abend schneite die Versandbenachrichtigung in meinen Strompostkasten. &amp;#8220;Dann ist die nie und nimmer morgen Mittag da.&amp;#8221;, dachte ich und war schon etwas geknickt. Als ich Freitag Mittag nach Hause kam, lag der Benachichtigungszettel im Briefkasten ;). Da ich es allerdings nicht erwarten konnte die Platte schon Freitag zu hören, gabs früh um 6 einfach noch die iTunes Edition. Da das Wochenende gespickt war mit 17 Stunden Autofahren, gab es reichlich Gelegenheit &amp;#8220;So sehr dabei&amp;#8221; zu sein und Eindrücke zu verarbeiten. Zeit, nach gefühltem 10 Mal hören Resumé zu ziehen.&lt;!--more--&gt;&lt;/p&gt;
 
 &lt;p&gt;Das mittlerweile 4. Album von Clueso trägt wie oben schon erwähnt den Namen &amp;#8220;So sehr dabei&amp;#8221;. Die iTunes Edition enthält ein paar Audiokommentare zu diversen Songs und auch zum Album selbst. Spannend dabei ist, dass der Titel der Platte wohl langezeit vakant war. Der andere Kandidat war &amp;#8220;Augen zu&amp;#8221;, Track Nummer 2 des Albums. Meiner Meinung nach hat der falsche Titel das Rennen gemacht. Warum? Dazu später mehr.&lt;/p&gt;
 
@@ -1757,7 +1865,7 @@ PluginRegistry&amp;lt;Plugin&amp;lt;String&amp;gt;, String&amp;gt; registry =
 
 &lt;p&gt;Viele Stücke der Platte scheinen inhaltliche oder musikalische Nachfolger früherer Songs zu sein. &amp;#8220;Geisterstadt&amp;#8221; - einer meiner Favoriten - erinnert mich musikalisch sehr an &amp;#8220;Nacht unterwegs&amp;#8221;. Inhaltlich kann man ihn mit &amp;#8220;Bleib einfach hier&amp;#8221; in eine Reihe stellen.&lt;/p&gt;
 
-&lt;p&gt;Kommen wir zur zweiten Stärke der Platte - die Band. Ich weiß gar nicht wie viele Konzerte ich mittlerweile Schon von den Jungs gesehen habe. Es ist einfach jedes Mal aufs neue ein Erlebnis, die 7 zu erleben. Es gibt nicht viele Musiker die in diesem Alter schon so viel Gefühl für das richtige Maß haben. Hier spielt nie jemand zu viel, jeder songdienlich und mut soviel Geschmack. Diese Energie auf CD zu pressen, haben schon viele versucht und die meisten sind daran gescheitert. Für mich ist eben dieses Experiment genau das, was die Platte von den vorherigen unterscheidt, das was &amp;#8220;So sehr dabei&amp;#8221; zu &amp;#8220;So sehr dabei&amp;#8221; macht.&lt;/p&gt;
+&lt;p&gt;Kommen wir zur zweiten Stärke der Platte - die Band. Ich weiß gar nicht wie viele Konzerte ich mittlerweile Schon von den Jungs gesehen habe. Es ist einfach jedes Mal aufs neue ein Erlebnis, die 7 zu erleben. Es gibt nicht viele Musiker die in diesem Alter schon so viel Gefühl für das richtige Maß haben. Hier spielt nie jemand zu viel, jeder songdienlich und mit so viel Geschmack. Diese Energie auf CD zu pressen, haben schon viele versucht und die meisten sind daran gescheitert. Für mich ist eben dieses Experiment genau das, was die Platte von den vorherigen unterscheidt, das was &amp;#8220;So sehr dabei&amp;#8221; zu &amp;#8220;So sehr dabei&amp;#8221; macht.&lt;/p&gt;
 
 &lt;p&gt;Was mir bei &amp;#8220;Weit weg&amp;#8221; ein wenig gefehlt hat, findet man auf dieser Platte wieder verstärkt. Kleine versteckte Ideen, Witzeleien oder halt überhaupt Sachen, die erst beim 4. oder 5. Hören auffallen. Sei es das leise 50Hz Brummen auf der Akustikgitarre in &amp;#8220;Barfuss&amp;#8221; (zu hören nach den ersten paar Akkorden im Intro - Kopfhörer und schön aufdrehen&amp;#8221;, Philips Tastengeräusche im Intro zu &amp;#8220;Augen zu&amp;#8221;, Pauls Arschbombe nach &amp;#8220;Wir woll&amp;#8217;n Sommer&amp;#8221;, Philips 5/8tel Outro aus Geisterstadt.&lt;/p&gt;
 
@@ -1815,7 +1923,7 @@ PluginRegistry&amp;lt;Plugin&amp;lt;String&amp;gt;, String&amp;gt; registry =
  </entry>
  
  <entry>
-   <title>Erich Eichinger - Spring .NET</title>
+   <title>Erich Eichinger - Spring.NET</title>
    <link href="http://www.olivergierke.de/2008/03/erich-eichinger-erich-eichinger-springnet"/>
    <updated>2008-03-03T17:30:16+01:00</updated>
    <id>http://www.olivergierke.de/2008/03/erich-eichinger-erich-eichinger-springnet</id>
@@ -1964,7 +2072,7 @@ PluginRegistry&amp;lt;Plugin&amp;lt;String&amp;gt;, String&amp;gt; registry =
  </entry>
  
  <entry>
-   <title>Drum Clinic mit Ralf Gustke, Wolfgang Haffner und Felix Lehmann im Rock Shop Karlsruhe</title>
+   <title>Drum CLinic mit Ralf Gustke, Wolfgang Haffner und Felix Lehrmann im Rock Shop Karlsruhe</title>
    <link href="http://www.olivergierke.de/2007/04/drum-clinic-mit-ralf-gustke-wolfgang-haffner-und-felix-lehmann-im-rock-shop-karlsruhe"/>
    <updated>2007-04-28T20:17:57+02:00</updated>
    <id>http://www.olivergierke.de/2007/04/drum-clinic-mit-ralf-gustke-wolfgang-haffner-und-felix-lehmann-im-rock-shop-karlsruhe</id>
@@ -1980,7 +2088,7 @@ PluginRegistry&amp;lt;Plugin&amp;lt;String&amp;gt;, String&amp;gt; registry =
  </entry>
  
  <entry>
-   <title>AOP Logging ist kein Logging - oder wie IT Fachzeitschriften erheblich nachlassen...</title>
+   <title>AOP Logging ist kein Logging - oder wie IT Zeitschriften erheblich nachlassen...</title>
    <link href="http://www.olivergierke.de/2007/04/aop-logging-ist-kein-logging-oder-wie-it-fachzeitschriften-erheblich-nachlassen"/>
    <updated>2007-04-03T13:27:51+02:00</updated>
    <id>http://www.olivergierke.de/2007/04/aop-logging-ist-kein-logging-oder-wie-it-fachzeitschriften-erheblich-nachlassen</id>
@@ -2020,7 +2128,7 @@ PluginRegistry&amp;lt;Plugin&amp;lt;String&amp;gt;, String&amp;gt; registry =
  </entry>
  
  <entry>
-   <title>Vortrag - Komponentenbasierte Softwareentwicklung mit PHP</title>
+   <title>Vortrag - Komponentenbasierte Softwareentwicklung in PHP</title>
    <link href="http://www.olivergierke.de/2007/01/vortrag-komponentenbasierte-softwareentwicklung-mit-php"/>
    <updated>2007-01-12T13:43:37+01:00</updated>
    <id>http://www.olivergierke.de/2007/01/vortrag-komponentenbasierte-softwareentwicklung-mit-php</id>
@@ -2033,7 +2141,7 @@ PluginRegistry&amp;lt;Plugin&amp;lt;String&amp;gt;, String&amp;gt; registry =
  </entry>
  
  <entry>
-   <title>FESTival 2006 - neues von Four Sided Cube?</title>
+   <title>FESTival 2006 - Neues von Four Sided Cube</title>
    <link href="http://www.olivergierke.de/2006/12/festival-2006-neues-von-four-sided-cube"/>
    <updated>2006-12-01T18:02:01+01:00</updated>
    <id>http://www.olivergierke.de/2006/12/festival-2006-neues-von-four-sided-cube</id>
@@ -2114,7 +2222,7 @@ PluginRegistry&amp;lt;Plugin&amp;lt;String&amp;gt;, String&amp;gt; registry =
  </entry>
  
  <entry>
-   <title>Hallo mal wieder...</title>
+   <title>Hallo mal wieder</title>
    <link href="http://www.olivergierke.de/2006/09/hallo-mal-wieder"/>
    <updated>2006-09-02T12:29:50+02:00</updated>
    <id>http://www.olivergierke.de/2006/09/hallo-mal-wieder</id>
@@ -2205,7 +2313,7 @@ PluginRegistry&amp;lt;Plugin&amp;lt;String&amp;gt;, String&amp;gt; registry =
  </entry>
  
  <entry>
-   <title>Clueso Remix Contest dieses Wochenende</title>
+   <title>Clueso Remix Context dieses Wochenende</title>
    <link href="http://www.olivergierke.de/2005/06/clueso-remix-contest-dieses-wochenende"/>
    <updated>2005-06-04T19:51:14+02:00</updated>
    <id>http://www.olivergierke.de/2005/06/clueso-remix-contest-dieses-wochenende</id>
