@@ -13,6 +13,8 @@
    <!-- Homepage CSS -->
    <link rel="stylesheet" href="/assets/themes/tom/css/screen.css" type="text/css" media="screen, projection" />
 
+   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Fira+Sans:bold|Fira+Sans:light" type="text/css" />
+
    <!-- Typekit -->
    <script type="text/javascript" src="http://use.typekit.com/jpd0pfm.js"></script>
    <script type="text/javascript">try{Typekit.load();}catch(e){}</script>
@@ -27,7 +29,7 @@
       <a class="extra" href="/about.html">About</a>
       <a class="extra" href="/tags.html">Tags</a>
     </div>
-  
+
     
 <div id="post">
   <h1>EclipseLink - High performance persistence for Spring</h1>
@@ -37,22 +39,23 @@
   </p>
   <p>Rob Harrop and Shaun Smith gave an overview about Oracle Toplinks successor EclipseLink. They started by outlining the problems Rob faced when trying to integrate a JPA provider into SpringSource Application Platform. Shaun then gave a brief overview over EclipseLink which definately exceeds ToplinkEssentials functionality I have used before. It seems to abstract data access in a more broad way including access to XML or JCA.</p>
 
-<p>A major point of the bothy guy&#8217;s talk was caching. Shaun presented a demo where a listener constantly triggered a query to the database. It of course was only executed once. Further queries hit the cache as expected. The nice thing about EclipseLink then was that a thread updating the data transparently updated the cached value, so that the changes were reflected in the listener without triggering a new query.</p>
+<p>A major point of the bothy guy’s talk was caching. Shaun presented a demo where a listener constantly triggered a query to the database. It of course was only executed once. Further queries hit the cache as expected. The nice thing about EclipseLink then was that a thread updating the data transparently updated the cached value, so that the changes were reflected in the listener without triggering a new query.</p>
 
 <p>Another hot topic of the presentation was the use of query hints to optimize data access. Rob suggested to have two aspects defined - one to register hints on named queries in a certain business method call context and another one looking up the hints to append when executing the named queries. This sounds quite good and i think i will take some time to reiterate this.</p>
 
-<p>The last amazing topic was a transparent implementation of a database state history. With EclipseLink it is or will (I don&#8217;t remember exactly) to query database state at a given point in time. Especi</p>
+<p>The last amazing topic was a transparent implementation of a database state history. With EclipseLink it is or will (I don’t remember exactly) to query database state at a given point in time. Especi</p>
+
 </div>
 
 <div id="related">
   <h2>Related Posts</h2>
   <ul class="posts">
     
-      <li><span>22 Nov 2013</span> &raquo; <a href="/2013/11/why-field-injection-is-evil">Why field injection is evil</a></li>
+      <li><span>29 Apr 2016</span> &raquo; <a href="/2016/04/benefits-of-hypermedia/index.html">The Benefits of Hypermedia APIs</a></li>
     
-      <li><span>20 Sep 2013</span> &raquo; <a href="/2013/09/666-hell-not-found">666 - Hell not found</a></li>
+      <li><span>22 Nov 2013</span> &raquo; <a href="/2013/11/why-field-injection-is-evil/index.html">Why field injection is evil</a></li>
     
-      <li><span>14 Mar 2013</span> &raquo; <a href="/2013/03/juergenized">Jürgenized</a></li>
+      <li><span>20 Sep 2013</span> &raquo; <a href="/2013/09/666-hell-not-found/index.html">666 - Hell not found</a></li>
     
   </ul>
 </div>
@@ -79,7 +82,7 @@
 
 
 
-  
+
     <div class="footer">
       <div class="contact">
         <p>

@@ -13,6 +13,8 @@
    <!-- Homepage CSS -->
    <link rel="stylesheet" href="/assets/themes/tom/css/screen.css" type="text/css" media="screen, projection" />
 
+   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Fira+Sans:bold|Fira+Sans:light" type="text/css" />
+
    <!-- Typekit -->
    <script type="text/javascript" src="http://use.typekit.com/jpd0pfm.js"></script>
    <script type="text/javascript">try{Typekit.load();}catch(e){}</script>
@@ -27,7 +29,7 @@
       <a class="extra" href="/about.html">About</a>
       <a class="extra" href="/tags.html">Tags</a>
     </div>
-  
+
     
 <div id="post">
   <h1>Enabling Hibernate criteria query statistics with AspectJ</h1>
@@ -35,30 +37,34 @@
     15 September 2010 
     
   </p>
-  <p>In the <code>#java.de</code> IRC channel someone pointed me to this <a href='http://opensource.atlassian.com/projects/hibernate/browse/HHH-3452'>request for enhancement</a> in Hibernate recently. The bottom line here is that Hibernate’s statistics feature that can be used to capture persistence metrics (information about query executions and execution times and so on) does not include queries triggered through using the criteria API.</p>
+  
+<p>In the <code>#java.de</code> IRC channel someone pointed me to this <a href="http://opensource.atlassian.com/projects/hibernate/browse/HHH-3452">request for enhancement</a> in Hibernate recently. The bottom line here is that Hibernate’s statistics feature that can be used to capture persistence metrics (information about query executions and execution times and so on) does not include queries triggered through using the criteria API.</p>
 
-<p>This is quite a a reasonable request for enhancement in my opinion and it’s quite surprising that the ticket has been open for over 2 years now, especially as the solution seems to be simply adding a method to <code>CriteriaLoader</code> class, as Chuck May points out. So supposed you want to use this feature <em>now</em>. The only option seems to be patching Hibernate (sort of doable), building it (a huge magnitude more complex – no offense, building Spring is not trivial either) and the use and maintain that patched version over further releases. Isn’t there another way to get that feature into Hibernate? Of course there is… AspectJ. As the fix seems to be simply adding a method to an existing class we can leverage AspectJ inter-type declarations to add this special method from the outside. Here’s the aspect code:</p>
+<p>This is quite a a reasonable request for enhancement in my opinion and it’s quite surprising that the ticket has been open for over 2 years now, especially as the solution seems to be simply adding a method to <code>CriteriaLoader</code> class, as Chuck May points out.  So supposed you want to use this feature <em>now</em>. The only option seems to be patching Hibernate (sort of doable), building it (a huge magnitude more complex – no offense, building Spring is not trivial either) and the use and maintain that patched version over further releases. Isn’t there another way to get that feature into Hibernate? Of course there is… AspectJ.
+As the fix seems to be simply adding a method to an existing class we can leverage AspectJ inter-type declarations to add this special method from the outside. Here’s the aspect code:</p>
 
 <pre><code>public privileged aspect CriteriaStatisticsAspect {
   public String CriteriaLoader.getQueryIdentifier() {
-    return &quot;[CRITERIA] &quot; + getSQLString();
+    return "[CRITERIA] " + getSQLString();
   }
-}</code></pre>
+}
+</code></pre>
 
-<p>It’s pretty easy to understand I think as the method declaration only slightly differs from a normal Java one (no pun intended). You actually only have to explicitly mention the type you want to add the method to. To weave this aspect into Hibernate you simply add the <a href='http://mojo.codehaus.org/aspectj-maven-plugin/'>Maven AspectJ plugin</a> to your <code>pom.xml</code> and tell it to consider the Hibernate JARs too by adding a <code>weaveDependencies</code> block to the configuration section of the plugin.</p>
+<p>It’s pretty easy to understand I think as the method declaration only slightly differs from a normal Java one (no pun intended). You actually only have to explicitly mention the type you want to add the method to. To weave this aspect into Hibernate you simply add the <a href="http://mojo.codehaus.org/aspectj-maven-plugin/">Maven AspectJ plugin</a> to your <code>pom.xml</code> and tell it to consider the Hibernate JARs too by adding a <code>weaveDependencies</code> block to the configuration section of the plugin.</p>
 
-<p>To ease the burden of getting started with this approach I have uploaded the <a href='http://github.com/olivergierke/hibernate-criteria-statistics'>sample code</a> to Github, also containing a test case to demonstrate this actually works. Upgrading to another Hibernate versions should work seamlessly as the aspect gets woven into the never version then. As soon as the feature gets actually implemented (let’s hope it won’t take another two years ;) simply throw away the aspect.</p>
+<p>To ease the burden of getting started with this approach I have uploaded the <a href="http://github.com/olivergierke/hibernate-criteria-statistics">sample code</a> to Github, also containing a test case to demonstrate this actually works. Upgrading to another Hibernate versions should work seamlessly as the aspect gets woven into the never version then. As soon as the feature gets actually implemented (let’s hope it won’t take another two years ;) simply throw away the aspect.</p>
+
 </div>
 
 <div id="related">
   <h2>Related Posts</h2>
   <ul class="posts">
     
-      <li><span>22 Nov 2013</span> &raquo; <a href="/2013/11/why-field-injection-is-evil">Why field injection is evil</a></li>
+      <li><span>29 Apr 2016</span> &raquo; <a href="/2016/04/benefits-of-hypermedia/index.html">The Benefits of Hypermedia APIs</a></li>
     
-      <li><span>20 Sep 2013</span> &raquo; <a href="/2013/09/666-hell-not-found">666 - Hell not found</a></li>
+      <li><span>22 Nov 2013</span> &raquo; <a href="/2013/11/why-field-injection-is-evil/index.html">Why field injection is evil</a></li>
     
-      <li><span>14 Mar 2013</span> &raquo; <a href="/2013/03/juergenized">Jürgenized</a></li>
+      <li><span>20 Sep 2013</span> &raquo; <a href="/2013/09/666-hell-not-found/index.html">666 - Hell not found</a></li>
     
   </ul>
 </div>
@@ -85,7 +91,7 @@
 
 
 
-  
+
     <div class="footer">
       <div class="contact">
         <p>

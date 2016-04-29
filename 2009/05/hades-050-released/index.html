@@ -13,6 +13,8 @@
    <!-- Homepage CSS -->
    <link rel="stylesheet" href="/assets/themes/tom/css/screen.css" type="text/css" media="screen, projection" />
 
+   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Fira+Sans:bold|Fira+Sans:light" type="text/css" />
+
    <!-- Typekit -->
    <script type="text/javascript" src="http://use.typekit.com/jpd0pfm.js"></script>
    <script type="text/javascript">try{Typekit.load();}catch(e){}</script>
@@ -27,7 +29,7 @@
       <a class="extra" href="/about.html">About</a>
       <a class="extra" href="/tags.html">Tags</a>
     </div>
-  
+
     
 <div id="post">
   <h1>Hades 0.5.0 released</h1>
@@ -35,44 +37,45 @@
     22 May 2009 
     
   </p>
-  <p>Let me prodly announce version 0.5.0 of Hades. As our <a href='http://hades.synyx.org'>project home</a> gives you the quick overview and access to the latest binaries, sources and documentation I want to use this post to elaborate a little bit on the changes in 0.5.0 as well as the future roadmap.</p>
+  
+<p>Let me prodly announce version 0.5.0 of Hades. As our <a href="http://hades.synyx.org">project home</a> gives you the quick overview and access to the latest binaries, sources and documentation I want to use this post to elaborate a little bit on the changes in 0.5.0 as well as the future roadmap.</p>
 
-<h2 id='streamlining_of_the_spring_namespace'>Streamlining of the Spring namespace</h2>
+<h2 id="streamlining-of-the-spring-namespace">Streamlining of the Spring namespace</h2>
 
-<p>Version 0.5.0 one more time simplyfies the XML required to setup Hades DAOs with Spring. The only required attribute at the dao-config element now is <code>base-package</code> which aligns pretty much from the <code>base-package</code> Spring users know from Spring&#8217;s context namespace. As with this namespace you can use Ant style wildcards to form package patterns to allow more flexibility. E.g. <code>&lt;hades:dao-config base-package=&quot;com.acme.**.dao&quot; /&gt;</code> would scan all packages starting with <code>com.acme</code> and ending on <code>dao</code> for Hades DAO interfaces and create the appropriate instances for them.</p>
+<p>Version 0.5.0 one more time simplyfies the XML required to setup Hades DAOs with Spring. The only required attribute at the dao-config element now is <code>base-package</code> which aligns pretty much from the <code>base-package</code> Spring users know from Spring’s context namespace. As with this namespace you can use Ant style wildcards to form package patterns to allow more flexibility. E.g. <code>&lt;hades:dao-config base-package="com.acme.**.dao" /&gt;</code> would scan all packages starting with <code>com.acme</code> and ending on <code>dao</code> for Hades DAO interfaces and create the appropriate instances for them.</p>
 
-<h2 id='osgi_ready'>OSGi ready</h2>
+<h2 id="osgi-ready">OSGi ready</h2>
 
-<p>There was a bug in 0.4 <code>MANIFEST.MF</code> that trapped a few users from using Hades in an OSGi environment. 0.5.0 is fully OSGi compatible and ships with a sample application that can be dropped into a Spring-DM OSGi platform (e.g. SpringSource DM Server). The sample app gives an overview about Hades functionality and exposes a User DAO as OSGi service. Check out the sample application <a href='http://repo.synyx.org/org/synyx/hades/org.synyx.hades.sample/0.5.0/'>here</a>.</p>
+<p>There was a bug in 0.4 <code>MANIFEST.MF</code> that trapped a few users from using Hades in an OSGi environment. 0.5.0 is fully OSGi compatible and ships with a sample application that can be dropped into a Spring-DM OSGi platform (e.g. SpringSource DM Server). The sample app gives an overview about Hades functionality and exposes a User DAO as OSGi service. Check out the sample application <a href="http://repo.synyx.org/org/synyx/hades/org.synyx.hades.sample/0.5.0/">here</a>.</p>
 
-<h2 id='programatic_api'>Programatic API</h2>
+<h2 id="programatic-api">Programatic API</h2>
 
 <p>Most users will happily use Hades in combination with Spring namespace configuration. Programatic use of Hades was always possible albeit only through a rather untyped <code>GenericDaoFactoryBean</code> that implements Springs <code>FactoryBean</code> interface. With 0.5.0 Hades provides a <code>GenericDaoFactory</code> that provides an interface that suits needs for programatic access. Now you can create DAO instances by simply invoking <code>GenericDaoFactory.create(em).getDao(UserDao.class);</code></p>
 
-<h2 id='miscellaneous'>Miscellaneous</h2>
+<h2 id="miscellaneous">Miscellaneous</h2>
 
 <p>We aligned our versioning and artifact naming OSGi conventions.</p>
 
-<h2 id='roadmap'>Roadmap</h2>
+<h2 id="roadmap">Roadmap</h2>
 
-<p>As we consider Hades to be mature, we&#8217;re going to release a version 1.0 next. Timeframe is about end of June. We will stay on JPA 1.0 for this 1.0 branch of Hades. So with the release of Hades 1.0 we will also open up a 2.0 branch that will contain features that required JPA 2.0.</p>
+<p>As we consider Hades to be mature, we’re going to release a version 1.0 next. Timeframe is about end of June. We will stay on JPA 1.0 for this 1.0 branch of Hades. So with the release of Hades 1.0 we will also open up a 2.0 branch that will contain features that required JPA 2.0.</p>
 
-<h2 id='links'>Links</h2>
-
+<h2 id="links">Links</h2>
 <ul>
-<li><a href='http://hades.synyx.org'>Hades project home</a></li>
+  <li><a href="http://hades.synyx.org">Hades project home</a></li>
 </ul>
+
 </div>
 
 <div id="related">
   <h2>Related Posts</h2>
   <ul class="posts">
     
-      <li><span>22 Nov 2013</span> &raquo; <a href="/2013/11/why-field-injection-is-evil">Why field injection is evil</a></li>
+      <li><span>29 Apr 2016</span> &raquo; <a href="/2016/04/benefits-of-hypermedia/index.html">The Benefits of Hypermedia APIs</a></li>
     
-      <li><span>20 Sep 2013</span> &raquo; <a href="/2013/09/666-hell-not-found">666 - Hell not found</a></li>
+      <li><span>22 Nov 2013</span> &raquo; <a href="/2013/11/why-field-injection-is-evil/index.html">Why field injection is evil</a></li>
     
-      <li><span>14 Mar 2013</span> &raquo; <a href="/2013/03/juergenized">Jürgenized</a></li>
+      <li><span>20 Sep 2013</span> &raquo; <a href="/2013/09/666-hell-not-found/index.html">666 - Hell not found</a></li>
     
   </ul>
 </div>
@@ -99,7 +102,7 @@
 
 
 
-  
+
     <div class="footer">
       <div class="contact">
         <p>

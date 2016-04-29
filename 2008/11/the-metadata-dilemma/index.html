@@ -13,6 +13,8 @@
    <!-- Homepage CSS -->
    <link rel="stylesheet" href="/assets/themes/tom/css/screen.css" type="text/css" media="screen, projection" />
 
+   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Fira+Sans:bold|Fira+Sans:light" type="text/css" />
+
    <!-- Typekit -->
    <script type="text/javascript" src="http://use.typekit.com/jpd0pfm.js"></script>
    <script type="text/javascript">try{Typekit.load();}catch(e){}</script>
@@ -27,7 +29,7 @@
       <a class="extra" href="/about.html">About</a>
       <a class="extra" href="/tags.html">Tags</a>
     </div>
-  
+
     
 <div id="post">
   <h1>The metadata dilemma</h1>
@@ -35,21 +37,21 @@
     18 November 2008 
     
   </p>
-  <p>Java EE development has been packed with lots of metadata since day one. Things have changed a lot over times and we have been provided with more elegant solutions. I don&#8217;t want to go deeply into the ongoing debate on Annotations versus XML but rather go one step back and discuss metadata on a more conceptual level.</p>
+  <p>Java EE development has been packed with lots of metadata since day one. Things have changed a lot over times and we have been provided with more elegant solutions. I don’t want to go deeply into the ongoing debate on Annotations versus XML but rather go one step back and discuss metadata on a more conceptual level.</p>
 
-<h2 id='what_is_metadata'>What is metadata?</h2>
+<h2 id="what-is-metadata">What is metadata?</h2>
 
-<p><a href='http://de.wikipedia.org/wiki/Metadata'>Wikipedia</a> names &#8220;data about data&#8221; and further explains:</p>
+<p><a href="http://de.wikipedia.org/wiki/Metadata">Wikipedia</a> names “data about data” and further explains:</p>
 
 <blockquote>
-<p>In data processing, metadata is definitional data that provides information about or documentation of other data managed within an application or environment.</p>
+  <p>In data processing, metadata is definitional data that provides information about or documentation of other data managed within an application or environment.</p>
 </blockquote>
 
 <p>In case of application development metadata mostly is a model of some functional or nonfunctional aspect of the application domain. JavaEE defines metadata models to express persistence, transactionality, security. These are mostly technical aspects but often tied to business requirements.</p>
 
-<h2 id='to_tie_or_not_to_tie'>To tie or not to tie?</h2>
+<h2 id="to-tie-or-not-to-tie">To tie or not to tie?</h2>
 
-<p>Thus one could raise the question of how to capture the metadata in a way that it&#8217;s relation to functional requirements can be derived easily on the on hand and nevertheless be separated from core domain logic to avoid tangling on the other hand.</p>
+<p>Thus one could raise the question of how to capture the metadata in a way that it’s relation to functional requirements can be derived easily on the on hand and nevertheless be separated from core domain logic to avoid tangling on the other hand.</p>
 
 <p>Spring was rolemodel in stating that the distinction between business and technical aspects are key to maintainable software. Due to its origin (no annotations available those days) it provided a clean component model based on XML to apply technical aspects with AOP means. Thus the separation was logical AND physical.</p>
 
@@ -57,30 +59,31 @@
 
 <p>The is an ongoing debate if this tight coupling is really suitable, especially defining crosscutting concerns (the JavaEE interceptor model) in one place and binding (and thus tangling) them around classes all over the application.</p>
 
-<p>Nevertheless I definately see advantage in defining e.g. security attributes right at the class - or even more public - at the interface of a component. This would tighten the contract between client and implementation much more. From a business perspective I maybe want the user management component only allow an administrator to delete users, completely independent from what the implementation looks like. Thus it would enrich the interface&#8217;s semantics.</p>
+<p>Nevertheless I definately see advantage in defining e.g. security attributes right at the class - or even more public - at the interface of a component. This would tighten the contract between client and implementation much more. From a business perspective I maybe want the user management component only allow an administrator to delete users, completely independent from what the implementation looks like. Thus it would enrich the interface’s semantics.</p>
 
-<h2 id='problems'>Problems</h2>
+<h2 id="problems">Problems</h2>
 
-<p>I see two issues in this: first, what if the client is not interested in this particular aspect modeled to the interface at all. As the annotation is compiled into the class to be evaluated at runtime, clients would need the annotation JAR in their classpath. Taking persistence as example I actually don&#8217;t see no point why a plain client should be bothered to have the JPA JAR in its classpath just to deal with JPA annotated entities. Very often I end up with more JARs in my classpath that are simply required by metadata annotations rather than implementation libraries.</p>
+<p>I see two issues in this: first, what if the client is not interested in this particular aspect modeled to the interface at all. As the annotation is compiled into the class to be evaluated at runtime, clients would need the annotation JAR in their classpath. Taking persistence as example I actually don’t see no point why a plain client should be bothered to have the JPA JAR in its classpath just to deal with JPA annotated entities. Very often I end up with more JARs in my classpath that are simply required by metadata annotations rather than implementation libraries.</p>
 
-<p>The second thing is the pure amount of annotations. Suppose you want to persist an entity with JPA and serialize it via JAXB. Welcome to annotation hell ;). Oh, I forgot there is a validation JSR based on annotations on its way round the corner. Erm&#8230; do you see the problem?</p>
+<p>The second thing is the pure amount of annotations. Suppose you want to persist an entity with JPA and serialize it via JAXB. Welcome to annotation hell ;). Oh, I forgot there is a validation JSR based on annotations on its way round the corner. Erm… do you see the problem?</p>
 
-<h2 id='conclusion'>Conclusion?</h2>
+<h2 id="conclusion">Conclusion?</h2>
 
 <p>While the first issue can be somewhat limited by a set of standardized annotations available via the JRE, I can not really see a way out of problem two today. Of course we raised the abstraction of expressing metadata around application logic, the next quest seems to manage the pure amount of metadata created.</p>
 
 <p>What do you think?</p>
+
 </div>
 
 <div id="related">
   <h2>Related Posts</h2>
   <ul class="posts">
     
-      <li><span>22 Nov 2013</span> &raquo; <a href="/2013/11/why-field-injection-is-evil">Why field injection is evil</a></li>
+      <li><span>29 Apr 2016</span> &raquo; <a href="/2016/04/benefits-of-hypermedia/index.html">The Benefits of Hypermedia APIs</a></li>
     
-      <li><span>20 Sep 2013</span> &raquo; <a href="/2013/09/666-hell-not-found">666 - Hell not found</a></li>
+      <li><span>22 Nov 2013</span> &raquo; <a href="/2013/11/why-field-injection-is-evil/index.html">Why field injection is evil</a></li>
     
-      <li><span>14 Mar 2013</span> &raquo; <a href="/2013/03/juergenized">Jürgenized</a></li>
+      <li><span>20 Sep 2013</span> &raquo; <a href="/2013/09/666-hell-not-found/index.html">666 - Hell not found</a></li>
     
   </ul>
 </div>
@@ -107,7 +110,7 @@
 
 
 
-  
+
     <div class="footer">
       <div class="contact">
         <p>

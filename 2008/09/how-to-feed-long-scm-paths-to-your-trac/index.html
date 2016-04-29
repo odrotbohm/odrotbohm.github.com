@@ -13,6 +13,8 @@
    <!-- Homepage CSS -->
    <link rel="stylesheet" href="/assets/themes/tom/css/screen.css" type="text/css" media="screen, projection" />
 
+   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Fira+Sans:bold|Fira+Sans:light" type="text/css" />
+
    <!-- Typekit -->
    <script type="text/javascript" src="http://use.typekit.com/jpd0pfm.js"></script>
    <script type="text/javascript">try{Typekit.load();}catch(e){}</script>
@@ -27,7 +29,7 @@
       <a class="extra" href="/about.html">About</a>
       <a class="extra" href="/tags.html">Tags</a>
     </div>
-  
+
     
 <div id="post">
   <h1>How to feed link SCM paths into your Trac</h1>
@@ -35,22 +37,24 @@
     26 September 2008 
     
   </p>
-  <p>We&#8217;re using <a href='http://trac.edgewall.org'>Trac</a> 0.10.3 in combination with MySQL at work. Trying to setup a new instance and importing the SVN history i faced an ugly duplicate key error trying to insert the revision logs into the database. As <a href='http://trac.edgewall.org/ticket/3676'>this ticket</a>explains this is due to an index over a part of the SVN path affected. By default Trac only uses the first 111 characters of it. This of course will crash if you have deeply nested folders in your project.</p>
+  <p>We’re using <a href="http://trac.edgewall.org">Trac</a> 0.10.3 in combination with MySQL at work. Trying to setup a new instance and importing the SVN history i faced an ugly duplicate key error trying to insert the revision logs into the database. As <a href="http://trac.edgewall.org/ticket/3676">this ticket </a>explains this is due to an index over a part of the SVN path affected. By default Trac only uses the first 111 characters of it. This of course will crash if you have deeply nested folders in your project.</p>
 
 <p>As the ticket describes this is just an index and can easily be dropped with</p>
 
-<pre><code>ALTER TABLE `node_change` DROP PRIMARY KEY;</code></pre>
+<pre><code>ALTER TABLE `node_change` DROP PRIMARY KEY;
+</code></pre>
+
 </div>
 
 <div id="related">
   <h2>Related Posts</h2>
   <ul class="posts">
     
-      <li><span>22 Nov 2013</span> &raquo; <a href="/2013/11/why-field-injection-is-evil">Why field injection is evil</a></li>
+      <li><span>29 Apr 2016</span> &raquo; <a href="/2016/04/benefits-of-hypermedia/index.html">The Benefits of Hypermedia APIs</a></li>
     
-      <li><span>20 Sep 2013</span> &raquo; <a href="/2013/09/666-hell-not-found">666 - Hell not found</a></li>
+      <li><span>22 Nov 2013</span> &raquo; <a href="/2013/11/why-field-injection-is-evil/index.html">Why field injection is evil</a></li>
     
-      <li><span>14 Mar 2013</span> &raquo; <a href="/2013/03/juergenized">Jürgenized</a></li>
+      <li><span>20 Sep 2013</span> &raquo; <a href="/2013/09/666-hell-not-found/index.html">666 - Hell not found</a></li>
     
   </ul>
 </div>
@@ -77,7 +81,7 @@
 
 
 
-  
+
     <div class="footer">
       <div class="contact">
         <p>

@@ -13,6 +13,8 @@
    <!-- Homepage CSS -->
    <link rel="stylesheet" href="/assets/themes/tom/css/screen.css" type="text/css" media="screen, projection" />
 
+   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Fira+Sans:bold|Fira+Sans:light" type="text/css" />
+
    <!-- Typekit -->
    <script type="text/javascript" src="http://use.typekit.com/jpd0pfm.js"></script>
    <script type="text/javascript">try{Typekit.load();}catch(e){}</script>
@@ -27,7 +29,7 @@
       <a class="extra" href="/about.html">About</a>
       <a class="extra" href="/tags.html">Tags</a>
     </div>
-  
+
     
 <div id="post">
   <h1>Neglected classes in Spring - Part III</h1>
@@ -35,7 +37,8 @@
     07 April 2010 
     
   </p>
-  <p>Java web application developers often face the need to inject a regular Spring bean into a non-Spring-managed artifact like a Servlet or a JSP tag.. If you browse the web for you find various quite outdated solutions to it. No offense, by the time being these were quite appropriate solutions. One of them you’ll probably will find is the following:</p>
+  
+<p>Java web application developers often face the need to inject a regular Spring bean into a non-Spring-managed artifact like a Servlet or a JSP tag.. If you browse the web for you find various quite outdated solutions to it. No offense, by the time being these were quite appropriate solutions. One of them you’ll probably will find is the following:</p>
 
 <pre><code>public class MyServlet extends HttpServlet {
 
@@ -53,7 +56,8 @@
 
     service = ctx.getBean(MyService.class);
   }
-}</code></pre>
+}
+</code></pre>
 
 <p>Let’s recap what we just have done. First we need to get access to the <code>ServletContext</code> of the web application. A Spring <code>WebApplicationContext</code> that was registered by a <code>ContextLoaderListener</code> will be registered in the <code>ServletContext</code> under a special name the framework knows, so that <code>WebApplicationContextUtils</code> can then look it up and hand it out to you to manually retrieve Spring beans from it.</p>
 
@@ -69,22 +73,24 @@
     SpringBeanAutowiringSupport.
       processInjectionBasedOnCurrentContext(this);
   }
-}</code></pre>
+}
+</code></pre>
 
 <p>Done. Note, that we override the init method without the <code>ServletConfig</code> parameter as the called method looks up the actual <code>ApplicationContext</code> from a static map held in <code>ContextLoader</code> which inherits from. If you need to lookup beans from an <code>ApplicationContext</code> tied to a particular <code>ServletContext</code> you can use <code>processInjectionBasedOnServletContext(Object target, ServletContext servletContext)</code> and hand it the appropriate instances.</p>
 
-<p>P.S.: Thanks to <a href='http://jandiandme.blogspot.com/'>Eberhard Wolff</a> for pointing me at this.</p>
+<p>P.S.: Thanks to <a href="http://jandiandme.blogspot.com/">Eberhard Wolff</a> for pointing me at this.</p>
+
 </div>
 
 <div id="related">
   <h2>Related Posts</h2>
   <ul class="posts">
     
-      <li><span>22 Nov 2013</span> &raquo; <a href="/2013/11/why-field-injection-is-evil">Why field injection is evil</a></li>
+      <li><span>29 Apr 2016</span> &raquo; <a href="/2016/04/benefits-of-hypermedia/index.html">The Benefits of Hypermedia APIs</a></li>
     
-      <li><span>20 Sep 2013</span> &raquo; <a href="/2013/09/666-hell-not-found">666 - Hell not found</a></li>
+      <li><span>22 Nov 2013</span> &raquo; <a href="/2013/11/why-field-injection-is-evil/index.html">Why field injection is evil</a></li>
     
-      <li><span>14 Mar 2013</span> &raquo; <a href="/2013/03/juergenized">Jürgenized</a></li>
+      <li><span>20 Sep 2013</span> &raquo; <a href="/2013/09/666-hell-not-found/index.html">666 - Hell not found</a></li>
     
   </ul>
 </div>
@@ -111,7 +117,7 @@
 
 
 
-  
+
     <div class="footer">
       <div class="contact">
         <p>

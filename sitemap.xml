@@ -1,429 +1,477 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <urlset xmlns='http://www.sitemaps.org/schemas/sitemap/0.9'>
     <url>
-        <loc>http://www.olivergierke.de/2005/02/so-viel-neues</loc>
-        <lastmod>2013-11-22T15:45:57+01:00</lastmod>
+        <loc>http://www.olivergierke.de/2005/02/so-viel-neues/index.html</loc>
+        <lastmod>2016-04-29T13:32:03+02:00</lastmod>
     </url>
     <url>
-        <loc>http://www.olivergierke.de/2005/04/4</loc>
-        <lastmod>2013-11-22T15:46:25+01:00</lastmod>
-    </url>
-    <url>
-        <loc>http://www.olivergierke.de/2005/06/clueso-remix-contest-dieses-wochenende</loc>
-        <lastmod>2013-11-22T15:46:48+01:00</lastmod>
-    </url>
-    <url>
-        <loc>http://www.olivergierke.de/2005/06/remixcontestsong-online</loc>
-        <lastmod>2013-11-22T15:47:04+01:00</lastmod>
-    </url>
-    <url>
-        <loc>http://www.olivergierke.de/2005/07/clueso-remixcontestergebnisse-neues-projekt</loc>
-        <lastmod>2013-11-22T15:47:25+01:00</lastmod>
-    </url>
-    <url>
-        <loc>http://www.olivergierke.de/2005/08/spax-projekt-am-start-bandtreffenupdate</loc>
-        <lastmod>2013-11-22T15:47:45+01:00</lastmod>
-    </url>
-    <url>
-        <loc>http://www.olivergierke.de/2005/12/quo-vadis-2006</loc>
-        <lastmod>2013-11-22T15:48:04+01:00</lastmod>
-    </url>
-    <url>
-        <loc>http://www.olivergierke.de/2006/05/es-tut-sich-was</loc>
-        <lastmod>2013-11-22T15:48:15+01:00</lastmod>
-    </url>
-    <url>
-        <loc>http://www.olivergierke.de/2006/09/hallo-mal-wieder</loc>
-        <lastmod>2013-11-22T15:48:34+01:00</lastmod>
-    </url>
-    <url>
-        <loc>http://www.olivergierke.de/2006/09/bilder-vom-gig-bei-rock-church</loc>
-        <lastmod>2013-11-22T15:48:52+01:00</lastmod>
-    </url>
-    <url>
-        <loc>http://www.olivergierke.de/2006/10/barfuss-in-bildern</loc>
-        <lastmod>2013-11-22T15:49:32+01:00</lastmod>
-    </url>
-    <url>
-        <loc>http://www.olivergierke.de/2006/10/neues-template</loc>
-        <lastmod>2013-11-22T15:49:50+01:00</lastmod>
-    </url>
-    <url>
-        <loc>http://www.olivergierke.de/2006/10/wallis-bird</loc>
-        <lastmod>2013-11-22T15:49:59+01:00</lastmod>
-    </url>
-    <url>
-        <loc>http://www.olivergierke.de/2006/10/mein-weg-zu-spring</loc>
-        <lastmod>2013-11-22T15:50:11+01:00</lastmod>
-    </url>
-    <url>
-        <loc>http://www.olivergierke.de/2006/12/festival-2006-neues-von-four-sided-cube</loc>
-        <lastmod>2013-11-22T15:50:37+01:00</lastmod>
+        <loc>http://www.olivergierke.de/2005/04/4/index.html</loc>
+        <lastmod>2016-04-29T13:32:03+02:00</lastmod>
     </url>
     <url>
         <loc>
-            http://www.olivergierke.de/2007/01/vortrag-komponentenbasierte-softwareentwicklung-mit-php
+            http://www.olivergierke.de/2005/06/clueso-remix-contest-dieses-wochenende/index.html
         </loc>
-        <lastmod>2013-11-22T16:09:31+01:00</lastmod>
+        <lastmod>2016-04-29T13:32:03+02:00</lastmod>
+    </url>
+    <url>
+        <loc>http://www.olivergierke.de/2005/06/remixcontestsong-online/index.html</loc>
+        <lastmod>2016-04-29T13:32:03+02:00</lastmod>
     </url>
     <url>
         <loc>
-            http://www.olivergierke.de/2007/01/joy-denalane-zum-thema-artist-development-popakademie
+            http://www.olivergierke.de/2005/07/clueso-remixcontestergebnisse-neues-projekt/index.html
         </loc>
-        <lastmod>2013-11-22T15:51:03+01:00</lastmod>
-    </url>
-    <url>
-        <loc>http://www.olivergierke.de/2007/01/recordingworkshop-an-der-popakademie</loc>
-        <lastmod>2013-11-22T15:51:22+01:00</lastmod>
+        <lastmod>2016-04-29T13:32:03+02:00</lastmod>
     </url>
     <url>
         <loc>
-            http://www.olivergierke.de/2007/04/aop-logging-ist-kein-logging-oder-wie-it-fachzeitschriften-erheblich-nachlassen
+            http://www.olivergierke.de/2005/08/spax-projekt-am-start-bandtreffenupdate/index.html
         </loc>
-        <lastmod>2013-11-22T15:52:13+01:00</lastmod>
+        <lastmod>2016-04-29T13:32:03+02:00</lastmod>
+    </url>
+    <url>
+        <loc>http://www.olivergierke.de/2005/12/quo-vadis-2006/index.html</loc>
+        <lastmod>2016-04-29T13:32:03+02:00</lastmod>
+    </url>
+    <url>
+        <loc>http://www.olivergierke.de/2006/05/es-tut-sich-was/index.html</loc>
+        <lastmod>2016-04-29T13:32:03+02:00</lastmod>
+    </url>
+    <url>
+        <loc>http://www.olivergierke.de/2006/09/hallo-mal-wieder/index.html</loc>
+        <lastmod>2016-04-29T13:32:03+02:00</lastmod>
+    </url>
+    <url>
+        <loc>http://www.olivergierke.de/2006/09/bilder-vom-gig-bei-rock-church/index.html</loc>
+        <lastmod>2016-04-29T13:32:03+02:00</lastmod>
+    </url>
+    <url>
+        <loc>http://www.olivergierke.de/2006/10/barfuss-in-bildern/index.html</loc>
+        <lastmod>2016-04-29T13:32:03+02:00</lastmod>
+    </url>
+    <url>
+        <loc>http://www.olivergierke.de/2006/10/neues-template/index.html</loc>
+        <lastmod>2016-04-29T13:32:03+02:00</lastmod>
+    </url>
+    <url>
+        <loc>http://www.olivergierke.de/2006/10/wallis-bird/index.html</loc>
+        <lastmod>2016-04-29T13:32:03+02:00</lastmod>
+    </url>
+    <url>
+        <loc>http://www.olivergierke.de/2006/10/mein-weg-zu-spring/index.html</loc>
+        <lastmod>2016-04-29T13:32:03+02:00</lastmod>
     </url>
     <url>
         <loc>
-            http://www.olivergierke.de/2007/04/drum-clinic-mit-ralf-gustke-wolfgang-haffner-und-felix-lehmann-im-rock-shop-karlsruhe
+            http://www.olivergierke.de/2006/12/festival-2006-neues-von-four-sided-cube/index.html
         </loc>
-        <lastmod>2013-11-22T15:52:54+01:00</lastmod>
-    </url>
-    <url>
-        <loc>http://www.olivergierke.de/2007/08/dixie-chicks-shut-up-and-sing</loc>
-        <lastmod>2013-11-22T15:53:36+01:00</lastmod>
-    </url>
-    <url>
-        <loc>http://www.olivergierke.de/2007/08/neues-von-four-sided-cube</loc>
-        <lastmod>2013-11-22T15:54:50+01:00</lastmod>
-    </url>
-    <url>
-        <loc>http://www.olivergierke.de/2007/09/domainumzug</loc>
-        <lastmod>2013-11-22T15:55:09+01:00</lastmod>
-    </url>
-    <url>
-        <loc>http://www.olivergierke.de/2007/10/four-sided-cube-mit-neuer-hompage</loc>
-        <lastmod>2013-11-22T15:55:24+01:00</lastmod>
-    </url>
-    <url>
-        <loc>http://www.olivergierke.de/2007/11/13949712720901forosx</loc>
-        <lastmod>2013-11-22T15:55:42+01:00</lastmod>
-    </url>
-    <url>
-        <loc>http://www.olivergierke.de/2007/11/googles-android</loc>
-        <lastmod>2013-11-22T15:57:18+01:00</lastmod>
-    </url>
-    <url>
-        <loc>http://www.olivergierke.de/2008/02/neue-four-sided-cube-platte-am-822008</loc>
-        <lastmod>2013-11-22T15:57:36+01:00</lastmod>
-    </url>
-    <url>
-        <loc>http://www.olivergierke.de/2008/03/spring-release-party</loc>
-        <lastmod>2013-11-22T15:59:39+01:00</lastmod>
-    </url>
-    <url>
-        <loc>http://www.olivergierke.de/2008/03/eberhard-wolff-spring-portfolio</loc>
-        <lastmod>2013-11-22T15:58:42+01:00</lastmod>
-    </url>
-    <url>
-        <loc>http://www.olivergierke.de/2008/03/jurgen-holler-spring-25</loc>
-        <lastmod>2013-09-20T22:16:43+02:00</lastmod>
-    </url>
-    <url>
-        <loc>http://www.olivergierke.de/2008/03/mike-wiesner-spring-security</loc>
-        <lastmod>2013-11-22T15:59:21+01:00</lastmod>
-    </url>
-    <url>
-        <loc>http://www.olivergierke.de/2008/03/arjen-poutsma-spring-webservices</loc>
-        <lastmod>2013-11-22T15:58:19+01:00</lastmod>
-    </url>
-    <url>
-        <loc>http://www.olivergierke.de/2008/03/erich-eichinger-erich-eichinger-springnet</loc>
-        <lastmod>2013-11-22T15:59:00+01:00</lastmod>
-    </url>
-    <url>
-        <loc>http://www.olivergierke.de/2008/03/agim-emruli-spring-webflow</loc>
-        <lastmod>2013-11-22T15:58:01+01:00</lastmod>
-    </url>
-    <url>
-        <loc>http://www.olivergierke.de/2008/03/spring-webinar</loc>
-        <lastmod>2013-11-22T15:59:57+01:00</lastmod>
-    </url>
-    <url>
-        <loc>http://www.olivergierke.de/2008/04/trac-0103-auf-mysql</loc>
-        <lastmod>2013-11-22T16:00:22+01:00</lastmod>
-    </url>
-    <url>
-        <loc>http://www.olivergierke.de/2008/04/spass-mit-maven-archetypes</loc>
-        <lastmod>2013-11-22T16:00:36+01:00</lastmod>
-    </url>
-    <url>
-        <loc>http://www.olivergierke.de/2008/06/clueso-so-sehr-dabei</loc>
-        <lastmod>2013-11-22T16:03:02+01:00</lastmod>
-    </url>
-    <url>
-        <loc>http://www.olivergierke.de/2008/06/switching-language-springone-ahead</loc>
-        <lastmod>2013-11-22T16:03:20+01:00</lastmod>
-    </url>
-    <url>
-        <loc>http://www.olivergierke.de/2008/06/reading-domain-driven-design-again</loc>
-        <lastmod>2013-11-22T16:03:41+01:00</lastmod>
-    </url>
-    <url>
-        <loc>http://www.olivergierke.de/2008/06/my-software-engineering-book-top-5</loc>
-        <lastmod>2013-11-22T16:04:03+01:00</lastmod>
-    </url>
-    <url>
-        <loc>http://www.olivergierke.de/2008/06/springone-kickoff</loc>
-        <lastmod>2012-12-17T17:50:30+01:00</lastmod>
-    </url>
-    <url>
-        <loc>http://www.olivergierke.de/2008/06/jurgen-holler-spring-25-on-its-way-to-30</loc>
-        <lastmod>2012-12-18T18:11:11+01:00</lastmod>
+        <lastmod>2016-04-29T13:32:03+02:00</lastmod>
     </url>
     <url>
         <loc>
-            http://www.olivergierke.de/2008/06/thomas-risberg-persistence-tuning-for-the-spring-environments
+            http://www.olivergierke.de/2007/01/vortrag-komponentenbasierte-softwareentwicklung-mit-php/index.html
         </loc>
-        <lastmod>2012-12-17T17:50:05+01:00</lastmod>
+        <lastmod>2016-04-29T13:32:03+02:00</lastmod>
     </url>
     <url>
         <loc>
-            http://www.olivergierke.de/2008/06/eclipselink-hig-performance-persistence-for-spring
+            http://www.olivergierke.de/2007/01/joy-denalane-zum-thema-artist-development-popakademie/index.html
         </loc>
-        <lastmod>2013-11-22T16:04:47+01:00</lastmod>
+        <lastmod>2016-04-29T13:32:03+02:00</lastmod>
     </url>
     <url>
         <loc>
-            http://www.olivergierke.de/2008/06/5-or-3-aspects-you-probably-havent-thought-about
+            http://www.olivergierke.de/2007/01/recordingworkshop-an-der-popakademie/index.html
         </loc>
-        <lastmod>2013-11-22T16:04:23+01:00</lastmod>
-    </url>
-    <url>
-        <loc>http://www.olivergierke.de/2008/06/summing-up-day-one</loc>
-        <lastmod>2012-12-17T17:48:10+01:00</lastmod>
-    </url>
-    <url>
-        <loc>http://www.olivergierke.de/2008/06/application-platform-keynote</loc>
-        <lastmod>2012-12-17T17:48:58+01:00</lastmod>
-    </url>
-    <url>
-        <loc>http://www.olivergierke.de/2008/07/effective-bug-smashing-with-test-cases</loc>
-        <lastmod>2012-12-17T17:47:31+01:00</lastmod>
-    </url>
-    <url>
-        <loc>http://www.olivergierke.de/2008/08/validating-domain-objects</loc>
-        <lastmod>2012-12-17T17:45:53+01:00</lastmod>
-    </url>
-    <url>
-        <loc>http://www.olivergierke.de/2008/09/developers-facing-the-real-world</loc>
-        <lastmod>2012-12-17T17:43:57+01:00</lastmod>
-    </url>
-    <url>
-        <loc>http://www.olivergierke.de/2008/09/how-to-feed-long-scm-paths-to-your-trac</loc>
-        <lastmod>2012-12-17T17:45:04+01:00</lastmod>
-    </url>
-    <url>
-        <loc>http://www.olivergierke.de/2008/09/hades-02-is-out</loc>
-        <lastmod>2012-12-17T17:43:25+01:00</lastmod>
-    </url>
-    <url>
-        <loc>http://www.olivergierke.de/2008/10/the-smallest-plugin-system-ever</loc>
-        <lastmod>2012-12-17T17:41:25+01:00</lastmod>
-    </url>
-    <url>
-        <loc>http://www.olivergierke.de/2008/11/videos-of-the-unplugged-gig</loc>
-        <lastmod>2012-12-17T16:54:32+01:00</lastmod>
-    </url>
-    <url>
-        <loc>http://www.olivergierke.de/2008/11/the-metadata-dilemma</loc>
-        <lastmod>2012-12-17T16:45:27+01:00</lastmod>
-    </url>
-    <url>
-        <loc>http://www.olivergierke.de/2008/11/hades-on-tour</loc>
-        <lastmod>2012-12-17T16:47:02+01:00</lastmod>
-    </url>
-    <url>
-        <loc>http://www.olivergierke.de/2008/12/is-rest-the-next-spring</loc>
-        <lastmod>2012-12-17T16:56:18+01:00</lastmod>
-    </url>
-    <url>
-        <loc>http://www.olivergierke.de/2008/12/on-the-way-to-devoxx</loc>
-        <lastmod>2012-12-17T16:43:20+01:00</lastmod>
-    </url>
-    <url>
-        <loc>http://www.olivergierke.de/2008/12/hades-03-is-out</loc>
-        <lastmod>2012-12-17T16:43:50+01:00</lastmod>
-    </url>
-    <url>
-        <loc>http://www.olivergierke.de/2008/12/devoxx-2008</loc>
-        <lastmod>2012-12-17T16:42:20+01:00</lastmod>
-    </url>
-    <url>
-        <loc>http://www.olivergierke.de/2008/12/spring-30-m1-is-out-now-for-maven-users-too</loc>
-        <lastmod>2012-12-17T16:39:47+01:00</lastmod>
-    </url>
-    <url>
-        <loc>http://www.olivergierke.de/2008/12/javac-issues-implementing-generics</loc>
-        <lastmod>2012-12-17T16:38:51+01:00</lastmod>
-    </url>
-    <url>
-        <loc>http://www.olivergierke.de/2008/12/hades-at-jug-karlsruhe</loc>
-        <lastmod>2012-12-17T16:36:05+01:00</lastmod>
-    </url>
-    <url>
-        <loc>http://www.olivergierke.de/2009/01/subtleties-on-javalangenum</loc>
-        <lastmod>2012-12-17T16:34:54+01:00</lastmod>
-    </url>
-    <url>
-        <loc>http://www.olivergierke.de/2009/01/se-radio-episode-121-or-mappers</loc>
-        <lastmod>2012-12-17T16:32:15+01:00</lastmod>
-    </url>
-    <url>
-        <loc>http://www.olivergierke.de/2009/01/clean-code-review-part-i</loc>
-        <lastmod>2012-12-17T16:20:31+01:00</lastmod>
-    </url>
-    <url>
-        <loc>http://www.olivergierke.de/2009/02/integrating-hades-into-existing-applications</loc>
-        <lastmod>2012-12-17T16:18:51+01:00</lastmod>
-    </url>
-    <url>
-        <loc>http://www.olivergierke.de/2009/02/heading-javaposse-roundup-2009</loc>
-        <lastmod>2012-12-17T16:12:30+01:00</lastmod>
-    </url>
-    <url>
-        <loc>http://www.olivergierke.de/2009/02/hades-04-released</loc>
-        <lastmod>2012-12-18T15:00:22+01:00</lastmod>
-    </url>
-    <url>
-        <loc>http://www.olivergierke.de/2009/03/java-posse-roundup-09-part-i</loc>
-        <lastmod>2012-12-17T16:55:52+01:00</lastmod>
-    </url>
-    <url>
-        <loc>http://www.olivergierke.de/2009/03/hera-04-released</loc>
-        <lastmod>2012-12-17T16:18:22+01:00</lastmod>
+        <lastmod>2016-04-29T13:32:03+02:00</lastmod>
     </url>
     <url>
         <loc>
-            http://www.olivergierke.de/2009/05/unit-testing-annotation-based-spring-mvc-controllers
+            http://www.olivergierke.de/2007/04/aop-logging-ist-kein-logging-oder-wie-it-fachzeitschriften-erheblich-nachlassen/index.html
         </loc>
-        <lastmod>2012-12-17T18:09:35+01:00</lastmod>
-    </url>
-    <url>
-        <loc>http://www.olivergierke.de/2009/05/achieving-application-modularity-with-hera</loc>
-        <lastmod>2012-12-17T16:06:16+01:00</lastmod>
-    </url>
-    <url>
-        <loc>http://www.olivergierke.de/2009/05/hades-050-released</loc>
-        <lastmod>2012-12-17T18:09:23+01:00</lastmod>
+        <lastmod>2016-04-29T13:32:03+02:00</lastmod>
     </url>
     <url>
         <loc>
-            http://www.olivergierke.de/2009/05/using-springs-configurable-in-three-easy-steps
+            http://www.olivergierke.de/2007/04/drum-clinic-mit-ralf-gustke-wolfgang-haffner-und-felix-lehmann-im-rock-shop-karlsruhe/index.html
         </loc>
-        <lastmod>2012-12-17T18:09:12+01:00</lastmod>
+        <lastmod>2016-04-29T13:32:03+02:00</lastmod>
+    </url>
+    <url>
+        <loc>http://www.olivergierke.de/2007/08/dixie-chicks-shut-up-and-sing/index.html</loc>
+        <lastmod>2016-04-29T13:32:03+02:00</lastmod>
+    </url>
+    <url>
+        <loc>http://www.olivergierke.de/2007/08/neues-von-four-sided-cube/index.html</loc>
+        <lastmod>2016-04-29T13:32:03+02:00</lastmod>
+    </url>
+    <url>
+        <loc>http://www.olivergierke.de/2007/09/domainumzug/index.html</loc>
+        <lastmod>2016-04-29T13:32:03+02:00</lastmod>
+    </url>
+    <url>
+        <loc>http://www.olivergierke.de/2007/10/four-sided-cube-mit-neuer-hompage/index.html</loc>
+        <lastmod>2016-04-29T13:32:03+02:00</lastmod>
+    </url>
+    <url>
+        <loc>http://www.olivergierke.de/2007/11/13949712720901forosx/index.html</loc>
+        <lastmod>2016-04-29T13:32:03+02:00</lastmod>
+    </url>
+    <url>
+        <loc>http://www.olivergierke.de/2007/11/googles-android/index.html</loc>
+        <lastmod>2016-04-29T13:32:03+02:00</lastmod>
     </url>
     <url>
         <loc>
-            http://www.olivergierke.de/2009/05/diggin-into-spring-3-transactional-test-facilities
+            http://www.olivergierke.de/2008/02/neue-four-sided-cube-platte-am-822008/index.html
         </loc>
-        <lastmod>2012-12-18T11:49:10+01:00</lastmod>
+        <lastmod>2016-04-29T13:32:03+02:00</lastmod>
+    </url>
+    <url>
+        <loc>http://www.olivergierke.de/2008/03/spring-release-party/index.html</loc>
+        <lastmod>2016-04-29T13:32:03+02:00</lastmod>
+    </url>
+    <url>
+        <loc>http://www.olivergierke.de/2008/03/eberhard-wolff-spring-portfolio/index.html</loc>
+        <lastmod>2016-04-29T13:32:03+02:00</lastmod>
+    </url>
+    <url>
+        <loc>http://www.olivergierke.de/2008/03/jurgen-holler-spring-25/index.html</loc>
+        <lastmod>2016-04-29T13:32:03+02:00</lastmod>
+    </url>
+    <url>
+        <loc>http://www.olivergierke.de/2008/03/mike-wiesner-spring-security/index.html</loc>
+        <lastmod>2016-04-29T13:32:03+02:00</lastmod>
+    </url>
+    <url>
+        <loc>http://www.olivergierke.de/2008/03/arjen-poutsma-spring-webservices/index.html</loc>
+        <lastmod>2016-04-29T13:32:03+02:00</lastmod>
     </url>
     <url>
         <loc>
-            http://www.olivergierke.de/2009/06/article-on-hades-in-current-issue-of-german-javamagazin
+            http://www.olivergierke.de/2008/03/erich-eichinger-erich-eichinger-springnet/index.html
         </loc>
-        <lastmod>2012-12-17T15:50:31+01:00</lastmod>
+        <lastmod>2016-04-29T13:32:03+02:00</lastmod>
     </url>
     <url>
-        <loc>http://www.olivergierke.de/2010/01/neglected-classes-in-spring-part-ii</loc>
-        <lastmod>2013-09-20T22:16:46+02:00</lastmod>
+        <loc>http://www.olivergierke.de/2008/03/agim-emruli-spring-webflow/index.html</loc>
+        <lastmod>2016-04-29T13:32:03+02:00</lastmod>
     </url>
     <url>
-        <loc>http://www.olivergierke.de/2010/02/new-challenges</loc>
-        <lastmod>2013-09-20T21:33:54+02:00</lastmod>
+        <loc>http://www.olivergierke.de/2008/03/spring-webinar/index.html</loc>
+        <lastmod>2016-04-29T13:32:03+02:00</lastmod>
     </url>
     <url>
-        <loc>http://www.olivergierke.de/2010/04/rest-based-web-applications-with-spring-3</loc>
-        <lastmod>2012-12-18T14:59:11+01:00</lastmod>
+        <loc>http://www.olivergierke.de/2008/04/trac-0103-auf-mysql/index.html</loc>
+        <lastmod>2016-04-29T13:32:03+02:00</lastmod>
     </url>
     <url>
-        <loc>http://www.olivergierke.de/2010/04/neglected-classes-in-spring-part-iii</loc>
-        <lastmod>2012-12-18T12:36:39+01:00</lastmod>
+        <loc>http://www.olivergierke.de/2008/04/spass-mit-maven-archetypes/index.html</loc>
+        <lastmod>2016-04-29T13:32:03+02:00</lastmod>
     </url>
     <url>
-        <loc>http://www.olivergierke.de/2010/04/hades-1-5-released</loc>
-        <lastmod>2012-12-18T12:32:18+01:00</lastmod>
-    </url>
-    <url>
-        <loc>http://www.olivergierke.de/2010/06/changing-a-projects-artifact-id-in-sonar</loc>
-        <lastmod>2012-12-18T12:09:40+01:00</lastmod>
+        <loc>http://www.olivergierke.de/2008/06/clueso-so-sehr-dabei/index.html</loc>
+        <lastmod>2016-04-29T13:32:03+02:00</lastmod>
     </url>
     <url>
         <loc>
-            http://www.olivergierke.de/2010/06/hades-2-0-0-rc2-introduces-transactional-daos
+            http://www.olivergierke.de/2008/06/switching-language-springone-ahead/index.html
         </loc>
-        <lastmod>2012-12-18T12:45:36+01:00</lastmod>
-    </url>
-    <url>
-        <loc>http://www.olivergierke.de/2010/09/conference-autumn-2010</loc>
-        <lastmod>2012-12-18T16:23:13+01:00</lastmod>
+        <lastmod>2016-04-29T13:32:03+02:00</lastmod>
     </url>
     <url>
         <loc>
-            http://www.olivergierke.de/2010/09/enabling-hibernate-critera-query-statistics-with-aspectj
+            http://www.olivergierke.de/2008/06/reading-domain-driven-design-again/index.html
         </loc>
-        <lastmod>2012-12-18T16:49:20+01:00</lastmod>
+        <lastmod>2016-04-29T13:32:03+02:00</lastmod>
     </url>
     <url>
-        <loc>http://www.olivergierke.de/2010/10/spring-logging-and-jmx</loc>
-        <lastmod>2012-12-18T13:02:17+01:00</lastmod>
+        <loc>
+            http://www.olivergierke.de/2008/06/my-software-engineering-book-top-5/index.html
+        </loc>
+        <lastmod>2016-04-29T13:32:03+02:00</lastmod>
     </url>
     <url>
-        <loc>http://www.olivergierke.de/2012/12/hello-world</loc>
-        <lastmod>2012-12-18T17:03:55+01:00</lastmod>
+        <loc>http://www.olivergierke.de/2008/06/springone-kickoff/index.html</loc>
+        <lastmod>2016-04-29T13:32:03+02:00</lastmod>
     </url>
     <url>
-        <loc>http://www.olivergierke.de/2013/01/whoops-where-did-my-architecture-go</loc>
-        <lastmod>2013-01-14T15:08:26+01:00</lastmod>
+        <loc>
+            http://www.olivergierke.de/2008/06/jurgen-holler-spring-25-on-its-way-to-30/index.html
+        </loc>
+        <lastmod>2016-04-29T13:32:03+02:00</lastmod>
     </url>
     <url>
-        <loc>http://www.olivergierke.de/2013/02/websites-vs-apis</loc>
-        <lastmod>2013-04-30T03:34:13+02:00</lastmod>
+        <loc>
+            http://www.olivergierke.de/2008/06/thomas-risberg-persistence-tuning-for-the-spring-environments/index.html
+        </loc>
+        <lastmod>2016-04-29T13:32:03+02:00</lastmod>
     </url>
     <url>
-        <loc>http://www.olivergierke.de/2013/03/juergenized</loc>
-        <lastmod>2013-03-14T18:41:12+01:00</lastmod>
+        <loc>
+            http://www.olivergierke.de/2008/06/eclipselink-hig-performance-persistence-for-spring/index.html
+        </loc>
+        <lastmod>2016-04-29T13:32:03+02:00</lastmod>
     </url>
     <url>
-        <loc>http://www.olivergierke.de/2013/09/666-hell-not-found</loc>
-        <lastmod>2013-09-20T23:30:13+02:00</lastmod>
+        <loc>
+            http://www.olivergierke.de/2008/06/5-or-3-aspects-you-probably-havent-thought-about/index.html
+        </loc>
+        <lastmod>2016-04-29T13:32:03+02:00</lastmod>
     </url>
     <url>
-        <loc>http://www.olivergierke.de/2013/11/why-field-injection-is-evil</loc>
-        <lastmod>2013-11-22T15:24:27+01:00</lastmod>
+        <loc>http://www.olivergierke.de/2008/06/summing-up-day-one/index.html</loc>
+        <lastmod>2016-04-29T13:32:03+02:00</lastmod>
     </url>
     <url>
-        <loc>http://www.olivergierke.de/about.html</loc>
-        <lastmod>2012-12-18T17:07:32+01:00</lastmod>
+        <loc>http://www.olivergierke.de/2008/06/application-platform-keynote/index.html</loc>
+        <lastmod>2016-04-29T13:32:03+02:00</lastmod>
     </url>
     <url>
-        <loc>http://www.olivergierke.de/archive.html</loc>
-        <lastmod>2012-12-16T18:44:49+01:00</lastmod>
+        <loc>
+            http://www.olivergierke.de/2008/07/effective-bug-smashing-with-test-cases/index.html
+        </loc>
+        <lastmod>2016-04-29T13:32:03+02:00</lastmod>
+    </url>
+    <url>
+        <loc>http://www.olivergierke.de/2008/08/validating-domain-objects/index.html</loc>
+        <lastmod>2016-04-29T13:32:03+02:00</lastmod>
+    </url>
+    <url>
+        <loc>http://www.olivergierke.de/2008/09/developers-facing-the-real-world/index.html</loc>
+        <lastmod>2016-04-29T13:32:03+02:00</lastmod>
+    </url>
+    <url>
+        <loc>
+            http://www.olivergierke.de/2008/09/how-to-feed-long-scm-paths-to-your-trac/index.html
+        </loc>
+        <lastmod>2016-04-29T13:32:03+02:00</lastmod>
+    </url>
+    <url>
+        <loc>http://www.olivergierke.de/2008/09/hades-02-is-out/index.html</loc>
+        <lastmod>2016-04-29T13:32:03+02:00</lastmod>
+    </url>
+    <url>
+        <loc>http://www.olivergierke.de/2008/10/the-smallest-plugin-system-ever/index.html</loc>
+        <lastmod>2016-04-29T13:32:03+02:00</lastmod>
+    </url>
+    <url>
+        <loc>http://www.olivergierke.de/2008/11/videos-of-the-unplugged-gig/index.html</loc>
+        <lastmod>2016-04-29T13:32:03+02:00</lastmod>
+    </url>
+    <url>
+        <loc>http://www.olivergierke.de/2008/11/the-metadata-dilemma/index.html</loc>
+        <lastmod>2016-04-29T13:32:03+02:00</lastmod>
+    </url>
+    <url>
+        <loc>http://www.olivergierke.de/2008/11/hades-on-tour/index.html</loc>
+        <lastmod>2016-04-29T13:32:03+02:00</lastmod>
+    </url>
+    <url>
+        <loc>http://www.olivergierke.de/2008/12/is-rest-the-next-spring/index.html</loc>
+        <lastmod>2016-04-29T13:32:03+02:00</lastmod>
+    </url>
+    <url>
+        <loc>http://www.olivergierke.de/2008/12/on-the-way-to-devoxx/index.html</loc>
+        <lastmod>2016-04-29T13:32:03+02:00</lastmod>
+    </url>
+    <url>
+        <loc>http://www.olivergierke.de/2008/12/hades-03-is-out/index.html</loc>
+        <lastmod>2016-04-29T13:32:03+02:00</lastmod>
+    </url>
+    <url>
+        <loc>http://www.olivergierke.de/2008/12/devoxx-2008/index.html</loc>
+        <lastmod>2016-04-29T13:32:03+02:00</lastmod>
+    </url>
+    <url>
+        <loc>
+            http://www.olivergierke.de/2008/12/spring-30-m1-is-out-now-for-maven-users-too/index.html
+        </loc>
+        <lastmod>2016-04-29T13:32:03+02:00</lastmod>
+    </url>
+    <url>
+        <loc>
+            http://www.olivergierke.de/2008/12/javac-issues-implementing-generics/index.html
+        </loc>
+        <lastmod>2016-04-29T13:32:03+02:00</lastmod>
+    </url>
+    <url>
+        <loc>http://www.olivergierke.de/2008/12/hades-at-jug-karlsruhe/index.html</loc>
+        <lastmod>2016-04-29T13:32:03+02:00</lastmod>
+    </url>
+    <url>
+        <loc>http://www.olivergierke.de/2009/01/subtleties-on-javalangenum/index.html</loc>
+        <lastmod>2016-04-29T13:32:03+02:00</lastmod>
+    </url>
+    <url>
+        <loc>http://www.olivergierke.de/2009/01/se-radio-episode-121-or-mappers/index.html</loc>
+        <lastmod>2016-04-29T13:32:03+02:00</lastmod>
+    </url>
+    <url>
+        <loc>http://www.olivergierke.de/2009/01/clean-code-review-part-i/index.html</loc>
+        <lastmod>2016-04-29T13:32:03+02:00</lastmod>
+    </url>
+    <url>
+        <loc>
+            http://www.olivergierke.de/2009/02/integrating-hades-into-existing-applications/index.html
+        </loc>
+        <lastmod>2016-04-29T13:32:03+02:00</lastmod>
+    </url>
+    <url>
+        <loc>http://www.olivergierke.de/2009/02/heading-javaposse-roundup-2009/index.html</loc>
+        <lastmod>2016-04-29T13:32:03+02:00</lastmod>
+    </url>
+    <url>
+        <loc>http://www.olivergierke.de/2009/02/hades-04-released/index.html</loc>
+        <lastmod>2016-04-29T13:32:03+02:00</lastmod>
+    </url>
+    <url>
+        <loc>http://www.olivergierke.de/2009/03/java-posse-roundup-09-part-i/index.html</loc>
+        <lastmod>2016-04-29T13:32:03+02:00</lastmod>
+    </url>
+    <url>
+        <loc>http://www.olivergierke.de/2009/03/hera-04-released/index.html</loc>
+        <lastmod>2016-04-29T13:32:03+02:00</lastmod>
+    </url>
+    <url>
+        <loc>
+            http://www.olivergierke.de/2009/05/unit-testing-annotation-based-spring-mvc-controllers/index.html
+        </loc>
+        <lastmod>2016-04-29T13:32:03+02:00</lastmod>
+    </url>
+    <url>
+        <loc>
+            http://www.olivergierke.de/2009/05/achieving-application-modularity-with-hera/index.html
+        </loc>
+        <lastmod>2016-04-29T13:32:03+02:00</lastmod>
+    </url>
+    <url>
+        <loc>http://www.olivergierke.de/2009/05/hades-050-released/index.html</loc>
+        <lastmod>2016-04-29T13:32:03+02:00</lastmod>
+    </url>
+    <url>
+        <loc>
+            http://www.olivergierke.de/2009/05/using-springs-configurable-in-three-easy-steps/index.html
+        </loc>
+        <lastmod>2016-04-29T13:32:03+02:00</lastmod>
+    </url>
+    <url>
+        <loc>
+            http://www.olivergierke.de/2009/05/diggin-into-spring-3-transactional-test-facilities/index.html
+        </loc>
+        <lastmod>2016-04-29T13:32:03+02:00</lastmod>
+    </url>
+    <url>
+        <loc>
+            http://www.olivergierke.de/2009/06/article-on-hades-in-current-issue-of-german-javamagazin/index.html
+        </loc>
+        <lastmod>2016-04-29T13:32:03+02:00</lastmod>
+    </url>
+    <url>
+        <loc>
+            http://www.olivergierke.de/2010/01/neglected-classes-in-spring-part-ii/index.html
+        </loc>
+        <lastmod>2016-04-29T13:32:03+02:00</lastmod>
+    </url>
+    <url>
+        <loc>http://www.olivergierke.de/2010/02/new-challenges/index.html</loc>
+        <lastmod>2016-04-29T13:32:03+02:00</lastmod>
+    </url>
+    <url>
+        <loc>
+            http://www.olivergierke.de/2010/04/rest-based-web-applications-with-spring-3/index.html
+        </loc>
+        <lastmod>2016-04-29T13:32:03+02:00</lastmod>
+    </url>
+    <url>
+        <loc>
+            http://www.olivergierke.de/2010/04/neglected-classes-in-spring-part-iii/index.html
+        </loc>
+        <lastmod>2016-04-29T13:32:03+02:00</lastmod>
+    </url>
+    <url>
+        <loc>http://www.olivergierke.de/2010/04/hades-1-5-released/index.html</loc>
+        <lastmod>2016-04-29T13:32:03+02:00</lastmod>
+    </url>
+    <url>
+        <loc>
+            http://www.olivergierke.de/2010/06/changing-a-projects-artifact-id-in-sonar/index.html
+        </loc>
+        <lastmod>2016-04-29T13:32:03+02:00</lastmod>
+    </url>
+    <url>
+        <loc>
+            http://www.olivergierke.de/2010/06/hades-2-0-0-rc2-introduces-transactional-daos/index.html
+        </loc>
+        <lastmod>2016-04-29T13:32:03+02:00</lastmod>
+    </url>
+    <url>
+        <loc>http://www.olivergierke.de/2010/09/conference-autumn-2010/index.html</loc>
+        <lastmod>2016-04-29T13:32:03+02:00</lastmod>
+    </url>
+    <url>
+        <loc>
+            http://www.olivergierke.de/2010/09/enabling-hibernate-critera-query-statistics-with-aspectj/index.html
+        </loc>
+        <lastmod>2016-04-29T13:32:03+02:00</lastmod>
+    </url>
+    <url>
+        <loc>http://www.olivergierke.de/2010/10/spring-logging-and-jmx/index.html</loc>
+        <lastmod>2016-04-29T13:32:03+02:00</lastmod>
+    </url>
+    <url>
+        <loc>http://www.olivergierke.de/2012/12/hello-world/index.html</loc>
+        <lastmod>2016-04-29T13:32:03+02:00</lastmod>
+    </url>
+    <url>
+        <loc>
+            http://www.olivergierke.de/2013/01/whoops-where-did-my-architecture-go/index.html
+        </loc>
+        <lastmod>2016-04-29T13:32:03+02:00</lastmod>
+    </url>
+    <url>
+        <loc>http://www.olivergierke.de/2013/02/websites-vs-apis/index.html</loc>
+        <lastmod>2016-04-29T13:32:03+02:00</lastmod>
+    </url>
+    <url>
+        <loc>http://www.olivergierke.de/2013/03/juergenized/index.html</loc>
+        <lastmod>2016-04-29T13:32:03+02:00</lastmod>
+    </url>
+    <url>
+        <loc>http://www.olivergierke.de/2013/09/666-hell-not-found/index.html</loc>
+        <lastmod>2016-04-29T13:32:03+02:00</lastmod>
+    </url>
+    <url>
+        <loc>http://www.olivergierke.de/2013/11/why-field-injection-is-evil/index.html</loc>
+        <lastmod>2016-04-29T13:32:03+02:00</lastmod>
+    </url>
+    <url>
+        <loc>http://www.olivergierke.de/2016/04/benefits-of-hypermedia/index.html</loc>
+        <lastmod>2016-04-29T13:55:39+02:00</lastmod>
+    </url>
+    <url>
+        <loc>http://www.olivergierke.de/about</loc>
+        <lastmod>2016-04-29T13:32:03+02:00</lastmod>
+    </url>
+    <url>
+        <loc>http://www.olivergierke.de/archive</loc>
+        <lastmod>2016-04-29T13:32:03+02:00</lastmod>
     </url>
     <url>
         <loc>http://www.olivergierke.de/</loc>
-        <lastmod>2013-09-20T21:44:41+02:00</lastmod>
+        <lastmod>2016-04-29T13:32:03+02:00</lastmod>
     </url>
     <url>
-        <loc>http://www.olivergierke.de/pages.html</loc>
-        <lastmod>2012-12-16T18:44:49+01:00</lastmod>
+        <loc>http://www.olivergierke.de/pages</loc>
+        <lastmod>2016-04-29T13:32:03+02:00</lastmod>
     </url>
     <url>
         <loc>http://www.olivergierke.de/sitemap.txt</loc>
         <lastmod>2012-12-16T18:32:50+01:00</lastmod>
     </url>
     <url>
-        <loc>http://www.olivergierke.de/tags.html</loc>
-        <lastmod>2012-12-16T18:44:49+01:00</lastmod>
+        <loc>http://www.olivergierke.de/tags</loc>
+        <lastmod>2016-04-29T13:32:03+02:00</lastmod>
     </url>
 </urlset>

@@ -13,6 +13,8 @@
    <!-- Homepage CSS -->
    <link rel="stylesheet" href="/assets/themes/tom/css/screen.css" type="text/css" media="screen, projection" />
 
+   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Fira+Sans:bold|Fira+Sans:light" type="text/css" />
+
    <!-- Typekit -->
    <script type="text/javascript" src="http://use.typekit.com/jpd0pfm.js"></script>
    <script type="text/javascript">try{Typekit.load();}catch(e){}</script>
@@ -27,7 +29,7 @@
       <a class="extra" href="/about.html">About</a>
       <a class="extra" href="/tags.html">Tags</a>
     </div>
-  
+
     
 <div id="post">
   <h1>Mein Weg zu Spring</h1>
@@ -35,34 +37,36 @@
     21 October 2006 
     
   </p>
-  <p>Mein erster Blogpost zum Thema Informatik. Während meines Studiums hat sich mein Interesse vor allem im Bereich Serveranwendungen mit Java entwickelt. Zum ersten kam ich damit während des Programmiermethodikpraktikums im Sommersemester &#8216;05. Wir entwickelten eine Art Studenten- bzw. Tutoriumsverwaltung auf der Basis der EJB 2.1 und JBoss. Der technische Overhead den die Technolgie mit sich brachte erschlug meine Arbeitsgruppe und mich schon ziemlich. Da musste es etwas besseres geben&#8230;<!--more-->Auf der Suche nach Alternativen lief mit das Buch &#8220;J2EE Development without EJB&#8221; von Rod Johnson über den Weg. Zum damaligen Zeitpunkt schon 1 Jahr alt, brachte das Buch eine Alternative zum EJB Stack als Democode mit sich. Was ich damals noch nicht wusste - dieses Stück Code hatte sich bereits zu einem Open Source Framework entwickelt: Spring.</p>
+  <p>Mein erster Blogpost zum Thema Informatik. Während meines Studiums hat sich mein Interesse vor allem im Bereich Serveranwendungen mit Java entwickelt. Zum ersten kam ich damit während des Programmiermethodikpraktikums im Sommersemester ‘05. Wir entwickelten eine Art Studenten- bzw. Tutoriumsverwaltung auf der Basis der EJB 2.1 und JBoss. Der technische Overhead den die Technolgie mit sich brachte erschlug meine Arbeitsgruppe und mich schon ziemlich. Da musste es etwas besseres geben…<!--more-->Auf der Suche nach Alternativen lief mit das Buch “J2EE Development without EJB” von Rod Johnson über den Weg. Zum damaligen Zeitpunkt schon 1 Jahr alt, brachte das Buch eine Alternative zum EJB Stack als Democode mit sich. Was ich damals noch nicht wusste - dieses Stück Code hatte sich bereits zu einem Open Source Framework entwickelt: Spring.</p>
 
 <p>Auch wenn der Buchtitel nach polemischer Abrechnung klingt - er fasst eigentlich nur eine nüchterne Analyse des damaligen Standes der Technik zusammen. Der EJB2.1 Standard zog von der ersten Codezeile an einen riesigen Overhead nach sich und verlangte umständliches Implementieren einer Vielzahl von Interfaces, egal ob man überhaupt Features wie die physische Verteilung von Objekten auf verschiedenen Servern wirklich Nutzen wollte. Desweiteren musste man die Kommunikation zwischen Komponenten von Hand programmieren und verbrachte dadurch mehr Zeit damit, Infrastruktur zu programmieren, als Businesscode zu schreiben.</p>
 
-<p>Spring setzt dem einen komplett anderen Ansatz entgegen. Basierend auf Martin Fowlers Idee der Dependency Inversion / - Injection, übernimmt bei Spring ein Container die Instantiierung der Komponenten und &#8220;injiziert&#8221; ihnen abhängige Komponenten. Ein weiterer Vorteil ist, das die Komponenten selbst reine POJOs sind und nichts von ihrer Umgebung bzw. Spring wissen. Sie werden dadurch leichter testbar und in unterschiedlichen Infrastrukturen einsetzbar (Tomcat, JBoss, im RichClient etc.).</p>
+<p>Spring setzt dem einen komplett anderen Ansatz entgegen. Basierend auf Martin Fowlers Idee der Dependency Inversion / - Injection, übernimmt bei Spring ein Container die Instantiierung der Komponenten und “injiziert” ihnen abhängige Komponenten. Ein weiterer Vorteil ist, das die Komponenten selbst reine POJOs sind und nichts von ihrer Umgebung bzw. Spring wissen. Sie werden dadurch leichter testbar und in unterschiedlichen Infrastrukturen einsetzbar (Tomcat, JBoss, im RichClient etc.).</p>
 
-<p>Bei der Suche nach einer Basistechnologie für meine Bachelorarbeit fiel mein erster Gedanke sofort auf Spring. Die &#8220;neue&#8221; Art zu programmieren (DI-basiert) erfordert schon ein wenig Eingewöhnungszeit. Hat man das Prinzip jedoch, einmal verinnerlicht möchte man gar nicht mehr ohne ;). Hinzu kommt, dass Spring neben der BeanFactory (dem DI-Container) noch mit einer Reihe von dünnen Abstraktionslayern über viele weit verbreitete APIs und Technologien daher kommt und somit für viele Implementierungsfrage bereits eine Unterstützung bietet. In vielen Fällen reichen bereits 10 Zeilen Konfigurationscode und Spring erledigt den Rest. Um einen Webservice anzusprechen ist zum Beispiel nur ein WSDL Dokument und ein Interface nötig. Der Client arbeitet gegen das Interface, der Stub wird zur Konfigurationszeit von Spring generiert und dem Client per DI injiziert.</p>
+<p>Bei der Suche nach einer Basistechnologie für meine Bachelorarbeit fiel mein erster Gedanke sofort auf Spring. Die “neue” Art zu programmieren (DI-basiert) erfordert schon ein wenig Eingewöhnungszeit. Hat man das Prinzip jedoch, einmal verinnerlicht möchte man gar nicht mehr ohne ;). Hinzu kommt, dass Spring neben der BeanFactory (dem DI-Container) noch mit einer Reihe von dünnen Abstraktionslayern über viele weit verbreitete APIs und Technologien daher kommt und somit für viele Implementierungsfrage bereits eine Unterstützung bietet. In vielen Fällen reichen bereits 10 Zeilen Konfigurationscode und Spring erledigt den Rest. Um einen Webservice anzusprechen ist zum Beispiel nur ein WSDL Dokument und ein Interface nötig. Der Client arbeitet gegen das Interface, der Stub wird zur Konfigurationszeit von Spring generiert und dem Client per DI injiziert.</p>
 
 <p>Mit EJB 3.0 sei vieles einfacher geworden, argumentiert die EJB Gemeinde. Manche gehen sogar soweit zu meinen, Spring werde dadurch überflüssig. Was dabei oft vergessen wird, das EJB 3.0 eigentlich nur die technischen Gegebenheiten von Spring bzw. Hibernate vom Stand von Ende 2005 übernimmt und dabei sogar auf halber Strecke stehen bleibt. Es gibt zum Beispiel keine Konstruktorinjection, das Konfigurieren von Komponenten mittels Annotations macht sie wieder von der Infrastruktur abhängig. Desweiteren ist die DI auf EJB Komponenten beschränkt - in Spring kann man jedes POJO per DI verarbeiten. Auch das Konfigurieren von AOP ähnlichen Interceptoren per Annotations führt die Idee von AOP eigentlich ad absurdum - Aspekte will ich zentral verwalten und nicht wieder über sämtliche Komponenten im Code verteilen.</p>
 
-<p>Verglichen mit EJB 2.1 ist EJB 3.0 sicher ein Fortschritt. Doch EJB 2.1 war Ende der 90er. Verglichen mit aktuellen Technologien ist der EJB 3.0 Standard eigentlich schon wieder überholt, was vor allem an langen Releasezyklen bei Standardspezifikationen liegt. OpenSource Software, die von einer lebendigen Community lebt hat da die Nase schon vorn. Spring 2.0 ist vor kurzem entschieden und bringt viele Schritte nach vorn mit sich. Eine AspectJ Integration, erste Schritte in Richtung OSGi sowie zahlreiche kleine Verbesserungen hier und da.</p>
+<p>Verglichen mit EJB 2.1 ist EJB 3.0 sicher ein Fortschritt. Doch EJB 2.1 war Ende der 90er. Verglichen mit aktuellen Technologien ist der EJB 3.0 Standard eigentlich schon wieder überholt, was vor allem an langen Releasezyklen bei Standardspezifikationen liegt. OpenSource Software, die von einer lebendigen Community lebt hat da die Nase schon vorn.  Spring 2.0 ist vor kurzem entschieden und bringt viele Schritte nach vorn mit sich. Eine AspectJ Integration, erste Schritte in Richtung OSGi sowie zahlreiche kleine Verbesserungen hier und da.</p>
 
-<p>Für mich ist Spring eine flexible Variante Serveranwendungen mit Java zu bauen, da es einem Anbietet genau das zu benutzen, was man benötigt, kaum Einfluss auf den Code nimmt und an sich ein recht sauberes Design forciert. <ul>
+<p>Für mich ist Spring eine flexible Variante Serveranwendungen mit Java zu bauen, da es einem Anbietet genau das zu benutzen, was man benötigt, kaum Einfluss auf den Code nimmt und an sich ein recht sauberes Design forciert.</p>
+<ul>
 	<li>[Springwebsite](http://www.springframework.org)</li>
 	<li>[Springbuch](http://www.amazon.de/Spring-Frameworks-f%fcr-die-Java-Entwicklung/dp/3898643654/sr=8-1/qid=1161463255/ref=pd_bbs_sr_1/028-5102242-3789349?ie=UTF8) von Eberhard Wolff</li>
 	<li>[What's new in Spring 2.0](http://static.springframework.org/spring/docs/2.0.x/reference/new-in-2.html)</li>
-</ul></p>
+</ul>
+
 </div>
 
 <div id="related">
   <h2>Related Posts</h2>
   <ul class="posts">
     
-      <li><span>22 Nov 2013</span> &raquo; <a href="/2013/11/why-field-injection-is-evil">Why field injection is evil</a></li>
+      <li><span>29 Apr 2016</span> &raquo; <a href="/2016/04/benefits-of-hypermedia/index.html">The Benefits of Hypermedia APIs</a></li>
     
-      <li><span>20 Sep 2013</span> &raquo; <a href="/2013/09/666-hell-not-found">666 - Hell not found</a></li>
+      <li><span>22 Nov 2013</span> &raquo; <a href="/2013/11/why-field-injection-is-evil/index.html">Why field injection is evil</a></li>
     
-      <li><span>14 Mar 2013</span> &raquo; <a href="/2013/03/juergenized">Jürgenized</a></li>
+      <li><span>20 Sep 2013</span> &raquo; <a href="/2013/09/666-hell-not-found/index.html">666 - Hell not found</a></li>
     
   </ul>
 </div>
@@ -89,7 +93,7 @@
 
 
 
-  
+
     <div class="footer">
       <div class="contact">
         <p>

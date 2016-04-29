@@ -13,6 +13,8 @@
    <!-- Homepage CSS -->
    <link rel="stylesheet" href="/assets/themes/tom/css/screen.css" type="text/css" media="screen, projection" />
 
+   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Fira+Sans:bold|Fira+Sans:light" type="text/css" />
+
    <!-- Typekit -->
    <script type="text/javascript" src="http://use.typekit.com/jpd0pfm.js"></script>
    <script type="text/javascript">try{Typekit.load();}catch(e){}</script>
@@ -27,7 +29,7 @@
       <a class="extra" href="/about.html">About</a>
       <a class="extra" href="/tags.html">Tags</a>
     </div>
-  
+
     
 <div id="post">
   <h1>Hades 2.0.0.RC2 introduces transactional DAOs</h1>
@@ -35,22 +37,19 @@
     22 June 2010 
     
   </p>
-  <p>Our latest Hades <a href='http://redmine.synyx.org/news/18'>release</a> of the 2.0 branch is introducing transactionality of DAO instances as main new feature. Of course you can read up the reference documentation for some general guidelines but I want to use the chance to give a more detailed look into why we introduce this and how some details work.</p>
+  
+<p>Our latest Hades <a href="http://redmine.synyx.org/news/18">release</a> of the 2.0 branch is introducing transactionality of DAO instances as main new feature. Of course you can read up the reference documentation for some general guidelines but I want to use the chance to give a more detailed look into why we introduce this and how some details work.</p>
 
 <p>These days, some kind of back-to-the-basics approach regarding architecture layering is widely accepted as best practices. Thus you don’t want to introduce a layer just because of some merely technical needs. A typical candidate layer for being obsolete is the service layer. Especially in web applications where you pretty much store entities that are equipped with rich behavior themselves the service layer is quite an artificial one that only demarcates transactions but then delegates to the underlying data access layer. Using Hades in such an application you had needed the additional transaction demarcation somewhere as it didn’t deal with transactions itself out of the box. So the only option to get rid of a service layer was to use e.g. <code>@Transactional</code> at a Spring MVC controller e.g. which is rather a sub-optimal solution.</p>
 
 <p>So actually we were quite reluctant to the idea of applying transactions to Hades DAO instances as there were some crucial points to consider:</p>
 
 <ol>
-<li><em>Actually a DAO layer might not be at the right level of abstraction.</em> Usually you define transactions on a more business related method than a plain <code>save(…)</code> or <code>findByUsername(…)</code>. So if we enable transactions at DAO methods we have to make sure that they seamlessly can be expanded to more coarse grained methods and the DAOs take part in those transactions.</li>
-
-<li><em>If we apply transactions we don’t want to imply our transaction model to the user’s application.</em> As Spring provides various means to define transactions, we don’t want to take that decision from the developer. So in case she wants to decide for a particular model, she has to be able to do so, no matter what we chose.</li>
-
-<li>Although the transactional behavior that we define for CRUD methods might be okay for 90% of the use cases <em>there has to be a way to override the defaults and replace them by some custom one.</em></li>
-
-<li>As Spring 3.0 <em>supports multiple transaction managers</em> via <code>@Transactional</code> we have to make sure we participate in the right transaction depending on in which context the DAO is used.</li>
-
-<li><em>It has to be easy to define transaction configuration for DAO interfaces</em> containing the finder methods.</li>
+  <li><em>Actually a DAO layer might not be at the right level of abstraction.</em> Usually you define transactions on a more business related method than a plain <code>save(…)</code> or <code>findByUsername(…)</code>. So if we enable transactions at DAO methods we have to make sure that they seamlessly can be expanded to more coarse grained methods and the DAOs take part in those transactions.</li>
+  <li><em>If we apply transactions we don’t want to imply our transaction model to the user’s application.</em> As Spring provides various means to define transactions, we don’t want to take that decision from the developer. So in case she wants to decide for a particular model, she has to be able to do so, no matter what we chose.</li>
+  <li>Although the transactional behavior that we define for CRUD methods might be okay for 90% of the use cases <em>there has to be a way to override the defaults and replace them by some custom one.</em></li>
+  <li>As Spring 3.0 <em>supports multiple transaction managers</em> via <code>@Transactional</code> we have to make sure we participate in the right transaction depending on in which context the DAO is used.</li>
+  <li><em>It has to be easy to define transaction configuration for DAO interfaces</em> containing the finder methods.</li>
 </ol>
 
 <p>We decided to use <code>@Transactional</code> annotations at the <code>GenericJpaDao</code> implementation class and activate annotation based transactions for the proxies explicitly through the <code>GenericDaoFactoryBean</code>. This means that the CRUD operations of the DAO instances will be transactional if called standalone or participate in a transaction in case there’s already one running for the current transaction manager (read up details on multiple transaction managers here). So it doesn’t matter if you declare your transactional boundaries via <code>@Transactional</code>, too, or use e.g. XML configuration or even <code>TransactionTemplate</code>. This gets us solutions for issues 1 and 2.</p>
@@ -64,7 +63,8 @@
   @Override
   @Transactional
   User readByPrimaryKey(Long key);
-}</code></pre>
+}
+</code></pre>
 
 <p>Getting this to work needs some reflection magic as we of course still have to delegate the call to that method to the <code>GenericJpaDao</code> instance but according to the Java Reflection API it of course does only implement <code>GenericDao.readByPrimaryKey(…)</code> and not <code>UserDao</code>. <code>readByPrimaryKey(…)</code>. Long story short, we can find out the method that has to be invoked so we can hand this reconfiguration model to the user and gain much flexibility on this side.</p>
 
@@ -73,24 +73,23 @@
 <p>So let me quickly summarize what 2.0.0.RC2 brings you in regard of transactions:</p>
 
 <ul>
-<li>Transactional CRUD methods (everything declared in <code>
-GenericDao</code>) with appropriate defaults (<code>readOnly</code> flag set to true on read-only methods) that automatically take part in more coarse grained transactions if necessary</li>
-
-<li>The ability to use <code>@Transactional</code> for your concrete DAO interfaces</li>
-
-<li>The ability to reconfigure the transactional behavior of the CRUD methods by simply redeclaring a method inside the concrete DAO interface</li>
+  <li>Transactional CRUD methods (everything declared in `
+GenericDao<code>) with appropriate defaults (</code>readOnly` flag set to true on read-only methods) that automatically take part in more coarse grained transactions if necessary</li>
+  <li>The ability to use <code>@Transactional</code> for your concrete DAO interfaces</li>
+  <li>The ability to reconfigure the transactional behavior of the CRUD methods by simply redeclaring a method inside the concrete DAO interface</li>
 </ul>
+
 </div>
 
 <div id="related">
   <h2>Related Posts</h2>
   <ul class="posts">
     
-      <li><span>22 Nov 2013</span> &raquo; <a href="/2013/11/why-field-injection-is-evil">Why field injection is evil</a></li>
+      <li><span>29 Apr 2016</span> &raquo; <a href="/2016/04/benefits-of-hypermedia/index.html">The Benefits of Hypermedia APIs</a></li>
     
-      <li><span>20 Sep 2013</span> &raquo; <a href="/2013/09/666-hell-not-found">666 - Hell not found</a></li>
+      <li><span>22 Nov 2013</span> &raquo; <a href="/2013/11/why-field-injection-is-evil/index.html">Why field injection is evil</a></li>
     
-      <li><span>14 Mar 2013</span> &raquo; <a href="/2013/03/juergenized">Jürgenized</a></li>
+      <li><span>20 Sep 2013</span> &raquo; <a href="/2013/09/666-hell-not-found/index.html">666 - Hell not found</a></li>
     
   </ul>
 </div>
@@ -117,7 +116,7 @@ GenericDao</code>) with appropriate defaults (<code>readOnly</code> flag set to 
 
 
 
-  
+
     <div class="footer">
       <div class="contact">
         <p>

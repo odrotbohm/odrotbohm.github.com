@@ -13,6 +13,8 @@
    <!-- Homepage CSS -->
    <link rel="stylesheet" href="/assets/themes/tom/css/screen.css" type="text/css" media="screen, projection" />
 
+   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Fira+Sans:bold|Fira+Sans:light" type="text/css" />
+
    <!-- Typekit -->
    <script type="text/javascript" src="http://use.typekit.com/jpd0pfm.js"></script>
    <script type="text/javascript">try{Typekit.load();}catch(e){}</script>
@@ -27,7 +29,7 @@
       <a class="extra" href="/about.html">About</a>
       <a class="extra" href="/tags.html">Tags</a>
     </div>
-  
+
     
 <div id="post">
   <h1>Clean Code - Review Part I</h1>
@@ -35,50 +37,51 @@
     23 January 2009 
     
   </p>
-  <p>As I have twittered already, I am reading &#8220;Clean Code&#8221; by Robert C. Martin right now. I expected the book to be a very fundamental one. Although there are a few parts I do not entirely agree with, I just rummaged throught chapter 11 &#8220;Systems&#8221; on my way home and was surprised how condensed Robert summarizes principles constructing software systems that I usually promote discussing such topics with colleagues.</p>
+  <p>As I have twittered already, I am reading “Clean Code” by Robert C. Martin right now. I expected the book to be a very fundamental one. Although there are a few parts I do not entirely agree with, I just rummaged throught chapter 11 “Systems” on my way home and was surprised how condensed Robert summarizes principles constructing software systems that I usually promote discussing such topics with colleagues.</p>
 
-<h2 id='1_separate_constructing_a_system_frum_using_it'>1. Separate constructing a system frum using it</h2>
+<h2 id="separate-constructing-a-system-frum-using-it">1. Separate constructing a system frum using it</h2>
 
-<p>Detractors of the Spring framework very often claim, configuring a system construction using XML sucks because of lacking type safety et cetera. I don&#8217;t want to get into discussion do detailed, but Spring&#8217;s way of describing system construction is not tied to XML at all (see <a href='http://www.springsource.org/javaconfig'>Spring JavaConfig</a>). For Robert the startup process of an application actually a <strong>concern</strong>. A view I kinda like as such, as you then can easily argument in terms of Separation of Concerns as well as the Single Responsibility Principle.</p>
+<p>Detractors of the Spring framework very often claim, configuring a system construction using XML sucks because of lacking type safety et cetera. I don’t want to get into discussion do detailed, but Spring’s way of describing system construction is not tied to XML at all (see <a href="http://www.springsource.org/javaconfig">Spring JavaConfig</a>). For Robert the startup process of an application actually a <strong>concern</strong>. A view I kinda like as such, as you then can easily argument in terms of Separation of Concerns as well as the Single Responsibility Principle.</p>
 
-<h2 id='2_dependency_injection'>2. Dependency Injection</h2>
+<h2 id="dependency-injection">2. Dependency Injection</h2>
 
 <p>DI is widely accepted these days, besides the myth that you always need a fully fledged container to use DI in your application. Robert shows some nice examples and points out that the conceptual idea is much more important that the tool you use.</p>
 
-<h2 id='3_cross_cutting_concerns__aop'>3. Cross cutting concerns / AOP</h2>
+<h2 id="cross-cutting-concerns--aop">3. Cross cutting concerns / AOP</h2>
 
 <p>Systems usually face logic that - coded in plain OO - is tangled though all the codebase. Adressing these issues with AOP leads to much more concise and extendable systems. Robert presents the concept from a very high level point of view and briefly introduces various AOP implementations, advising simple proxy based solutions like Spring AOP or JBoss AOP as suffient for most cases.</p>
 
-<h2 id='4_incremental_design'>4. Incremental design</h2>
+<h2 id="incremental-design">4. Incremental design</h2>
 
 <p>Robert emphasizes the importance of natural growth of designs. Big upfront designs often appear to be overengineered and too technical that does not abstract business domain on an appropriate level. Which leads us to…</p>
 
-<h2 id='5_domain_specific_languages'>5. Domain specific languages</h2>
+<h2 id="domain-specific-languages">5. Domain specific languages</h2>
 
-<p>I also don&#8217;t want to open this pandora&#8217;s box but clearly second the opinion that you have to find abstractions that are clean, simple and thightly wrapped around the domain to deal with, whether is a technical domain.</p>
+<p>I also don’t want to open this pandora’s box but clearly second the opinion that you have to find abstractions that are clean, simple and thightly wrapped around the domain to deal with, whether is a technical domain.</p>
 
-<h2 id='summary'>Summary</h2>
+<h2 id="summary">Summary</h2>
 
 <p>Robert boils down the chapter to the following paragraph:</p>
 
 <blockquote>
-<p>An optimal system architecture consists of modualrized domains of concern, each of which is implemented with Plain Old Java Objects (or other) objects. The different domains are integrated together with minimally invasive Aspects or Aspect-like tools. This architecture can be test-driven, just like code.</p>
+  <p>An optimal system architecture consists of modualrized domains of concern, each of which is implemented with Plain Old Java Objects (or other) objects. The different domains are integrated together with minimally invasive Aspects or Aspect-like tools. This architecture can be test-driven, just like code.</p>
 </blockquote>
 
 <p>I really just scratch the surface of what the chapter actually covers, but even this single chapter boils the topic down to its essences quite well. Nice to see all these concepts, priciples and attitudes distilled in a few pages.</p>
 
-<p>If you like, check out the <a href='http://www.amazon.de/Clean-Code-Handbook-Software-Craftsmanship/dp/0132350882/ref=sr_1_1?ie=UTF8&amp;amp;s=books-intl-de&amp;amp;qid=1232735586&amp;amp;sr=8-1'>book @ Amazon</a>.</p>
+<p>If you like, check out the <a href="http://www.amazon.de/Clean-Code-Handbook-Software-Craftsmanship/dp/0132350882/ref=sr_1_1?ie=UTF8&amp;s=books-intl-de&amp;qid=1232735586&amp;sr=8-1">book @ Amazon</a>.</p>
+
 </div>
 
 <div id="related">
   <h2>Related Posts</h2>
   <ul class="posts">
     
-      <li><span>22 Nov 2013</span> &raquo; <a href="/2013/11/why-field-injection-is-evil">Why field injection is evil</a></li>
+      <li><span>29 Apr 2016</span> &raquo; <a href="/2016/04/benefits-of-hypermedia/index.html">The Benefits of Hypermedia APIs</a></li>
     
-      <li><span>20 Sep 2013</span> &raquo; <a href="/2013/09/666-hell-not-found">666 - Hell not found</a></li>
+      <li><span>22 Nov 2013</span> &raquo; <a href="/2013/11/why-field-injection-is-evil/index.html">Why field injection is evil</a></li>
     
-      <li><span>14 Mar 2013</span> &raquo; <a href="/2013/03/juergenized">Jürgenized</a></li>
+      <li><span>20 Sep 2013</span> &raquo; <a href="/2013/09/666-hell-not-found/index.html">666 - Hell not found</a></li>
     
   </ul>
 </div>
@@ -105,7 +108,7 @@
 
 
 
-  
+
     <div class="footer">
       <div class="contact">
         <p>

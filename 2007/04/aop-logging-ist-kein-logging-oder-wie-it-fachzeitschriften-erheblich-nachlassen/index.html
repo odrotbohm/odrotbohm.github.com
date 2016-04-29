@@ -13,6 +13,8 @@
    <!-- Homepage CSS -->
    <link rel="stylesheet" href="/assets/themes/tom/css/screen.css" type="text/css" media="screen, projection" />
 
+   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Fira+Sans:bold|Fira+Sans:light" type="text/css" />
+
    <!-- Typekit -->
    <script type="text/javascript" src="http://use.typekit.com/jpd0pfm.js"></script>
    <script type="text/javascript">try{Typekit.load();}catch(e){}</script>
@@ -27,7 +29,7 @@
       <a class="extra" href="/about.html">About</a>
       <a class="extra" href="/tags.html">Tags</a>
     </div>
-  
+
     
 <div id="post">
   <h1>AOP Logging ist kein Logging - oder wie IT Zeitschriften erheblich nachlassen...</h1>
@@ -35,24 +37,25 @@
     03 April 2007 
     
   </p>
-  <p>Als ich mir vor ein paar Tagen die aktuelle JavaSpektrum zugelegt habe, sah der Inhalt ganz vielversprechend aus. Modelbasierte Entwicklung (hieß es bisher nicht immer modellgetriebene Entwicklung?), neues von AspectJ - die Themenliste klang gut. Nachdem ich dann allerdings den zweiten Artikel las, der mit der versprochenen Ãœberschrift relativ wenig zu tun hatte, kam schon eine Art Misstimmung auf. Ein Artikel, der angeblich die Arbeit mit den Eclipse WST dokumentieren sollte, entpuppte sich als kurzer Abriss über Spring, Axis und das Java Caching System. Für das WST blieben dann noch ein paar kurze Zeilen, die allerdings nicht mehr Information beinhalteten als die gemeinhin bekannten Eclipse Tutorials. Dann stieß ich (mal wieder) auf einen Fehler, der meiner Meinung nach penetrant übersehen wird&#8230;<!--more--></p>
+  <p>Als ich mir vor ein paar Tagen die aktuelle JavaSpektrum zugelegt habe, sah der Inhalt ganz vielversprechend aus. Modelbasierte Entwicklung (hieß es bisher nicht immer modellgetriebene Entwicklung?), neues von AspectJ - die Themenliste klang gut. Nachdem ich dann allerdings den zweiten Artikel las, der mit der versprochenen Ãœberschrift relativ wenig zu tun hatte, kam schon eine Art Misstimmung auf. Ein Artikel, der angeblich die Arbeit mit den Eclipse WST dokumentieren sollte, entpuppte sich als kurzer Abriss über Spring, Axis und das Java Caching System. Für das WST blieben dann noch ein paar kurze Zeilen, die allerdings nicht mehr Information beinhalteten als die gemeinhin bekannten Eclipse Tutorials. Dann stieß ich (mal wieder) auf einen Fehler, der meiner Meinung nach penetrant übersehen wird…<!--more--></p>
 
-<p>Der Artikel über AspectJ ging natürlich auf die Grundlagen aspektorientierter Programmierung ein. Als Anwendungsbeispiel für AOP fällt in jedem Artikel eigentlich das Thema Logging. Was dabei immer verschwiegen wird ist, das mit &#8220;Logging mit AOP&#8221; nichts anderes gemeint ist als Tracing mit AOP. Das Pointcutmodell von AOP Implementierungen wie AspectJ oder Spring AOP bezieht sich sinnvollerweise auf Methodenaufrufe.</p>
+<p>Der Artikel über AspectJ ging natürlich auf die Grundlagen aspektorientierter Programmierung ein. Als Anwendungsbeispiel für AOP fällt in jedem Artikel eigentlich das Thema Logging. Was dabei immer verschwiegen wird ist, das mit “Logging mit AOP” nichts anderes gemeint ist als Tracing mit AOP. Das Pointcutmodell von AOP Implementierungen wie AspectJ oder Spring AOP bezieht sich sinnvollerweise auf Methodenaufrufe.</p>
 
 <p>Praktisch bedeutet das, das man mit AOP die Möglichkeit hat Methodenaufrufe abzufangen und Code vor der Ausführung der Methode, nach der Ausführung und im Falle einer Exception auszuführen. Und da liegt auch schon der Hase im Pfeffer begraben. Ich weiß nicht, wie es euch geht, aber in meinem Quellcode stehen Logausgaben nicht nur am Anfang oder Ende einer Methode bzw. im Catchblock. Detaillierteres Logging für den Debugmodus (z.B. in verschiedenen If-Zweigen) ist schlichtweg nicht mit AOP möglich.</p>
 
-<p>Warum diesen Fakt niemand bei seinen Artikeln im Netz oder in Fachzeitschriften klarstellt, bleibt mir schleierhaft. AOP Anfänger (zu denen ich mich auch noch zähle) verwirrt das ganze doch ein wenig&#8230;</p>
+<p>Warum diesen Fakt niemand bei seinen Artikeln im Netz oder in Fachzeitschriften klarstellt, bleibt mir schleierhaft. AOP Anfänger (zu denen ich mich auch noch zähle) verwirrt das ganze doch ein wenig…</p>
+
 </div>
 
 <div id="related">
   <h2>Related Posts</h2>
   <ul class="posts">
     
-      <li><span>22 Nov 2013</span> &raquo; <a href="/2013/11/why-field-injection-is-evil">Why field injection is evil</a></li>
+      <li><span>29 Apr 2016</span> &raquo; <a href="/2016/04/benefits-of-hypermedia/index.html">The Benefits of Hypermedia APIs</a></li>
     
-      <li><span>20 Sep 2013</span> &raquo; <a href="/2013/09/666-hell-not-found">666 - Hell not found</a></li>
+      <li><span>22 Nov 2013</span> &raquo; <a href="/2013/11/why-field-injection-is-evil/index.html">Why field injection is evil</a></li>
     
-      <li><span>14 Mar 2013</span> &raquo; <a href="/2013/03/juergenized">Jürgenized</a></li>
+      <li><span>20 Sep 2013</span> &raquo; <a href="/2013/09/666-hell-not-found/index.html">666 - Hell not found</a></li>
     
   </ul>
 </div>
@@ -79,7 +82,7 @@
 
 
 
-  
+
     <div class="footer">
       <div class="contact">
         <p>

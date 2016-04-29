@@ -1,0 +1,167 @@
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+   <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+   <title>Oliver Gierke - The Benefits of Hypermedia APIs</title>
+   <meta name="author" content="Oliver Gierke" />
+   <link href="/atom.xml" rel="alternate" title="Blog Atom Feed" type="application/atom+xml" />
+
+   <!-- syntax highlighting CSS -->
+   <link rel="stylesheet" href="/assets/themes/tom/css/syntax.css" type="text/css" />
+
+   <!-- Homepage CSS -->
+   <link rel="stylesheet" href="/assets/themes/tom/css/screen.css" type="text/css" media="screen, projection" />
+
+   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Fira+Sans:bold|Fira+Sans:light" type="text/css" />
+
+   <!-- Typekit -->
+   <script type="text/javascript" src="http://use.typekit.com/jpd0pfm.js"></script>
+   <script type="text/javascript">try{Typekit.load();}catch(e){}</script>
+</head>
+<body>
+
+  <div class="site">
+    <div class="title">
+      <a href="/">Oliver Gierke</a>
+
+      <a class="extra" href="/archive.html">Archive</a>
+      <a class="extra" href="/about.html">About</a>
+      <a class="extra" href="/tags.html">Tags</a>
+    </div>
+
+    
+<div id="post">
+  <h1>The Benefits of Hypermedia APIs</h1>
+  <p class="meta">
+    29 April 2016 
+    
+  </p>
+  
+<p>Recently, I stumbled over a <a href="http://blog.jonathanchannon.com/2016/04/28/what-is-a-hypermedia-client/">blog post by Jonathan Channon</a> explaining how he got to realize that hypermedia APIs are not some magical thing but rather a pragmatic approach to avoid coupling between services.
+Also, I’ve been traveling conferences with a talk on <a href="https://speakerdeck.com/olivergierke/domain-driven-design-and-rest">Domain-Driven Design and REST</a> recently that covers the aspect of hypermedia as well and features an — as I think — rather nice example of how effective hypermedia can be when building distributed systems.
+I’ll come back to the example in a bit but let’s start with some fundamentals.</p>
+
+<h2 id="fundamentals">Fundamentals</h2>
+
+<p>REST web services are an especially great fit if you develop a distributed system (client-server being the most simple instance of that) where the individual systems are managed by different parties and have to be deployed independently.
+That could be a simple mobile app for your business, or it could be a microservice architecture (especially en vogue these days).
+Independent deployability can even an important requirement if the same team manages individual services as it will allow you to roll out new features of an individual system without having to wait for others.</p>
+
+<p>The crucial thing here is, that you want to avoid or can’t even afford to have to deploy the interacting systems together.
+Thus, breaking APIs is basically a no-go for the server or at least has to be avoided as much as possible.
+But when do we get into the state of a “broken API”? Whenever the assumptions the client made before and not met by the server anymore.
+We need to make sure the client makes as little assumptions about the server as possible.
+Hypermedia allows you to achieve exactly that as a lot of assumptions that you might naïvely code into your client can actually be simplified to the decision “Is a link with the given link relation present or not?”.</p>
+
+<h2 id="an-example">An Example</h2>
+
+<p>Let me give you a concrete example: the REST in Practice book ships with an example called RESTBucks.
+It basically simulates the ordering experience at a coffee shop and takes an order through some kind of life cycle (payment expected, in preparation etc.).
+See <a href="https://speakerdeck.com/olivergierke/domain-driven-design-and-rest?slide=49">this diagram</a> (also below) for an overview.
+Notice how the order can only be canceled in the payment expected state in this version of the diagram (state transition 3).</p>
+
+<script async="" class="speakerdeck-embed" data-slide="49" data-id="704520fbd3b94c5db6f1a31962ae0774" data-ratio="1.77777777777778" src="//speakerdeck.com/assets/embed.js"></script>
+
+<p>If you now coded a mobile client naïvely, it would probably look for the status field of the JSON payload, check whether it’s “payment expected” and if so, display a button to trigger the request for canceling.</p>
+
+<pre><code>GET /orders/4711
+
+{
+    …,
+    "status" : "payment expected"
+}
+
+</code></pre>
+
+<p>The client would have to know about the resource to issue the request to, the HTTP method it’s supposed to use and the payload it has to send to the server.
+You could even tip your toes into hypermedia and let the client look for the link to find the request target but hypermedia is not going to free the server from knowing about the request method and payload details.
+So, what is the problem with that approach of inspecting the representation in such detail?</p>
+
+<h2 id="adapting-to-change">Adapting to change</h2>
+
+<p>Assume there are a couple of changed and new requirements coming up:</p>
+
+<ol>
+  <li>As parts of the payload are intended to be displayed to the user, they’re supposed to be internationlized. So German users would get a “Zu bezahlen” instead.</li>
+  <li>Canceling an order is now also allowed <em>after the drinks have been prepared</em>.</li>
+</ol>
+
+<p>If the client is implemented like described above, both of these requirements require the client code to be changed.
+This stems from the fact that the client used detailed server side knowledge (allow to cancel in a certain state expressed through a certain value in the payload) and duplicated it in its implementation.
+It implicitly created coupling that we were thinking we avoided by using HTTP and JSON.
+Bummer!
+What could we have done instead?</p>
+
+<p>As I also describe in the talk, using hypermedia is basically about reducing critical decisions in the client to the presence of a link with a certain name in a certain context.
+We could’ve just implemented our mobile client that way: whenever the representation of an order contains a <code>cancel</code> link, we display the corresponding button and trigger the documented HTTP call to issue the cancellation if it’s pressed.
+This fundamentally reduces the knowledge baked into the client to nothing but the presence of the link.
+That slight change in the way the client is implemented would’ve made it capable to not break due to a change in the API (1, as it would just forward the value of the field to display to the user) and even pick up a new feature transparently (2, as it would transparently display the button in a completely different state of the order as well).</p>
+
+<p>That brings me back to <a href="http://blog.jonathanchannon.com/2016/04/28/what-is-a-hypermedia-client/">Jonathan’s article</a> (please go ahead and read it if you haven’t already) in which he outlines how important it is that clients really embrace hypermedia to use it for their benefits and that it’s not enough for servers to just serve hypermedia enabled representations.</p>
+
+</div>
+
+<div id="related">
+  <h2>Related Posts</h2>
+  <ul class="posts">
+    
+      <li><span>22 Nov 2013</span> &raquo; <a href="/2013/11/why-field-injection-is-evil/index.html">Why field injection is evil</a></li>
+    
+      <li><span>20 Sep 2013</span> &raquo; <a href="/2013/09/666-hell-not-found/index.html">666 - Hell not found</a></li>
+    
+      <li><span>14 Mar 2013</span> &raquo; <a href="/2013/03/juergenized/index.html">Jürgenized</a></li>
+    
+  </ul>
+</div>
+
+
+
+
+  <div id="disqus_thread"></div>
+<script type="text/javascript">
+    var disqus_developer = 1;
+    var disqus_shortname = 'olivergierke'; // required: replace example with your forum shortname
+    
+    /* * * DON'T EDIT BELOW THIS LINE * * */
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+
+
+
+
+
+
+    <div class="footer">
+      <div class="contact">
+        <p>
+          Oliver Gierke<br />
+          Soul Power!<br />
+        </p>
+      </div>
+      <div class="contact">
+        <p>
+          <a href="http://github.com/olivergierke/">github.com/olivergierke</a><br />
+          <a href="http://twitter.com/olivergierke/">twitter.com/olivergierke</a><br />
+          <a href='mailto:info@olivergierke.de'>info@olivergierke.de</a>
+        </p>
+      </div>
+      <div class="rss">
+        <a href="/atom.xml">
+          <img src="/assets/themes/tom/images/rss.png" alt="Subscribe to Atom Feed" />
+        </a>
+      </div>
+    </div>
+  </div>
+  <a href="http://github.com/olivergierke"><img style="position: absolute; top: 0; right: 0; border: 0;" src="http://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png" alt="Fork me on GitHub" /></a>
+
+  
+</body>
+</html>
+

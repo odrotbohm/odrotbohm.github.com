@@ -13,6 +13,8 @@
    <!-- Homepage CSS -->
    <link rel="stylesheet" href="/assets/themes/tom/css/screen.css" type="text/css" media="screen, projection" />
 
+   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Fira+Sans:bold|Fira+Sans:light" type="text/css" />
+
    <!-- Typekit -->
    <script type="text/javascript" src="http://use.typekit.com/jpd0pfm.js"></script>
    <script type="text/javascript">try{Typekit.load();}catch(e){}</script>
@@ -27,7 +29,7 @@
       <a class="extra" href="/about.html">About</a>
       <a class="extra" href="/tags.html">Tags</a>
     </div>
-  
+
     
 <div id="post">
   <h1>Unit testing annotation based Spring MVC controllers</h1>
@@ -35,22 +37,24 @@
     17 May 2009 
     
   </p>
-  <p>Although it took me a while to get used to them, I now pretty much like the annotation based programming model for controllers in Spring MVC. The major advantage over the traditional inheritance based approach is, that the methods, that are bound to requests are simple public methods, that can easily be unit tested.</p>
+  
+<p>Although it took me a while to get used to them, I now pretty much like the annotation based programming model for controllers in Spring MVC. The major advantage over the traditional inheritance based approach is, that the methods, that are bound to requests are simple public methods, that can easily be unit tested.</p>
 
-<p>So while unit testing the behaviour of the method is fine, one actually might want to test the mapping of URLs. Current Spring code requires you to invoke <code>AnnotationHandlerMethodAdapter</code>, that is responsible for detecting the method to be invoked AND invoking it. This is rather suboptimal as there is actual a private class contained in it that does the method lookup only. I already filed a <a href='http://jira.springframework.org/browse/SPR-5763'>request for enhancement</a> to extract that class and thus offer an easy way to test URL mappings.</p>
+<p>So while unit testing the behaviour of the method is fine, one actually might want to test the mapping of URLs. Current Spring code requires you to invoke <code>AnnotationHandlerMethodAdapter</code>, that is responsible for detecting the method to be invoked AND invoking it. This is rather suboptimal as there is actual a private class contained in it that does the method lookup only. I already filed a <a href="http://jira.springframework.org/browse/SPR-5763">request for enhancement</a> to extract that class and thus offer an easy way to test URL mappings.</p>
 
-<p>But that does not mean, that pure mapping testing is impossible right now. As long as you can live with executing the body of the controller methods you&#8217;re fine anyway. If that causes too much preparation overhead or you simply don&#8217;t like (as I do) there is a solution for you: mocking.</p>
+<p>But that does not mean, that pure mapping testing is impossible right now. As long as you can live with executing the body of the controller methods you’re fine anyway. If that causes too much preparation overhead or you simply don’t like (as I do) there is a solution for you: mocking.</p>
 
 <p>Suppose you have a controller class like this:</p>
 
 <pre><code>@Controller
 public class MyController {
 
-  @RequestMapping(&quot;/users&quot;)
+  @RequestMapping("/users")
   public void foo(HttpServletResponse response) {
     // Controller code goes here...
   }
-}</code></pre>
+}
+</code></pre>
 
 <p>Now you can set up a mock of this controller using EasyMock classextensions or another mocking framework of your choice and thus only check the URL mappings of your controller:</p>
 
@@ -75,7 +79,7 @@ public class MyController {
   @Test
   public void testname() throws Exception {
 
-    request.setRequestURI(&quot;/users&quot;);
+    request.setRequestURI("/users");
 
     controller.foo(response);
     EasyMock.expectLastCall().once();
@@ -86,20 +90,22 @@ public class MyController {
 
     EasyMock.verify(controller);
   }
-}</code></pre>
+}
+</code></pre>
 
 <p>You probably want to factor out basic behaviour into a common superclass to easily write mapping tests for all of your controllers.</p>
+
 </div>
 
 <div id="related">
   <h2>Related Posts</h2>
   <ul class="posts">
     
-      <li><span>22 Nov 2013</span> &raquo; <a href="/2013/11/why-field-injection-is-evil">Why field injection is evil</a></li>
+      <li><span>29 Apr 2016</span> &raquo; <a href="/2016/04/benefits-of-hypermedia/index.html">The Benefits of Hypermedia APIs</a></li>
     
-      <li><span>20 Sep 2013</span> &raquo; <a href="/2013/09/666-hell-not-found">666 - Hell not found</a></li>
+      <li><span>22 Nov 2013</span> &raquo; <a href="/2013/11/why-field-injection-is-evil/index.html">Why field injection is evil</a></li>
     
-      <li><span>14 Mar 2013</span> &raquo; <a href="/2013/03/juergenized">Jürgenized</a></li>
+      <li><span>20 Sep 2013</span> &raquo; <a href="/2013/09/666-hell-not-found/index.html">666 - Hell not found</a></li>
     
   </ul>
 </div>
@@ -126,7 +132,7 @@ public class MyController {
 
 
 
-  
+
     <div class="footer">
       <div class="contact">
         <p>

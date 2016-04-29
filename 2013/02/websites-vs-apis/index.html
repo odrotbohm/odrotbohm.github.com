@@ -13,6 +13,8 @@
    <!-- Homepage CSS -->
    <link rel="stylesheet" href="/assets/themes/tom/css/screen.css" type="text/css" media="screen, projection" />
 
+   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Fira+Sans:bold|Fira+Sans:light" type="text/css" />
+
    <!-- Typekit -->
    <script type="text/javascript" src="http://use.typekit.com/jpd0pfm.js"></script>
    <script type="text/javascript">try{Typekit.load();}catch(e){}</script>
@@ -27,7 +29,7 @@
       <a class="extra" href="/about.html">About</a>
       <a class="extra" href="/tags.html">Tags</a>
     </div>
-  
+
     
 <div id="post">
   <h1>Websites VS. APIs</h1>
@@ -35,60 +37,65 @@
     21 February 2013 
     
   </p>
-  <p>I&#8217;ve been recently pulled into some Twitter conversations about the quality of the new open data portal &#8220;launched&#8221; by the German government available at <a href='http://govdata.de'>govdata.de</a>. I put launched in quotation marks as the launch has been a rather rocky one critized <a href='http://www.dw.de/net-activists-slam-germanys-open-data-portal/a-16611003'>through out</a> <a href='http://opengovgermany.com/2013/02/04/german-government-screws-up-open-data/'>the web</a>.</p>
+  
+<p>I’ve been recently pulled into some Twitter conversations about the quality of the new open data portal “launched” by the German government available at <a href="http://govdata.de">govdata.de</a>. I put launched in quotation marks as the launch has been a rather rocky one critized <a href="http://www.dw.de/net-activists-slam-germanys-open-data-portal/a-16611003">through out</a> <a href="http://opengovgermany.com/2013/02/04/german-government-screws-up-open-data/">the web</a>.</p>
 
-<p>I in particular made fun of the very verbose <a href='http://www.govdata.de/ckan/api'><code>api</code></a> resource the portal exposes. If you do a <code>GET</code> on it all you get returned is a:</p>
+<p>I in particular made fun of the very verbose <a href="http://www.govdata.de/ckan/api"><code>api</code></a> resource the portal exposes. If you do a <code>GET</code> on it all you get returned is a:</p>
 
-<pre><code>{ &quot;version&quot; : 1 }</code></pre>
+<pre><code>{ "version" : 1 }
+</code></pre>
 
-<p>What I was trying to point at - and I think most of my Twitter followers are aware that I am into the field of REST web services a bit - is that it&#8217;s absolutely sad that it&#8217;s 2013 and we still see &#8220;APIs&#8221; published to the web that lack any kind of hypermedia elements. My <a href='https://twitter.com/olivergierke/status/304562182350315520'>initial tweet</a> caused a bit of response and started some interesting conversation.</p>
+<p>What I was trying to point at - and I think most of my Twitter followers are aware that I am into the field of REST web services a bit - is that it’s absolutely sad that it’s 2013 and we still see “APIs” published to the web that lack any kind of hypermedia elements. My <a href="https://twitter.com/olivergierke/status/304562182350315520">initial tweet</a> caused a bit of response and started some interesting conversation.</p>
 
-<p><a href='https://twitter.com/ischieferdecker'>Ina Schiefendecker</a> (I assume to be related to the GovData project as she is working for <a href='http://www.fokus.fraunhofer.de/de/motion/index.html'>Fraunhofer FOKUS</a>, responsible for implementing the portal) <a href='https://twitter.com/ischieferdecker/status/304567001819525121'>pointed me</a> to the documentation:</p>
-
-<blockquote>
-<p>Just have a look: <a href='http://t.co/cA4Q0pXzKQ'>http://t.co/cA4Q0pXzKQ</a> or <a href='http://t.co/Qd114XnfbG'>http://t.co/Qd114XnfbG</a></p>
-</blockquote>
-
-<p>I <a href='https://twitter.com/olivergierke/status/304568799187832832'>replied</a> that adding hypermedia elements to the responses would turn the chunks of data into a usable API, which she <a href='https://twitter.com/ischieferdecker/status/304570536229474304'>responded</a> to with:</p>
+<p><a href="https://twitter.com/ischieferdecker">Ina Schiefendecker</a> (I assume to be related to the GovData project as she is working for <a href="http://www.fokus.fraunhofer.de/de/motion/index.html">Fraunhofer FOKUS</a>, responsible for implementing the portal) <a href="https://twitter.com/ischieferdecker/status/304567001819525121">pointed me</a> to the documentation:</p>
 
 <blockquote>
-<p>If you want hypermedia take the portal, if you want to program take the API</p>
+  <p>Just have a look: <a href="http://t.co/cA4Q0pXzKQ">http://t.co/cA4Q0pXzKQ</a> or <a href="http://t.co/Qd114XnfbG">http://t.co/Qd114XnfbG</a></p>
 </blockquote>
 
-<p>My initial reaction to this was a deep *sigh* and thinking that the team apparently hasn&#8217;t understood the value of hypermedia in API design. But taking a step back, this statement contains an interesting aspect:</p>
-
-<h4 id='for_the_govdata_team_the_website_is_something_different_than_the_api'>For the GovData team the website is something different than the API</h4>
-
-<p>Why is that the case? If it&#8217;s on the web, embrace the web, period. Why would you choose the web as the platform of choice if the first thing you do right after that is starting to ignore it&#8217;s core traits? Hypermedia is essential to way the web works, thus so should it be to your web site <em>and</em> APIs you expose to the web.</p>
-
-<p>To me it feels like implementation aspects leaking through at this point. According to some leaked stack traces, the portal is built with JBoss, Liferay and JSF (<em>sigh</em>), the API with <a href='http://ckan.org/'>CKAN</a>. Totally different technology stacks, but does that impose a real conceptual difference to a web site and a web API?</p>
-
-<p>Playing devil&#8217;s advocate a bit one now could ask:</p>
+<p>I <a href="https://twitter.com/olivergierke/status/304568799187832832">replied</a> that adding hypermedia elements to the responses would turn the chunks of data into a usable API, which she <a href="https://twitter.com/ischieferdecker/status/304570536229474304">responded</a> to with:</p>
 
 <blockquote>
-<p>If a web site is the same as an API and you have a website, why do you need something you call &#8220;a dedicated API&#8221; at all?</p>
+  <p>If you want hypermedia take the portal, if you want to program take the API</p>
 </blockquote>
 
-<p>The core point here is what makes up &#8220;dedicated&#8221; in the first place. To stay with REST terms, in my opinion &#8220;dedicated&#8221; is embodied in the <em>representation design for different client types</em>. Even for <a href='http://roca-style.org/'>well designed websites</a> you usually serve a representation that consists of certain elements that serve the purpose of being displayed to a user through a browser. This is essentially a core principle of REST: you choose a media type tailored for a specific use case to optimize on bandwidth, performance and client (the browser in this case) usability. And so do web APIs, except the driving factors being others: potentially much more focused on limiting bandwidth usage, the numer of requests necessary and ease of extracting data from responses. You also do so when exposing your web site content to feed readers by choosing Atom or RSS. But in the end it&#8217;s all about <em>designing representations</em> for clients with different requirements. So here&#8217;s what it boils down to:</p>
+<p>My initial reaction to this was a deep *sigh* and thinking that the team apparently hasn’t understood the value of hypermedia in API design. But taking a step back, this statement contains an interesting aspect:</p>
+
+<h4 id="for-the-govdata-team-the-website-is-something-different-than-the-api">For the GovData team the website is something different than the API</h4>
+
+<p>Why is that the case? If it’s on the web, embrace the web, period. Why would you choose the web as the platform of choice if the first thing you do right after that is starting to ignore it’s core traits? Hypermedia is essential to way the web works, thus so should it be to your web site <em>and</em> APIs you expose to the web. </p>
+
+<p>To me it feels like implementation aspects leaking through at this point. According to some leaked stack traces, the portal is built with JBoss, Liferay and JSF (<em>sigh</em>), the API with <a href="http://ckan.org/">CKAN</a>. Totally different technology stacks, but does that impose a real conceptual difference to a web site and a web API?</p>
+
+<p>Playing devil’s advocate a bit one now could ask:</p>
 
 <blockquote>
-<p>Both your website and your API benefit from being considered &#8216;the same thing&#8217; with different representations.</p>
+  <p>If a web site is the same as an API and you have a website, why do you need something you call “a dedicated API” at all?</p>
 </blockquote>
 
-<p>There&#8217;s absolutely no point in differentiating between the apparently different things &#8220;website&#8221; and &#8220;web API&#8221;, especially when it comes to the aspect of hypermedia: <strong>if it&#8217;s on the web, embrace the web.</strong></p>
+<p>The core point here is what makes up “dedicated” in the first place. To stay with REST terms, in my opinion “dedicated” is embodied in the <em>representation design for different client types</em>. Even for <a href="http://roca-style.org/">well designed websites</a> you usually serve a representation that consists of certain elements that serve the purpose of being displayed to a user through a browser. This is essentially a core principle of REST: you choose a media type tailored for a specific use case to optimize on bandwidth, performance and client (the browser in this case) usability. And so do web APIs, except the driving factors being others: potentially much more focused on limiting bandwidth usage, the numer of requests necessary and ease of extracting data from responses. You also do so when exposing your web site content to feed readers by choosing Atom or RSS. But in the end it’s all about <em>designing representations</em> for clients with different requirements. So here’s what it boils down to:</p>
+
+<blockquote>
+  <p>Both your website and your API benefit from being considered ‘the same thing’ with different representations.</p>
+</blockquote>
+
+<p>There’s absolutely no point in differentiating between the apparently different things “website” and “web API”, especially when it comes to the aspect of hypermedia: <strong>if it’s on the web, embrace the web.</strong></p>
+
 <hr />
-<p>Edit - 2013-04-30: <a href='https://twitter.com/owolf'>Oliver Wolf</a> has a great <a href='https://speakerdeck.com/owolf/turning-passive-apis-into-active-apis'>presentation</a> on active VS. passive APIs on speakerdeck.com. It uses the issues with GovData (or the CKAN API to be precise) to suggest improvements to the APIs.</p>
+
+<p>Edit - 2013-04-30: <a href="https://twitter.com/owolf">Oliver Wolf</a> has a great <a href="https://speakerdeck.com/owolf/turning-passive-apis-into-active-apis">presentation</a> on active VS. passive APIs on speakerdeck.com. It uses the issues with GovData (or the CKAN API to be precise) to suggest improvements to the APIs.</p>
+
 </div>
 
 <div id="related">
   <h2>Related Posts</h2>
   <ul class="posts">
     
-      <li><span>22 Nov 2013</span> &raquo; <a href="/2013/11/why-field-injection-is-evil">Why field injection is evil</a></li>
+      <li><span>29 Apr 2016</span> &raquo; <a href="/2016/04/benefits-of-hypermedia/index.html">The Benefits of Hypermedia APIs</a></li>
     
-      <li><span>20 Sep 2013</span> &raquo; <a href="/2013/09/666-hell-not-found">666 - Hell not found</a></li>
+      <li><span>22 Nov 2013</span> &raquo; <a href="/2013/11/why-field-injection-is-evil/index.html">Why field injection is evil</a></li>
     
-      <li><span>14 Mar 2013</span> &raquo; <a href="/2013/03/juergenized">Jürgenized</a></li>
+      <li><span>20 Sep 2013</span> &raquo; <a href="/2013/09/666-hell-not-found/index.html">666 - Hell not found</a></li>
     
   </ul>
 </div>
@@ -115,7 +122,7 @@
 
 
 
-  
+
     <div class="footer">
       <div class="contact">
         <p>

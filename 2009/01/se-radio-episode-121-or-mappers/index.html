@@ -13,6 +13,8 @@
    <!-- Homepage CSS -->
    <link rel="stylesheet" href="/assets/themes/tom/css/screen.css" type="text/css" media="screen, projection" />
 
+   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Fira+Sans:bold|Fira+Sans:light" type="text/css" />
+
    <!-- Typekit -->
    <script type="text/javascript" src="http://use.typekit.com/jpd0pfm.js"></script>
    <script type="text/javascript">try{Typekit.load();}catch(e){}</script>
@@ -27,7 +29,7 @@
       <a class="extra" href="/about.html">About</a>
       <a class="extra" href="/tags.html">Tags</a>
     </div>
-  
+
     
 <div id="post">
   <h1>The DAO is dead! Long live the DAO!</h1>
@@ -35,56 +37,57 @@
     14 January 2009 
     
   </p>
-  <p><a href='http://www.se-radio.net/podcast/2008-12/episode-121-or-mappers-michael-ploed'>Episode 121</a> of <a href='http://www.se-radio.net'>Software Engineering Radio</a> deals with the topic of OR Mappers. Michael Plöd introduces the concept of <a href='http://en.wikipedia.org/wiki/Object-relational_mapping'>object-relational mapping</a> technologies, discusses advantages and disadvantages. The content of the episode is very basic to a large extend, which makes it ideal to get an introducing idea of the topic.</p>
+  <p><a href="http://www.se-radio.net/podcast/2008-12/episode-121-or-mappers-michael-ploed">Episode 121</a> of <a href="http://www.se-radio.net">Software Engineering Radio</a> deals with the topic of OR Mappers. Michael Plöd introduces the concept of <a href="http://en.wikipedia.org/wiki/Object-relational_mapping">object-relational mapping</a> technologies, discusses advantages and disadvantages. The content of the episode is very basic to a large extend, which makes it ideal to get an introducing idea of the topic.</p>
 
-<p>The reason I discuss this here is a discussion Arno (the interviewer) is introducing regarding the necessity of the DAO (Data Access Object) Pattern, if you use OR Mappers. Michael thinks that the DAO Pattern still has the right to exist and I decidedly second that. Let me explain why&#8230;</p>
+<p>The reason I discuss this here is a discussion Arno (the interviewer) is introducing regarding the necessity of the DAO (Data Access Object) Pattern, if you use OR Mappers. Michael thinks that the DAO Pattern still has the right to exist and I decidedly second that. Let me explain why…</p>
 
-<p>First, let&#8217;s take a look at the origin of the DAO Pattern, the problems it was meant to address in times it was invented. According to Wikipedia DAO is defined as follows:</p>
+<p>First, let’s take a look at the origin of the DAO Pattern, the problems it was meant to address in times it was invented. According to Wikipedia DAO is defined as follows:</p>
 
 <blockquote>
-<p>&#8230;a <strong>Data Access Object</strong> (DAO) is an <a href='http://en.wikipedia.org/wiki/Object_%28computer_science%29'>object</a> that provides an abstract <a href='http://en.wikipedia.org/wiki/Interface_%28computer_science%29'>interface</a> to some type of <a href='http://en.wikipedia.org/wiki/Database'>database</a> or persistence mechanism, providing some specific operations without exposing details of the database.</p>
+  <p>…a <strong>Data Access Object</strong> (DAO) is an <a href="http://en.wikipedia.org/wiki/Object_%28computer_science%29">object</a> that provides an abstract <a href="http://en.wikipedia.org/wiki/Interface_%28computer_science%29">interface</a> to some type of <a href="http://en.wikipedia.org/wiki/Database">database</a> or persistence mechanism, providing some specific operations without exposing details of the database.</p>
 </blockquote>
 
-<p>In the days it was invented &#8220;persistence mechanism&#8221; was equal to &#8220;JDBC and SQL&#8221;. This of coure has changed a lot if you use an OR Mapper or even another abstraction layer above it like JPA. As they provide a more object oriented view on persistence or even a standardized interface. Nevertheless I definately propose the DAO for a lot of reasons. In the podcast Michael coins two main reasons, that I will briefly will describe here. Furthermore I&#8217;m going to add some other ones.</p>
+<p>In the days it was invented “persistence mechanism” was equal to “JDBC and SQL”. This of coure has changed a lot if you use an OR Mapper or even another abstraction layer above it like JPA. As they provide a more object oriented view on persistence or even a standardized interface. Nevertheless I definately propose the DAO for a lot of reasons. In the podcast Michael coins two main reasons, that I will briefly will describe here. Furthermore I’m going to add some other ones.</p>
 
-<h2 id='separation_of_persistence_logic_and_business_logic'>Separation of persistence logic and business logic</h2>
+<h2 id="separation-of-persistence-logic-and-business-logic">Separation of persistence logic and business logic</h2>
 
 <p>Using JPA in your service class directly (whether it is a Statless Session Bean or Spring bean) works well as long as you can rely on the really basic CRUD methods: create, update, delete, read. Reading persistent objects already is not that simple anymore.</p>
 
-<h2 id='tangled_code__more_sophisticated_api'>Tangled code / More sophisticated API</h2>
+<h2 id="tangled-code--more-sophisticated-api">Tangled code / More sophisticated API</h2>
 
-<p>I have never seen an application that did only read all objects at once. You always need to select objects based on a given criteria, sort, page results and so on. If you try to set this up with JPA API or a vendor specific one you tangle your code with persistence code probably even proprietary API (if you use OR Mapper API directly). Furthermore you can easily mix and match persistence technology, if it becomes handy. I&#8217;ve seen few projects that use OR Mappers for classic data access and low level JDBC code to perform bulk operations.</p>
+<p>I have never seen an application that did only read all objects at once. You always need to select objects based on a given criteria, sort, page results and so on. If you try to set this up with JPA API or a vendor specific one you tangle your code with persistence code probably even proprietary API (if you use OR Mapper API directly). Furthermore you can easily mix and match persistence technology, if it becomes handy. I’ve seen few projects that use OR Mappers for classic data access and low level JDBC code to perform bulk operations.</p>
 
-<h2 id='exchange_implementation'>Exchange implementation</h2>
+<h2 id="exchange-implementation">Exchange implementation</h2>
 
-<p>This is the &#8220;Yessss&#8230; but who does this?&#8221; argument. The answer is: You do! Or at least you should. Unit testing your business logic you should be able to easily mock or stub out your data access code.</p>
+<p>This is the “Yessss… but who does this?” argument. The answer is: You do! Or at least you should. Unit testing your business logic you should be able to easily mock or stub out your data access code.</p>
 
-<h2 id='dont_repeat_the_dao'>Don&#8217;t repeat the DAO!</h2>
+<h2 id="dont-repeat-the-dao">Don’t repeat the DAO!</h2>
 
 <p>Another aspect of the problem is that CRUD code as well as DAO implementations tend to be boilerplate. Repeated code here and there. Using a DAO layer allows you to gently generalize the code and thus reduce the amount of coded needed to implement it.</p>
 
-<h2 id='hades_to_help'>Hades to help!</h2>
+<h2 id="hades-to-help">Hades to help!</h2>
 
-<p>Why am I so passionate about this? If you read my blog now and then you know that I lead project Hades that addresses exactly these issues. So if you ever have experienced one of the issues mentioned above, take a glance at <a href='http://hades.synyx.org'>Hades</a> and play around with it if you like.</p>
+<p>Why am I so passionate about this? If you read my blog now and then you know that I lead project Hades that addresses exactly these issues. So if you ever have experienced one of the issues mentioned above, take a glance at <a href="http://hades.synyx.org">Hades</a> and play around with it if you like.</p>
 
-<p>If you are from Frankfurt/Main area you have the chance to get introduced to it tomorrow evening where I will give a talk on <a href='http://hades.synyx.org'>Hades</a> (and the DAO question) on 2009&#8217;s first <a href='http://www.devdusk.de'>DevDusk</a> - Technology for Techies, a bimonthly meeting of passionated geeks, nerds, techies, whatever you wnt to call them. Would be nice to see you there.</p>
+<p>If you are from Frankfurt/Main area you have the chance to get introduced to it tomorrow evening where I will give a talk on <a href="http://hades.synyx.org">Hades</a> (and the DAO question) on 2009’s first <a href="http://www.devdusk.de">DevDusk</a> - Technology for Techies, a bimonthly meeting of passionated geeks, nerds, techies, whatever you wnt to call them. Would be nice to see you there.</p>
 
-<h2 id='links'>Links</h2>
+<h2 id="links">Links</h2>
 
 <ul>
-<li><a href='http://www.ibm.com/developerworks/java/library/j-genericdao.html'>Don&#8217;t repeat the DAO</a></li>
+  <li><a href="http://www.ibm.com/developerworks/java/library/j-genericdao.html">Don’t repeat the DAO</a></li>
 </ul>
+
 </div>
 
 <div id="related">
   <h2>Related Posts</h2>
   <ul class="posts">
     
-      <li><span>22 Nov 2013</span> &raquo; <a href="/2013/11/why-field-injection-is-evil">Why field injection is evil</a></li>
+      <li><span>29 Apr 2016</span> &raquo; <a href="/2016/04/benefits-of-hypermedia/index.html">The Benefits of Hypermedia APIs</a></li>
     
-      <li><span>20 Sep 2013</span> &raquo; <a href="/2013/09/666-hell-not-found">666 - Hell not found</a></li>
+      <li><span>22 Nov 2013</span> &raquo; <a href="/2013/11/why-field-injection-is-evil/index.html">Why field injection is evil</a></li>
     
-      <li><span>14 Mar 2013</span> &raquo; <a href="/2013/03/juergenized">Jürgenized</a></li>
+      <li><span>20 Sep 2013</span> &raquo; <a href="/2013/09/666-hell-not-found/index.html">666 - Hell not found</a></li>
     
   </ul>
 </div>
@@ -111,7 +114,7 @@
 
 
 
-  
+
     <div class="footer">
       <div class="contact">
         <p>

@@ -13,6 +13,8 @@
    <!-- Homepage CSS -->
    <link rel="stylesheet" href="/assets/themes/tom/css/screen.css" type="text/css" media="screen, projection" />
 
+   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Fira+Sans:bold|Fira+Sans:light" type="text/css" />
+
    <!-- Typekit -->
    <script type="text/javascript" src="http://use.typekit.com/jpd0pfm.js"></script>
    <script type="text/javascript">try{Typekit.load();}catch(e){}</script>
@@ -27,7 +29,7 @@
       <a class="extra" href="/about.html">About</a>
       <a class="extra" href="/tags.html">Tags</a>
     </div>
-  
+
     
 <div id="post">
   <h1>Spring, logging and JMX</h1>
@@ -35,41 +37,46 @@
     01 October 2010 
     
   </p>
-  <p>Pretty much every application out in the wild is using logging to some extend. As applications tend to have bugs (yes, yours as well) it’s a common requirement to alter log levels at runtime. As JMX (Java Management Extensions) is a standard to monitor and manage applications it seems to be a reasonable approach to expose the loggers used in an application via JMX to allow tuning of log levels via a JMX client like jconsole. So let’s take a look on how you enable JMX with Spring.</p>
+  
+<p>Pretty much every application out in the wild is using logging to some extend. As applications tend to have bugs (yes, yours as well) it’s a common requirement to alter log levels at runtime. As JMX (Java Management Extensions) is a standard to monitor and manage applications it seems to be a reasonable approach to expose the loggers used in an application via JMX to allow tuning of log levels via a JMX client like jconsole. So let’s take a look on how you enable JMX with Spring.</p>
 
 <pre><code>&lt;context:mbean-server /&gt;
-&lt;context:mbean-export /&gt;</code></pre>
+&lt;context:mbean-export /&gt;
+</code></pre>
 
 <p>The first element from the context namespace sets up a JMX server so that MBeans can be registered. The second element activates automatic export of all Spring beans the either leverage Spring JMX support (annotation based) or Spring beans that satisfy the JMX naming scheme (a class implementing an interface named <code>${classname}MBean</code>). Fortunately Log4J ships with a <code>LoggerDynamicMBean</code> that exports a <code>Logger</code> instance to the JMX infrastructure. It’s API is not really built with dependency injection in mind but due to the flexibility of the Spring XML configuration language we could register this MBean as follows:</p>
 
-<pre><code>&lt;bean class=&quot;org.apache.log4j.jmx.LoggerDynamicMBean&quot;&gt;
+<pre><code>&lt;bean class="org.apache.log4j.jmx.LoggerDynamicMBean"&gt;
   &lt;constructor-arg&gt;
-    &lt;bean class=&quot;org.apache.log4j.Logger&quot; factory-method=&quot;getLogger&quot;&gt;
-      &lt;constructor-arg value=&quot;org.springframework.jmx&quot; /&gt;
+    &lt;bean class="org.apache.log4j.Logger" factory-method="getLogger"&gt;
+      &lt;constructor-arg value="org.springframework.jmx" /&gt;
     &lt;/bean&gt;
   &lt;/constructor-arg&gt;
-&lt;/bean&gt;</code></pre>
+&lt;/bean&gt;
+</code></pre>
 
 <p>Running this in combination with the XML snippet above now exposes the logger for org.springframework.jmx as JMX MBean.</p>
 
-<h2 id='xml_hell_go_make_it_clear_and_nice'>XML Hell? Go make it clear and nice!</h2>
+<h2 id="xml-hell-go-make-it-clear-and-nice">XML Hell? Go make it clear and nice!</h2>
 
 <p>Declaring the MBean for a single logger requires quite an amount of XML and is boilerplate to a large degree. The two things that are unique in this case is that we want to expose a Log4J logger and the logger name of <code>org.springframework.jmx</code>. So what if we could expose the logger with something like this:</p>
 
-<pre><code>&lt;jmx:logger type=&quot;Log4J&quot; name=&quot;org.springframework.jmx&quot; /&gt;</code></pre>
+<pre><code>&lt;jmx:logger type="Log4J" name="org.springframework.jmx" /&gt;
+</code></pre>
 
-<p>We can! I’ve created a small <a href='http://github.com/olivergierke/spring-jmx-namespace'>sample project</a> project containing a custom JMX namespace and put it up on Github. The README file contains instructions how to play around with the Sample class, altering the log level via jconsole and see results in the console output. Right now it’s pretty much just a proof of concept and could be improved in a few corners. We should support other logging libraries and we could transparently register and whcih is not the case currently. Feel free to suggest or add extensions!</p>
+<p>We can! I’ve created a small <a href="http://github.com/olivergierke/spring-jmx-namespace">sample project</a> project containing a custom JMX namespace and put it up on Github. The README file contains instructions how to play around with the Sample class, altering the log level via jconsole and see results in the console output. Right now it’s pretty much just a proof of concept and could be improved in a few corners. We should support other logging libraries and we could transparently register and whcih is not the case currently. Feel free to suggest or add extensions!</p>
+
 </div>
 
 <div id="related">
   <h2>Related Posts</h2>
   <ul class="posts">
     
-      <li><span>22 Nov 2013</span> &raquo; <a href="/2013/11/why-field-injection-is-evil">Why field injection is evil</a></li>
+      <li><span>29 Apr 2016</span> &raquo; <a href="/2016/04/benefits-of-hypermedia/index.html">The Benefits of Hypermedia APIs</a></li>
     
-      <li><span>20 Sep 2013</span> &raquo; <a href="/2013/09/666-hell-not-found">666 - Hell not found</a></li>
+      <li><span>22 Nov 2013</span> &raquo; <a href="/2013/11/why-field-injection-is-evil/index.html">Why field injection is evil</a></li>
     
-      <li><span>14 Mar 2013</span> &raquo; <a href="/2013/03/juergenized">Jürgenized</a></li>
+      <li><span>20 Sep 2013</span> &raquo; <a href="/2013/09/666-hell-not-found/index.html">666 - Hell not found</a></li>
     
   </ul>
 </div>
@@ -96,7 +103,7 @@
 
 
 
-  
+
     <div class="footer">
       <div class="contact">
         <p>

@@ -13,6 +13,8 @@
    <!-- Homepage CSS -->
    <link rel="stylesheet" href="/assets/themes/tom/css/screen.css" type="text/css" media="screen, projection" />
 
+   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Fira+Sans:bold|Fira+Sans:light" type="text/css" />
+
    <!-- Typekit -->
    <script type="text/javascript" src="http://use.typekit.com/jpd0pfm.js"></script>
    <script type="text/javascript">try{Typekit.load();}catch(e){}</script>
@@ -27,7 +29,7 @@
       <a class="extra" href="/about.html">About</a>
       <a class="extra" href="/tags.html">Tags</a>
     </div>
-  
+
     
 <div id="post">
   <h1>Integrating Hades into existing applications</h1>
@@ -35,33 +37,35 @@
     06 February 2009 
     
   </p>
-  <p>Today I&#8217;ve got an email by <a href='https://www.xing.com/profile/Thomas_Braun14/N1.1.4.2.b6504d'>Thomas Braun</a> who considered to play around with Hades. He is facing an application with an existing data access layer based on Spring&#8217;s <code>HibernateDaoSupport</code> class. This raised the question of how to integrate Hades into the app without changing existing code.</p>
+  <p>Today I’ve got an email by <a href="https://www.xing.com/profile/Thomas_Braun14/N1.1.4.2.b6504d">Thomas Braun</a> who considered to play around with Hades. He is facing an application with an existing data access layer based on Spring’s <code>HibernateDaoSupport</code> class. This raised the question of how to integrate Hades into the app without changing existing code.</p>
 
 <p>Thomas was using <code>AnnotationSessionFactoryBean</code> to create the <code>SessionFactory</code> from annotation metadata. As Hades relies on JPA <code>EntityManager</code> interface the basic question was how to use it next to the SessionFactory while avoiding duplicate metadata evaluation and thus two entity handling infrastructure.</p>
 
 <p>The solutions is unexpectedly simple. Supposed you use <code>LocalContainerEntityManagerFactoryBean</code> as you normally would do in plain JPA setup and register it under <code>entityManagerFactory</code> in your Spring configuration file you can configure DAOs based on <code>HibernateDaoSupport</code> as follows:</p>
 
-<pre><code>&lt;bean class=&quot;your.dao.based.on.HibernateDaoSupport&quot;&gt;
-  &lt;property name=&quot;sessionFactory&quot;&gt;
-    &lt;bean factory-bean=&quot;entityManagerFactory&quot;
-      factory-method=&quot;getSessionFactory&quot; /&gt;
+<pre><code>&lt;bean class="your.dao.based.on.HibernateDaoSupport"&gt;
+  &lt;property name="sessionFactory"&gt;
+    &lt;bean factory-bean="entityManagerFactory"
+      factory-method="getSessionFactory" /&gt;
   &lt;/property&gt;
-&lt;/bean&gt;</code></pre>
+&lt;/bean&gt;
+</code></pre>
 
 <p>The key here is, that <code>HibernateEntityManagerFactory</code> (which is the type that will be created by the LCEMFB if you use the <code>HibernateVendorAdaptor</code>) offers a method <code>getSessionFactory</code> to get access to the underlying SessionFactory instance.</p>
 
 <p>Once again nice to see how easy Spring helps integrating applications, existing code with new approaches.</p>
+
 </div>
 
 <div id="related">
   <h2>Related Posts</h2>
   <ul class="posts">
     
-      <li><span>22 Nov 2013</span> &raquo; <a href="/2013/11/why-field-injection-is-evil">Why field injection is evil</a></li>
+      <li><span>29 Apr 2016</span> &raquo; <a href="/2016/04/benefits-of-hypermedia/index.html">The Benefits of Hypermedia APIs</a></li>
     
-      <li><span>20 Sep 2013</span> &raquo; <a href="/2013/09/666-hell-not-found">666 - Hell not found</a></li>
+      <li><span>22 Nov 2013</span> &raquo; <a href="/2013/11/why-field-injection-is-evil/index.html">Why field injection is evil</a></li>
     
-      <li><span>14 Mar 2013</span> &raquo; <a href="/2013/03/juergenized">Jürgenized</a></li>
+      <li><span>20 Sep 2013</span> &raquo; <a href="/2013/09/666-hell-not-found/index.html">666 - Hell not found</a></li>
     
   </ul>
 </div>
@@ -88,7 +92,7 @@
 
 
 
-  
+
     <div class="footer">
       <div class="contact">
         <p>

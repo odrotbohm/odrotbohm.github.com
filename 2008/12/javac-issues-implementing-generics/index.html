@@ -13,6 +13,8 @@
    <!-- Homepage CSS -->
    <link rel="stylesheet" href="/assets/themes/tom/css/screen.css" type="text/css" media="screen, projection" />
 
+   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Fira+Sans:bold|Fira+Sans:light" type="text/css" />
+
    <!-- Typekit -->
    <script type="text/javascript" src="http://use.typekit.com/jpd0pfm.js"></script>
    <script type="text/javascript">try{Typekit.load();}catch(e){}</script>
@@ -27,7 +29,7 @@
       <a class="extra" href="/about.html">About</a>
       <a class="extra" href="/tags.html">Tags</a>
     </div>
-  
+
     
 <div id="post">
   <h1>JavaC issues implementing generics</h1>
@@ -35,7 +37,7 @@
     15 December 2008 
     
   </p>
-  <p>Attenting <a href='http://www.olivergierke.de/wordpress/2008/12/devoxx-2008'>Devoxx last week</a>, I had the chance to talk to Joshua Bloch about an compiler issue I had a while ago implementing static factory method pattern from his book. Take this as example:</p>
+  <p>Attenting <a href="http://www.olivergierke.de/wordpress/2008/12/devoxx-2008">Devoxx last week</a>, I had the chance to talk to Joshua Bloch about an compiler issue I had a while ago implementing static factory method pattern from his book. Take this as example:</p>
 
 <pre><code>public class PluginRegistry &lt;T extends Plugin&lt;S&gt;, S&gt; {
   public static &lt;T extends Plugin&lt;S&gt;, S&gt;
@@ -45,21 +47,20 @@
 }
 
 PluginRegistry&lt;Plugin&lt;String&gt;, String&gt; registry =
-  PluginRegistry.create();</code></pre>
+  PluginRegistry.create();
+</code></pre>
 
-<p>Don&#8217;t try to get the details, there are only three important things:</p>
+<p>Don’t try to get the details, there are only three important things:</p>
 
 <ul>
-<li>Two generic parametrizations, where one is a derived one from the other</li>
-
-<li>The static factory method as suggested to ease using this generic class in Josh Blochs &#8220;Effective Java 2&#8221; (Item 1)</li>
-
-<li>The last line takes advantage of this method to create an instance of the registry.</li>
+  <li>Two generic parametrizations, where one is a derived one from the other</li>
+  <li>The static factory method as suggested to ease using this generic class in Josh Blochs “Effective Java 2” (Item 1)</li>
+  <li>The last line takes advantage of this method to create an instance of the registry.</li>
 </ul>
 
 <p>The strange thing is, this compiles within Eclipse but does not on plain <code>javac</code>. I mailed Alex Buckley about the issue and after some back and forth he discovered a strange issue with javac.</p>
 
-<p>To let the cat out of the bag: its a bug in javac. Actually according to Maurizio Cimadamore it is a coeffect of some bugs that are actually already marked as fixed (<a href='http://bugs.sun.com/view_bug.do?bug_id=6192945'>6192945</a>, <a href='http://bugs.sun.com/view_bug.do?bug_id=6369605'>6369605</a>, <a href='http://bugs.sun.com/view_bug.do?bug_id=6193815'>6193815</a>). I&#8217;ll leave out the bloody details, here is, what it boils down to:</p>
+<p>To let the cat out of the bag: its a bug in javac. Actually according to Maurizio Cimadamore it is a coeffect of some bugs that are actually already marked as fixed (<a href="http://bugs.sun.com/view_bug.do?bug_id=6192945">6192945</a>, <a href="http://bugs.sun.com/view_bug.do?bug_id=6369605">6369605</a>, <a href="http://bugs.sun.com/view_bug.do?bug_id=6193815">6193815</a>). I’ll leave out the bloody details, here is, what it boils down to:</p>
 
 <p><code>Javac</code> somehow only tries to lookup types forward in this case. It infers <code>T == Plugin&lt;String&gt;</code>, but complains that for it <code>Plugin&lt;String&gt;</code> is not a subtype of <code>Plugin&lt;S&gt;</code> (as it has not inferred S yet). Guess what, if you simply switch the generic parameters, it compiles like a charm:</p>
 
@@ -71,22 +72,24 @@ PluginRegistry&lt;Plugin&lt;String&gt;, String&gt; registry =
 }
 
 PluginRegistry&lt;Plugin&lt;String&gt;, String&gt; registry =
-  PluginRegistry.create();</code></pre>
+  PluginRegistry.create();
+</code></pre>
 
 <p>(Note the order of the generic types in the method signature)</p>
 
-<p>Tell me if it&#8217;s just me, but now the method signature somehow looks &#8220;wrong&#8221; to me. As the types are not being derived in the order they are declared at the method. Nevertheless, I at least compiles both on <code>javac</code> and the Eclipse compiler. So keep an eye on stuff like this, if you implement generic types ;). I&#8217;ll give you an update if there are further things happen on this.</p>
+<p>Tell me if it’s just me, but now the method signature somehow looks “wrong” to me. As the types are not being derived in the order they are declared at the method. Nevertheless, I at least compiles both on <code>javac</code> and the Eclipse compiler. So keep an eye on stuff like this, if you implement generic types ;). I’ll give you an update if there are further things happen on this.</p>
+
 </div>
 
 <div id="related">
   <h2>Related Posts</h2>
   <ul class="posts">
     
-      <li><span>22 Nov 2013</span> &raquo; <a href="/2013/11/why-field-injection-is-evil">Why field injection is evil</a></li>
+      <li><span>29 Apr 2016</span> &raquo; <a href="/2016/04/benefits-of-hypermedia/index.html">The Benefits of Hypermedia APIs</a></li>
     
-      <li><span>20 Sep 2013</span> &raquo; <a href="/2013/09/666-hell-not-found">666 - Hell not found</a></li>
+      <li><span>22 Nov 2013</span> &raquo; <a href="/2013/11/why-field-injection-is-evil/index.html">Why field injection is evil</a></li>
     
-      <li><span>14 Mar 2013</span> &raquo; <a href="/2013/03/juergenized">Jürgenized</a></li>
+      <li><span>20 Sep 2013</span> &raquo; <a href="/2013/09/666-hell-not-found/index.html">666 - Hell not found</a></li>
     
   </ul>
 </div>
@@ -113,7 +116,7 @@ PluginRegistry&lt;Plugin&lt;String&gt;, String&gt; registry =
 
 
 
-  
+
     <div class="footer">
       <div class="contact">
         <p>

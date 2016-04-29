@@ -13,6 +13,8 @@
    <!-- Homepage CSS -->
    <link rel="stylesheet" href="/assets/themes/tom/css/screen.css" type="text/css" media="screen, projection" />
 
+   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Fira+Sans:bold|Fira+Sans:light" type="text/css" />
+
    <!-- Typekit -->
    <script type="text/javascript" src="http://use.typekit.com/jpd0pfm.js"></script>
    <script type="text/javascript">try{Typekit.load();}catch(e){}</script>
@@ -27,7 +29,7 @@
       <a class="extra" href="/about.html">About</a>
       <a class="extra" href="/tags.html">Tags</a>
     </div>
-  
+
     
 <div id="post">
   <h1>Subtleties on java.lang.Enum</h1>
@@ -35,7 +37,7 @@
     12 January 2009 
     
   </p>
-  <p>As i twittered a few days ago, I stumbled over a subtle issue in the core Java library. Not as extreme as <a href='http://www.olivergierke.de/wordpress/2008/12/javac-issues-implementing-generics/'>here</a> but one to raise ones eyebrows, too.</p>
+  <p>As i twittered a few days ago, I stumbled over a subtle issue in the core Java library. Not as extreme as <a href="http://www.olivergierke.de/wordpress/2008/12/javac-issues-implementing-generics/">here</a> but one to raise ones eyebrows, too.</p>
 
 <p>I just wanted to write a small method to access an enum value by its <code>String</code> representation or use a default, if the conversion fails:</p>
 
@@ -44,11 +46,12 @@
   // Checking values omitted
   return (T) Enum.valueOf((Class) defaultValue.getClass(), StringUtils
     .upperCase(value))
-}</code></pre>
+}
+</code></pre>
 
 <p>Of course, I wrote a unittest to verify the behaviour and it worked fine. Nevetheless using this class in my application threw an exception for a different (than the one in the testcase) <code>Enum</code> type, claiming the type handed to the <code>valueOf(…)</code> method was not an Enum?</p>
 
-<p>What? I&#8217;ve handed over an <code>Enum</code> as default value and you tell me, it is not of an <code>Enum</code> type. I digged down into the details. Looked like Enums with methods broke the code, Enums without methods worked. Seems like the compiler works with anonymous inner classes when creating byte code. The solution to the problem is using <code>getDeclaringClass()</code> instead, as the JavaDoc reveals.</p>
+<p>What? I’ve handed over an <code>Enum</code> as default value and you tell me, it is not of an <code>Enum</code> type. I digged down into the details. Looked like Enums with methods broke the code, Enums without methods worked. Seems like the compiler works with anonymous inner classes when creating byte code. The solution to the problem is using <code>getDeclaringClass()</code> instead, as the JavaDoc reveals.</p>
 
 <p>Although I understand that <code>Enum</code>s with methods are implemented with inner classes, I do not understand why these inner classes do not extend <code>Enum&lt;T&gt;</code>. Futhermore I cannot believe that the behaviour of <code>getClass()</code> changes depending on whether you use methods in your <code>Enum</code> or not. Strange thing…</p>
 
@@ -65,39 +68,41 @@
     BAR {
       @Override
       public void doSomething() {
-        System.out.println(&quot;INVOKED!&quot;);
+        System.out.println("INVOKED!");
       }
     };
 
     public abstract void doSomething();
   }
 
-  @SuppressWarnings(&quot;unchecked&quot;)
+  @SuppressWarnings("unchecked")
   private &lt;T extends Enum&lt;T&gt;&gt; T toEnum(String value, T defaultValue) {
     return (T) Enum.valueOf(defaultValue.getClass(), value);
   }
 
   @Test
   public void useSimpleEnum() {
-    toEnum(&quot;FOO&quot;, Foo.FOO);
+    toEnum("FOO", Foo.FOO);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void useComplexEnum() {
-    toEnum(&quot;BAR&quot;, Bar.BAR);
+    toEnum("BAR", Bar.BAR);
   }
-}</code></pre>
+}
+</code></pre>
+
 </div>
 
 <div id="related">
   <h2>Related Posts</h2>
   <ul class="posts">
     
-      <li><span>22 Nov 2013</span> &raquo; <a href="/2013/11/why-field-injection-is-evil">Why field injection is evil</a></li>
+      <li><span>29 Apr 2016</span> &raquo; <a href="/2016/04/benefits-of-hypermedia/index.html">The Benefits of Hypermedia APIs</a></li>
     
-      <li><span>20 Sep 2013</span> &raquo; <a href="/2013/09/666-hell-not-found">666 - Hell not found</a></li>
+      <li><span>22 Nov 2013</span> &raquo; <a href="/2013/11/why-field-injection-is-evil/index.html">Why field injection is evil</a></li>
     
-      <li><span>14 Mar 2013</span> &raquo; <a href="/2013/03/juergenized">Jürgenized</a></li>
+      <li><span>20 Sep 2013</span> &raquo; <a href="/2013/09/666-hell-not-found/index.html">666 - Hell not found</a></li>
     
   </ul>
 </div>
@@ -124,7 +129,7 @@
 
 
 
-  
+
     <div class="footer">
       <div class="contact">
         <p>

@@ -13,6 +13,8 @@
    <!-- Homepage CSS -->
    <link rel="stylesheet" href="/assets/themes/tom/css/screen.css" type="text/css" media="screen, projection" />
 
+   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Fira+Sans:bold|Fira+Sans:light" type="text/css" />
+
    <!-- Typekit -->
    <script type="text/javascript" src="http://use.typekit.com/jpd0pfm.js"></script>
    <script type="text/javascript">try{Typekit.load();}catch(e){}</script>
@@ -27,7 +29,7 @@
       <a class="extra" href="/about.html">About</a>
       <a class="extra" href="/tags.html">Tags</a>
     </div>
-  
+
     
 <div id="post">
   <h1>Effective bug smashing with test cases</h1>
@@ -35,42 +37,42 @@
     01 July 2008 
     
   </p>
-  <p>There are a lot of opinions buzzing around about how testing and test driven development helps you writing better software. Reading <a href='http://www.amazon.de/Secrets-Rockstar-Programmers-Riding-Crest/dp/0071490833/ref=sr_1_1?ie=UTF8&amp;amp;s=books-intl-de&amp;amp;qid=1214904407&amp;amp;sr=8-1'>Secrets of the rockstar programmers</a> just now, I&#8217;ve stumbled over an intresting interview with <a href='http://www.bileblog.org/about/'>Hani Suleiman</a>, co-author of <a href='http://www.amazon.de/Next-Generation-Java-Testing-Advanced/dp/0321503104/ref=sr_1_1?ie=UTF8&amp;amp;s=books-intl-de&amp;amp;qid=1214904551&amp;amp;sr=8-1'>Next Generation Java Testing</a>. As this is a book purely on testing, you could expect him to be a fervent advocat of TDD. Surprisingly, he takes a very pragmatic approach to testing and simply states, that it should be as easy as possible to be done while understanding that deadlines often prevent you from equipping your polished code with the last 20 percent of test coverage.</p>
+  <p>There are a lot of opinions buzzing around about how testing and test driven development helps you writing better software. Reading <a href="http://www.amazon.de/Secrets-Rockstar-Programmers-Riding-Crest/dp/0071490833/ref=sr_1_1?ie=UTF8&amp;s=books-intl-de&amp;qid=1214904407&amp;sr=8-1">Secrets of the rockstar programmers</a> just now, I’ve stumbled over an intresting interview with <a href="http://www.bileblog.org/about/">Hani Suleiman</a>, co-author of <a href="http://www.amazon.de/Next-Generation-Java-Testing-Advanced/dp/0321503104/ref=sr_1_1?ie=UTF8&amp;s=books-intl-de&amp;qid=1214904551&amp;sr=8-1">Next Generation Java Testing</a>. As this is a book purely on testing, you could expect him to be a fervent advocat of TDD. Surprisingly, he takes a very pragmatic approach to testing and simply states, that it should be as easy as possible to be done while understanding that deadlines often prevent you from equipping your polished code with the last 20 percent of test coverage.</p>
 
 <p>Nevertheless, the quote, that pinged my mind, was this one:</p>
 
 <blockquote>
-<p>The user said, &#8220;This thing doesn&#8217;t work.&#8221; You&#8217;re gonna test something that potentially doesn&#8217;t work. And so, once you have that test, it&#8217;s very easy, because you have that verifiable bug.</p>
+  <p>The user said, “This thing doesn’t work.” You’re gonna test something that potentially doesn’t work. And so, once you have that test, it’s very easy, because you have that verifiable bug.
+&lt;p style="text-align: right;"&gt;(Hani Suleiman on testing and bugs)&lt;/p&gt;</p>
 </blockquote>
-<p style='text-align: right;'>(Hani Suleiman on testing and bugs)</p>
-<p>Let me elaborate on that a little bit. Hani&#8217;s observations largely correspond to the way I usually get started swinging my swat. So suppose you have system in state A in your version control system and a bug report claiming that there is something wrong in this state. Starting to find the cause for the bug you typically accept the ticket, indicating that you are currently working on it. Assume you can reproduce the issue with a test case you fix the according code snippets, make sure you get that green bar and commit everything to the VCS again. Finally you mark the ticket as fixed and add &#8220;fixed with revision XYZ&#8221; as comment to guarantee tracability, that&#8217;s it.</p>
 
-<p>That sound really proficient, doesn&#8217;t it? Where the hell is the problem? I have to admit, that this is the way I am working currently, and I really feel comfortable with it. So here is, what the quote made me think about:</p>
+<p>Let me elaborate on that a little bit. Hani’s observations largely correspond to the way I usually get started swinging my swat. So suppose you have system in state A in your version control system and a bug report claiming that there is something wrong in this state. Starting to find the cause for the bug you typically accept the ticket, indicating that you are currently working on it. Assume you can reproduce the issue with a test case you fix the according code snippets, make sure you get that green bar and commit everything to the VCS again. Finally you mark the ticket as fixed and add “fixed with revision XYZ” as comment to guarantee tracability, that’s it.</p>
 
-<p>Comparing the original state of the VCS (revision XYZ - 1) and the fixed state of the VCS (revision XYZ) you only see one more test case and some modified. Who really tells you that the test case did not work before? As you have committed the already working test case along with the changes, you don&#8217;t have a possibility to check, whether the test case is really tight enough to reproduce the problem correctly. So wouldn&#8217;t it be better to add the following step to the bug fixing heuristic described above:</p>
+<p>That sound really proficient, doesn’t it? Where the hell is the problem? I have to admit, that this is the way I am working currently, and I really feel comfortable with it. So here is, what the quote made me think about:</p>
+
+<p>Comparing the original state of the VCS (revision XYZ - 1) and the fixed state of the VCS (revision XYZ) you only see one more test case and some modified. Who really tells you that the test case did not work before? As you have committed the already working test case along with the changes, you don’t have a possibility to check, whether the test case is really tight enough to reproduce the problem correctly. So wouldn’t it be better to add the following step to the bug fixing heuristic described above:</p>
 
 <ul>
-<li>After you have completed the test case reproducing the issue you check that one in into the VCS (although this is not buildable, due to the failing testcase!)</li>
-
-<li>You add a comment to the ticket that the current revision lets you reproduce the bug</li>
-
-<li>Continue, like described above</li>
+  <li>After you have completed the test case reproducing the issue you check that one in into the VCS (although this is not buildable, due to the failing testcase!)	</li>
+  <li>You add a comment to the ticket that the current revision lets you reproduce the bug</li>
+  <li>Continue, like described above</li>
 </ul>
 
-<p>Perhaps I am to addicted to traceability but I really like to be able to track what&#8217;s going on, what&#8217;s going wrong, what could be solved how and so on.</p>
+<p>Perhaps I am to addicted to traceability but I really like to be able to track what’s going on, what’s going wrong, what could be solved how and so on.</p>
 
 <p>What do you think about this?</p>
+
 </div>
 
 <div id="related">
   <h2>Related Posts</h2>
   <ul class="posts">
     
-      <li><span>22 Nov 2013</span> &raquo; <a href="/2013/11/why-field-injection-is-evil">Why field injection is evil</a></li>
+      <li><span>29 Apr 2016</span> &raquo; <a href="/2016/04/benefits-of-hypermedia/index.html">The Benefits of Hypermedia APIs</a></li>
     
-      <li><span>20 Sep 2013</span> &raquo; <a href="/2013/09/666-hell-not-found">666 - Hell not found</a></li>
+      <li><span>22 Nov 2013</span> &raquo; <a href="/2013/11/why-field-injection-is-evil/index.html">Why field injection is evil</a></li>
     
-      <li><span>14 Mar 2013</span> &raquo; <a href="/2013/03/juergenized">Jürgenized</a></li>
+      <li><span>20 Sep 2013</span> &raquo; <a href="/2013/09/666-hell-not-found/index.html">666 - Hell not found</a></li>
     
   </ul>
 </div>
@@ -97,7 +99,7 @@
 
 
 
-  
+
     <div class="footer">
       <div class="contact">
         <p>

@@ -13,6 +13,8 @@
    <!-- Homepage CSS -->
    <link rel="stylesheet" href="/assets/themes/tom/css/screen.css" type="text/css" media="screen, projection" />
 
+   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Fira+Sans:bold|Fira+Sans:light" type="text/css" />
+
    <!-- Typekit -->
    <script type="text/javascript" src="http://use.typekit.com/jpd0pfm.js"></script>
    <script type="text/javascript">try{Typekit.load();}catch(e){}</script>
@@ -27,7 +29,7 @@
       <a class="extra" href="/about.html">About</a>
       <a class="extra" href="/tags.html">Tags</a>
     </div>
-  
+
     
 <div id="post">
   <h1>Spring 2008 - Summing up day one</h1>
@@ -37,26 +39,27 @@
   </p>
   <p>First da of SpringOne was really intresting. I saw a lot of good talks, either to earn new knowledge or ideas to share thoughts about or at least get a feeling that attitudes, ideas and programming habits I cultivate are very much state of the art.</p>
 
-<p>After the session I enjoyed to talk to a few Spring developers discussing ideas and problems I&#8217;ve stumbled above. I talked to Christian Dupuis - lead developer of SpringIDE and the Spring Tool Suite - to get tighter integration of a generic DAO library im currentl working on. He gave me useful tips of how to get the IDE to recognize beans i create through a custom namespace. Maybe we can get our hands on this today and get this working.</p>
+<p>After the session I enjoyed to talk to a few Spring developers discussing ideas and problems I’ve stumbled above. I talked to Christian Dupuis - lead developer of SpringIDE and the Spring Tool Suite - to get tighter integration of a generic DAO library im currentl working on. He gave me useful tips of how to get the IDE to recognize beans i create through a custom namespace. Maybe we can get our hands on this today and get this working.</p>
 
 <p>After that I discussed a problem with Jürgen Höller that kept me quite confused a while ago. I recently ran into the idea to dynamically lookup configuration files fulfilling a certain naming and placing convention on application startup time enabling the app to work with some kind of plugins just by dropping JAR files into the classpath. Stupidly this did not work in Tomcat. I could dig the problem down to Spring asking the classloader for resources named like the part of the wildcarded config file include up to the first wildcard. Unfortunately these are mostly package names, that correspond to folders. Not all JAR packaging mechanisms do create JarEntries for folders thus the classloader does not find these although there are certainly resources in or below that folders. I myself thought this would be inherent to the JarFile datastructure that would mess up things but Jürgen pointed out that these entries can be created by configuring JAR packageing correctly. Guess what - it works. ;)</p>
 
-<p>Finally I have got some opinions about the Spring Source Application Platform licensing model. The key question to me was when is the point, my application has to be GPL. Seems there are a few different opinions on that, even among the Spring Source guys. Eberhard Wolf gave the most definite one IMHO. As long as you work with the platform in-house and develop and run your application on it, you&#8217;re fine. The tricky part is when you have customers that want to host the app themselves. As you develop for Spring Source Application Platform your deployment format differs a lot from a standard WAR format (assuming you want to take advantage of OSGi and other platform features). The key notion in this case is &#8220;derivative work&#8221;. If you provide derivative work from the AP your app has to be GPL, too. Unfortunately there is no clean definition of this term, yet. You actually come into the debate if you have to either deliver AP with your app to the customer (that would match the term IMHO) or your customer decides to host the AP herself and just drops in your application. Actually that shouldn&#8217;t cause a lot of trouble because as your customer decides for Spring Source AP, he probably would want to have some dedicated support, taking apps into production.</p>
+<p>Finally I have got some opinions about the Spring Source Application Platform licensing model. The key question to me was when is the point, my application has to be GPL. Seems there are a few different opinions on that, even among the Spring Source guys. Eberhard Wolf gave the most definite one IMHO. As long as you work with the platform in-house and develop and run your application on it, you’re fine. The tricky part is when you have customers that want to host the app themselves. As you develop for Spring Source Application Platform your deployment format differs a lot from a standard WAR format (assuming you want to take advantage of OSGi and other platform features). The key notion in this case is “derivative work”. If you provide derivative work from the AP your app has to be GPL, too. Unfortunately there is no clean definition of this term, yet. You actually come into the debate if you have to either deliver AP with your app to the customer (that would match the term IMHO) or your customer decides to host the AP herself and just drops in your application. Actually that shouldn’t cause a lot of trouble because as your customer decides for Spring Source AP, he probably would want to have some dedicated support, taking apps into production.</p>
 
 <p>This issue is really some subtle problem with GPL in general as it uses terms that do not have been judicially debated seemingly.</p>
 
 <p>As you can see, I came back with my brain packed with a lot of cool new ideas. And there is yet another day ;).</p>
+
 </div>
 
 <div id="related">
   <h2>Related Posts</h2>
   <ul class="posts">
     
-      <li><span>22 Nov 2013</span> &raquo; <a href="/2013/11/why-field-injection-is-evil">Why field injection is evil</a></li>
+      <li><span>29 Apr 2016</span> &raquo; <a href="/2016/04/benefits-of-hypermedia/index.html">The Benefits of Hypermedia APIs</a></li>
     
-      <li><span>20 Sep 2013</span> &raquo; <a href="/2013/09/666-hell-not-found">666 - Hell not found</a></li>
+      <li><span>22 Nov 2013</span> &raquo; <a href="/2013/11/why-field-injection-is-evil/index.html">Why field injection is evil</a></li>
     
-      <li><span>14 Mar 2013</span> &raquo; <a href="/2013/03/juergenized">Jürgenized</a></li>
+      <li><span>20 Sep 2013</span> &raquo; <a href="/2013/09/666-hell-not-found/index.html">666 - Hell not found</a></li>
     
   </ul>
 </div>
@@ -83,7 +86,7 @@
 
 
 
-  
+
     <div class="footer">
       <div class="contact">
         <p>

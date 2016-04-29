@@ -13,6 +13,8 @@
    <!-- Homepage CSS -->
    <link rel="stylesheet" href="/assets/themes/tom/css/screen.css" type="text/css" media="screen, projection" />
 
+   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Fira+Sans:bold|Fira+Sans:light" type="text/css" />
+
    <!-- Typekit -->
    <script type="text/javascript" src="http://use.typekit.com/jpd0pfm.js"></script>
    <script type="text/javascript">try{Typekit.load();}catch(e){}</script>
@@ -27,7 +29,7 @@
       <a class="extra" href="/about.html">About</a>
       <a class="extra" href="/tags.html">Tags</a>
     </div>
-  
+
     
 <div id="post">
   <h1>Spass mit Maven Archetypes</h1>
@@ -35,28 +37,29 @@
     22 April 2008 
     
   </p>
-  <p>Wir führen in der <a href='http://www.synyx.de' target='_blank' title='Synyx GmbH &amp; Co. KG'>Firma</a> nach und nach <a href='http://www.docbook.org' target='_blank' title='Docbook'>Docbook</a> als Dokumentationsstandard ein. Mit <a href='http://docs.codehaus.org/display/MAVENUSER/Docbkx+Maven+Plugin' target='_blank' title='Dokumentation zu docbkx'>docbkx</a> steht auch ein Plugin für unser Buildsystem <a href='http://maven.apache.org/' target='_blank' title='Maven'>Maven</a> zur Verfügung. Nachdem ich die letzte Woche das Synyx CI in ein XSLT Stylesheet gegossen hatte, versuchte ich aus dem Proof of Concept Maven Projekt einen Archetype zu machen.<!--more--></p>
+  <p>Wir führen in der <a href="http://www.synyx.de" title="Synyx GmbH &amp; Co. KG" target="_blank">Firma</a> nach und nach <a href="http://www.docbook.org" title="Docbook" target="_blank">Docbook</a> als Dokumentationsstandard ein. Mit <a href="http://docs.codehaus.org/display/MAVENUSER/Docbkx+Maven+Plugin" title="Dokumentation zu docbkx" target="_blank">docbkx</a> steht auch ein Plugin für unser Buildsystem <a href="http://maven.apache.org/" title="Maven" target="_blank">Maven</a> zur Verfügung. Nachdem ich die letzte Woche das Synyx CI in ein XSLT Stylesheet gegossen hatte, versuchte ich aus dem Proof of Concept Maven Projekt einen Archetype zu machen.<!--more--></p>
 
 <p>Archetypes sind Projektvorlagen in Maven mit denen man bei einem Projektstart on the fly eine Ordnerstruktur generieren und Konfigurationsfiles vorerzeugen kann. Dies verringert den Aufwandand die Infrastruktur einzurichten am Anfang eines Projektes erheblich.</p>
 
-<p>Ein Archetype ist selbst wiederum ein Mavenprojekt, in dem die für ein neues Projekt notwendigen Dateien an eine Bestimmte Stelle im Archetypeprojekt gelegt werden und ein Archetypedeskriptor namens <code>archetype.xml</code> im META-INF abgelegt werden muss. Soweit die Dokumentation die <a href='http://maven.apache.org/guides/mini/guide-creating-archetypes.html' target='_blank' title='Dokumentation zu Maven Archetypes'>hier</a> zu finden ist.</p>
+<p>Ein Archetype ist selbst wiederum ein Mavenprojekt, in dem die für ein neues Projekt notwendigen Dateien an eine Bestimmte Stelle im Archetypeprojekt gelegt werden und ein Archetypedeskriptor namens <code>archetype.xml</code> im META-INF abgelegt werden muss. Soweit die Dokumentation die <a href="http://maven.apache.org/guides/mini/guide-creating-archetypes.html" title="Dokumentation zu Maven Archetypes" target="_blank">hier</a> zu finden ist.</p>
 
 <p>Nun will das Archetype Plugin von Maven allerdings in den bereitgestellten Dateien typische Mavenplatzhalter wie <code>${version}</code> durch Parameter ersetzen, die man beim initialisieren des neuen Projektes mitgibt. Es war nun schon nicht einfach herauszufinden, wie ich Maven aber dazu bringe diese Platzhalter einfach Platzhalter sein zu lassen. Nach einer Weile googlen fand ich dann heraus, dass das Dollarzeichen einfach escaped werden muss (<code>\${version}</code>). Dies funktioniert aber nur ab Maven 2.0.8.</p>
 
-<p>Nachdem diese Hürde genommen war musste ich <a href='http://velocity.apache.org/' target='_blank' title='Velocity'>Velocity</a> (was Maven benutzt um diese Platzhalter zu ersetzen) nur noch ausreden die TrueType Fontfiles für unsere Hausschrift zu parsen. Das Problem: für den Archetypedeskriptor gibt es weder DTD noch ein XSD. In den <a href='http://www.nabble.com/filtering-of-archetype-resources-td15579593s177.html' target='_blank' title='Nabble Forum zum Them Resourcen filtern in Maven Archetypes'>Untiefen des Nabble Forums</a> stieß ich dann auf den Hinweis, das Attribut <code>filtered=&quot;true&quot;</code> in den <code>&lt;resource /&gt;</code> Elementen würde genau dies bewerkstelligen.</p>
+<p>Nachdem diese Hürde genommen war musste ich <a href="http://velocity.apache.org/" title="Velocity" target="_blank">Velocity</a> (was Maven benutzt um diese Platzhalter zu ersetzen) nur noch ausreden die TrueType Fontfiles für unsere Hausschrift zu parsen. Das Problem: für den Archetypedeskriptor gibt es weder DTD noch ein XSD. In den <a href="http://www.nabble.com/filtering-of-archetype-resources-td15579593s177.html" title="Nabble Forum zum Them Resourcen filtern in Maven Archetypes" target="_blank">Untiefen des Nabble Forums</a> stieß ich dann auf den Hinweis, das Attribut <code>filtered="true"</code> in den <code>&lt;resource /&gt;</code> Elementen würde genau dies bewerkstelligen.</p>
 
 <p>Was ihr jetzt hier in knapp 5 Minuten gelesen habt, hat mich locker 3 Stunden gekostet^^. Jaja, Dokumentation ist manchmal eben doch hilfreich ;).</p>
+
 </div>
 
 <div id="related">
   <h2>Related Posts</h2>
   <ul class="posts">
     
-      <li><span>22 Nov 2013</span> &raquo; <a href="/2013/11/why-field-injection-is-evil">Why field injection is evil</a></li>
+      <li><span>29 Apr 2016</span> &raquo; <a href="/2016/04/benefits-of-hypermedia/index.html">The Benefits of Hypermedia APIs</a></li>
     
-      <li><span>20 Sep 2013</span> &raquo; <a href="/2013/09/666-hell-not-found">666 - Hell not found</a></li>
+      <li><span>22 Nov 2013</span> &raquo; <a href="/2013/11/why-field-injection-is-evil/index.html">Why field injection is evil</a></li>
     
-      <li><span>14 Mar 2013</span> &raquo; <a href="/2013/03/juergenized">Jürgenized</a></li>
+      <li><span>20 Sep 2013</span> &raquo; <a href="/2013/09/666-hell-not-found/index.html">666 - Hell not found</a></li>
     
   </ul>
 </div>
@@ -83,7 +86,7 @@
 
 
 
-  
+
     <div class="footer">
       <div class="contact">
         <p>

@@ -13,6 +13,8 @@
    <!-- Homepage CSS -->
    <link rel="stylesheet" href="/assets/themes/tom/css/screen.css" type="text/css" media="screen, projection" />
 
+   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Fira+Sans:bold|Fira+Sans:light" type="text/css" />
+
    <!-- Typekit -->
    <script type="text/javascript" src="http://use.typekit.com/jpd0pfm.js"></script>
    <script type="text/javascript">try{Typekit.load();}catch(e){}</script>
@@ -27,7 +29,7 @@
       <a class="extra" href="/about.html">About</a>
       <a class="extra" href="/tags.html">Tags</a>
     </div>
-  
+
     
 <div id="post">
   <h1>Validating domain objects</h1>
@@ -35,30 +37,31 @@
     11 August 2008 
     
   </p>
-  <p>Fellow developer <a href='http://dlinsin.blogspot.com/'>David Linsin</a> wrote a <a href='http://dlinsin.blogspot.com/2008/08/how-to-validate-your-domain-objects.html'>blogpost</a> about validation of domain objects recently. I actually wanted to leave him a reply but it got kinda long so I decided to post it here. So this is what came to my mind:</p>
+  <p>Fellow developer <a href="http://dlinsin.blogspot.com/">David Linsin</a> wrote a <a href="http://dlinsin.blogspot.com/2008/08/how-to-validate-your-domain-objects.html">blogpost</a> about validation of domain objects recently. I actually wanted to leave him a reply but it got kinda long so I decided to post it here. So this is what came to my mind:</p>
 
-<p>Prototyping some web portal kind of software I&#8217;ve encountered a similar situation. Take a User domain object as example for this problem. I decided to have a domain object as well as DTOs for maybe different clients. Why did I decide to do so? Well, the example beautifully shows what is a client specific vie on domain data. To edit the user on a web frontend (no matter if you want to create a new user or edit an existing one) you mostly let the real application user enter a password twice to ensure he enters the one he really wanted to enter. Nevertheless I of course don&#8217;t want to extend my domain object to hold a second password field, just because one single client needs it.</p>
+<p>Prototyping some web portal kind of software I’ve encountered a similar situation. Take a User domain object as example for this problem. I decided to have a domain object as well as DTOs for maybe different clients. Why did I decide to do so? Well, the example beautifully shows what is a client specific vie on domain data. To edit the user on a web frontend (no matter if you want to create a new user or edit an existing one) you mostly let the real application user enter a password twice to ensure he enters the one he really wanted to enter. Nevertheless I of course don’t want to extend my domain object to hold a second password field, just because one single client needs it.</p>
 
-<p>Another thing is registration of new users. I might want to ensure unique email addresses as I don&#8217;t want to have two users sharing the same mail address (whether this is a good idea or not).</p>
+<p>Another thing is registration of new users. I might want to ensure unique email addresses as I don’t want to have two users sharing the same mail address (whether this is a good idea or not).</p>
 
 <p>What has this to do with validation. First of all I realized that validation is a client specific thing to a given extend and cannot be restricted do domain objects. Thus the decision to have DTOs the client technology specific exporters (an MVC controller, a WebService Endpoint a.s.o) handle and validate.</p>
 
-<p>In consequence this means that my DTOs are &#8220;userfriendly&#8221; taking user form input as it is given. They are validated by external validation classes (maybe nicely separated into a hierarchy to avoid implementing common validation logic twice but allowing client specific validation logic where necessary). These also ensure the identity of both given passwords e.g. or the uniqueness of the user&#8217;s email address.</p>
+<p>In consequence this means that my DTOs are “userfriendly” taking user form input as it is given. They are validated by external validation classes (maybe nicely separated into a hierarchy to avoid implementing common validation logic twice but allowing client specific validation logic where necessary). These also ensure the identity of both given passwords e.g. or the uniqueness of the user’s email address.</p>
 
 <p>My domain objects are much more restrictive then. I tend to reject as much invalid input as possible. An email class definately would reject an invalid email string with an <code>IllegalArgumentException</code>. Doing so in a DTO would make clean error messaging almost impossible.</p>
 
 <p>As the validation subsystem or layer is allowed to depend on the domain layer I try to use eventually exposable validation logic from the domain layer. The regular expression to reject invalid email addresses in the email domain class could be used to nicely capture and reject the email field on the <code>UserDTO</code> in an Spring MVC validator implementation.</p>
+
 </div>
 
 <div id="related">
   <h2>Related Posts</h2>
   <ul class="posts">
     
-      <li><span>22 Nov 2013</span> &raquo; <a href="/2013/11/why-field-injection-is-evil">Why field injection is evil</a></li>
+      <li><span>29 Apr 2016</span> &raquo; <a href="/2016/04/benefits-of-hypermedia/index.html">The Benefits of Hypermedia APIs</a></li>
     
-      <li><span>20 Sep 2013</span> &raquo; <a href="/2013/09/666-hell-not-found">666 - Hell not found</a></li>
+      <li><span>22 Nov 2013</span> &raquo; <a href="/2013/11/why-field-injection-is-evil/index.html">Why field injection is evil</a></li>
     
-      <li><span>14 Mar 2013</span> &raquo; <a href="/2013/03/juergenized">Jürgenized</a></li>
+      <li><span>20 Sep 2013</span> &raquo; <a href="/2013/09/666-hell-not-found/index.html">666 - Hell not found</a></li>
     
   </ul>
 </div>
@@ -85,7 +88,7 @@
 
 
 
-  
+
     <div class="footer">
       <div class="contact">
         <p>

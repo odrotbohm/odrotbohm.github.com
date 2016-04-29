@@ -13,6 +13,8 @@
    <!-- Homepage CSS -->
    <link rel="stylesheet" href="/assets/themes/tom/css/screen.css" type="text/css" media="screen, projection" />
 
+   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Fira+Sans:bold|Fira+Sans:light" type="text/css" />
+
    <!-- Typekit -->
    <script type="text/javascript" src="http://use.typekit.com/jpd0pfm.js"></script>
    <script type="text/javascript">try{Typekit.load();}catch(e){}</script>
@@ -27,7 +29,7 @@
       <a class="extra" href="/about.html">About</a>
       <a class="extra" href="/tags.html">Tags</a>
     </div>
-  
+
     
 <div id="post">
   <h1>Using Spring's @Configurable in three easy steps</h1>
@@ -35,40 +37,41 @@
     25 May 2009 
     
   </p>
-  <p>As you might not be aware of, besides injecting dependencies into beans Spring is able to inject dependencies into objects that are not instantiated by Spring. This becomes especially handy if you&#8217;re stuck to Domain Driven Design leveraging a rich domain model over an anemic one. As there&#8217;s been some <a href='http://twitter.com/springrod/status/1905699064'>buzz</a> around that functionality on twitter, I just put some small quickstart project together that has rather stripped down character but shows all the necessary steps nevertheless. The links to the sources as well as the binaries are attached below. Here is what you essentially have to do.</p>
+  
+<p>As you might not be aware of, besides injecting dependencies into beans Spring is able to inject dependencies into objects that are not instantiated by Spring. This becomes especially handy if you’re stuck to Domain Driven Design leveraging a rich domain model over an anemic one. As there’s been some <a href="http://twitter.com/springrod/status/1905699064">buzz</a> around that functionality on twitter, I just put some small quickstart project together that has rather stripped down character but shows all the necessary steps nevertheless. The links to the sources as well as the binaries are attached below. Here is what you essentially have to do.</p>
 
-<h2 id='1_equip_your_domain_class_with_'>1. Equip your domain class with <code>@Configurable</code></h2>
+<h2 id="equip-your-domain-class-with-configurable">1. Equip your domain class with <code>@Configurable</code></h2>
 
-<p>The <a href='http://svn.synyx.org/synyx/opensource/misc/org.synyx.samples.spring.atconfigurable/tags/org.synyx.samples.spring.atconfigurable-0.0.1/src/main/java/org/synyx/samples/spring/atconfigurable/domain/User.java'>domain class</a> in the sample is <code>org.synyx.samples.spring.atconfigurable.domain.User</code>. Note that we can inject the referenced service by just stating an <code>@Autowired</code> property. No setter needed, no pollution of the domain class&#8217; interface.</p>
+<p>The <a href="http://svn.synyx.org/synyx/opensource/misc/org.synyx.samples.spring.atconfigurable/tags/org.synyx.samples.spring.atconfigurable-0.0.1/src/main/java/org/synyx/samples/spring/atconfigurable/domain/User.java">domain class</a> in the sample is <code>org.synyx.samples.spring.atconfigurable.domain.User</code>. Note that we can inject the referenced service by just stating an <code>@Autowired</code> property. No setter needed, no pollution of the domain class’ interface.</p>
 
-<h2 id='2_enable_injecting_capabilities_in_your_configuration_file'>2. Enable injecting capabilities in your configuration file</h2>
+<h2 id="enable-injecting-capabilities-in-your-configuration-file">2. Enable injecting capabilities in your configuration file</h2>
 
-<p>The maven project I have created states a dependency to spring-context that allows two critical declarations: <code>&lt;context:spring-configured /&gt;</code> activates injection into domain classes not managed by Spring. Note that I use <code>&lt;context:component-scan /&gt;</code> in the <a href='http://svn.synyx.org/synyx/opensource/misc/org.synyx.samples.spring.atconfigurable/tags/org.synyx.samples.spring.atconfigurable-0.0.1/src/main/resources/application-context.xml'><code>application-context.xml</code></a> to pick up the <code>User</code> class as well as <code>GreetingServiceImpl</code> from the service package.</p>
+<p>The maven project I have created states a dependency to spring-context that allows two critical declarations: <code>&lt;context:spring-configured /&gt;</code> activates injection into domain classes not managed by Spring. Note that I use <code>&lt;context:component-scan /&gt;</code> in the <a href="http://svn.synyx.org/synyx/opensource/misc/org.synyx.samples.spring.atconfigurable/tags/org.synyx.samples.spring.atconfigurable-0.0.1/src/main/resources/application-context.xml"><code>application-context.xml</code></a> to pick up the <code>User</code> class as well as <code>GreetingServiceImpl</code> from the service package.</p>
 
-<h2 id='3_enable_loadtime_weaving'>3. Enable load-time weaving</h2>
+<h2 id="enable-load-time-weaving">3. Enable load-time weaving</h2>
 
-<p>To actually get the injection working you need to weave some Spring aspects in your domain class. While you could do this by compile time weaving, i chose load time weaving as it is much simpler to set up in development environment. To get it up and running you declare <code>&lt;context:load-time-weaver aspectj-weaving=&quot;autodetect&quot;/&gt;</code> that pretty much tells Spring to look around for some available load time weaver an use it. The cruicial part now is to activate a Java agent for your runtime that now weaves the aspects into the domain class during class loading. In my case this is done by activating the agent via a <a href='http://svn.synyx.org/synyx/opensource/misc/org.synyx.samples.spring.atconfigurable/tags/org.synyx.samples.spring.atconfigurable-0.0.1/pom.xml'>command line argument</a> for Maven&#8217;s Surefire plugin.</p>
+<p>To actually get the injection working you need to weave some Spring aspects in your domain class. While you could do this by compile time weaving, i chose load time weaving as it is much simpler to set up in development environment. To get it up and running you declare <code>&lt;context:load-time-weaver aspectj-weaving="autodetect"/&gt;</code> that pretty much tells Spring to look around for some available load time weaver an use it. The cruicial part now is to activate a Java agent for your runtime that now weaves the aspects into the domain class during class loading. In my case this is done by activating the agent via a <a href="http://svn.synyx.org/synyx/opensource/misc/org.synyx.samples.spring.atconfigurable/tags/org.synyx.samples.spring.atconfigurable-0.0.1/pom.xml">command line argument</a> for Maven’s Surefire plugin.</p>
 
 <p>This way you can easily enrich domain objects maybe persisted by Hibernate with domain services managed by Spring</p>
 
-<h2 id='resources'>Resources</h2>
+<h2 id="resources">Resources</h2>
 
 <ul>
-<li><a href='http://svn.synyx.org/synyx/opensource/misc/org.synyx.samples.spring.atconfigurable/tags/org.synyx.samples.spring.atconfigurable-0.0.1'>Source code @ Synyx&#8217; OpenSource SVN</a></li>
-
-<li><a href='http://repo.synyx.org/org/synyx/samples/spring/org.synyx.samples.spring.atconfigurable/0.0.1/org.synyx.samples.spring.atconfigurable-0.0.1.jar'>Binaries @ Synyx&#8217; OpenSource Maven Repository</a></li>
+  <li><a href="http://svn.synyx.org/synyx/opensource/misc/org.synyx.samples.spring.atconfigurable/tags/org.synyx.samples.spring.atconfigurable-0.0.1">Source code @ Synyx’ OpenSource SVN</a></li>
+  <li><a href="http://repo.synyx.org/org/synyx/samples/spring/org.synyx.samples.spring.atconfigurable/0.0.1/org.synyx.samples.spring.atconfigurable-0.0.1.jar">Binaries @ Synyx’ OpenSource Maven Repository</a></li>
 </ul>
+
 </div>
 
 <div id="related">
   <h2>Related Posts</h2>
   <ul class="posts">
     
-      <li><span>22 Nov 2013</span> &raquo; <a href="/2013/11/why-field-injection-is-evil">Why field injection is evil</a></li>
+      <li><span>29 Apr 2016</span> &raquo; <a href="/2016/04/benefits-of-hypermedia/index.html">The Benefits of Hypermedia APIs</a></li>
     
-      <li><span>20 Sep 2013</span> &raquo; <a href="/2013/09/666-hell-not-found">666 - Hell not found</a></li>
+      <li><span>22 Nov 2013</span> &raquo; <a href="/2013/11/why-field-injection-is-evil/index.html">Why field injection is evil</a></li>
     
-      <li><span>14 Mar 2013</span> &raquo; <a href="/2013/03/juergenized">Jürgenized</a></li>
+      <li><span>20 Sep 2013</span> &raquo; <a href="/2013/09/666-hell-not-found/index.html">666 - Hell not found</a></li>
     
   </ul>
 </div>
@@ -95,7 +98,7 @@
 
 
 
-  
+
     <div class="footer">
       <div class="contact">
         <p>

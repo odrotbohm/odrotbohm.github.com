@@ -13,6 +13,8 @@
    <!-- Homepage CSS -->
    <link rel="stylesheet" href="/assets/themes/tom/css/screen.css" type="text/css" media="screen, projection" />
 
+   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Fira+Sans:bold|Fira+Sans:light" type="text/css" />
+
    <!-- Typekit -->
    <script type="text/javascript" src="http://use.typekit.com/jpd0pfm.js"></script>
    <script type="text/javascript">try{Typekit.load();}catch(e){}</script>
@@ -27,7 +29,7 @@
       <a class="extra" href="/about.html">About</a>
       <a class="extra" href="/tags.html">Tags</a>
     </div>
-  
+
     
 <div id="post">
   <h1>Trac 0.10.3 auf MySQL</h1>
@@ -35,20 +37,21 @@
     21 April 2008 
     
   </p>
-  <p>Ich habe mir bei meinem <a href='http://www.synyx.de'>Arbeitgeber</a> für ein paar kleinere Projekte ein <a href='http://trac.edgewall.org'>Trac</a> eingerichtet, das gegen eine <a href='http://www.mysql.com/'>MySQL</a> Datenbank läuft. Das ganze macht besonders im Zusammenspiel mit <a href='http://www.eclipse.org/mylyn/'>Mylyn</a> großen Spaß. Gestern fiel mir jedoch auf, dass ein paar der vorbereiteten Ticketqueries nicht funktionierten. Angeblich sei der Query falsch.<!--more--></p>
+  <p>Ich habe mir bei meinem <a href="http://www.synyx.de">Arbeitgeber</a> für ein paar kleinere Projekte ein <a href="http://trac.edgewall.org">Trac</a> eingerichtet, das gegen eine <a href="http://www.mysql.com/">MySQL</a> Datenbank läuft. Das ganze macht besonders im Zusammenspiel mit <a href="http://www.eclipse.org/mylyn/">Mylyn</a> großen Spaß. Gestern fiel mir jedoch auf, dass ein paar der vorbereiteten Ticketqueries nicht funktionierten. Angeblich sei der Query falsch.<!--more--></p>
 
-<p>Nach kurzer Recherche stieß ich auf einige die <a href='http://groups.google.com/group/trac-users/browse_thread/thread/bf57366c435e57b5/5f7900106c34f5d5?lnk=gst&amp;q=ticket+mysql#5f7900106c34f5d5'>das gleiche Problem</a> hatten. Es handelt sich wohl um einen <a href='http://trac.edgewall.org/ticket/4387'>known Bug</a>, der mit Release 0.10.4 behoben sein wird. Denjenigen die - wie ich - nicht so einfach auf diese Version upgraden können, sei geraten einfach die einfachen Hochkommata um Vorkommen von <code>$User</code> in den Queries zu entfernen. Dann tut alles wieder wie erwartet.</p>
+<p>Nach kurzer Recherche stieß ich auf einige die <a href="http://groups.google.com/group/trac-users/browse_thread/thread/bf57366c435e57b5/5f7900106c34f5d5?lnk=gst&amp;q=ticket+mysql#5f7900106c34f5d5">das gleiche Problem</a> hatten. Es handelt sich wohl um einen <a href="http://trac.edgewall.org/ticket/4387">known Bug</a>, der mit Release 0.10.4 behoben sein wird. Denjenigen die - wie ich - nicht so einfach auf diese Version upgraden können, sei geraten einfach die einfachen Hochkommata um Vorkommen von <code>$User</code> in den Queries zu entfernen. Dann tut alles wieder wie erwartet.</p>
+
 </div>
 
 <div id="related">
   <h2>Related Posts</h2>
   <ul class="posts">
     
-      <li><span>22 Nov 2013</span> &raquo; <a href="/2013/11/why-field-injection-is-evil">Why field injection is evil</a></li>
+      <li><span>29 Apr 2016</span> &raquo; <a href="/2016/04/benefits-of-hypermedia/index.html">The Benefits of Hypermedia APIs</a></li>
     
-      <li><span>20 Sep 2013</span> &raquo; <a href="/2013/09/666-hell-not-found">666 - Hell not found</a></li>
+      <li><span>22 Nov 2013</span> &raquo; <a href="/2013/11/why-field-injection-is-evil/index.html">Why field injection is evil</a></li>
     
-      <li><span>14 Mar 2013</span> &raquo; <a href="/2013/03/juergenized">Jürgenized</a></li>
+      <li><span>20 Sep 2013</span> &raquo; <a href="/2013/09/666-hell-not-found/index.html">666 - Hell not found</a></li>
     
   </ul>
 </div>
@@ -75,7 +78,7 @@
 
 
 
-  
+
     <div class="footer">
       <div class="contact">
         <p>
