@@ -4,7 +4,7 @@
  <title>Oliver Gierke</title>
  <link href="http://www.olivergierke.de/atom.xml" rel="self"/>
  <link href="http://www.olivergierke.de"/>
- <updated>2016-04-29T14:04:51+02:00</updated>
+ <updated>2016-04-29T14:14:03+02:00</updated>
  <id>http://www.olivergierke.de</id>
  <author>
    <name>Oliver Gierke</name>
@@ -30,7 +30,7 @@ Independent deployability can even an important requirement if the same team man
 
 &lt;p&gt;The crucial thing here is, that you want to avoid or can’t even afford to have to deploy the interacting systems together.
 Thus, breaking APIs is basically a no-go for the server or at least has to be avoided as much as possible.
-But when do we get into the state of a “broken API”? Whenever the assumptions the client made before and not met by the server anymore.
+But when do we get into the state of a “broken API”? Whenever the assumptions the client made before are not met by the server anymore.
 We need to make sure the client makes as little assumptions about the server as possible.
 Hypermedia allows you to achieve exactly that as a lot of assumptions that you might naïvely code into your client can actually be simplified to the decision “Is a link with the given link relation present or not?”.&lt;/p&gt;
 
