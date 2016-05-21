@@ -4,7 +4,7 @@
  <title>Oliver Gierke</title>
  <link href="http://www.olivergierke.de/atom.xml" rel="self"/>
  <link href="http://www.olivergierke.de"/>
- <updated>2016-04-29T14:14:03+02:00</updated>
+ <updated>2016-05-21T17:26:55+02:00</updated>
  <id>http://www.olivergierke.de</id>
  <author>
    <name>Oliver Gierke</name>
@@ -14,9 +14,9 @@
  
  <entry>
    <title>The Benefits of Hypermedia APIs</title>
-   <link href="http://www.olivergierke.de/2016/04/benefits-of-hypermedia/index.html"/>
+   <link href="http://www.olivergierke.de/2016/04/benefits-of-hypermedia/"/>
    <updated>2016-04-29T13:01:00+02:00</updated>
-   <id>http://www.olivergierke.de/2016/04/benefits-of-hypermedia/benefits-of-hypermedia</id>
+   <id>http://www.olivergierke.de/2016/04/benefits-of-hypermedia</id>
    <content type="html">
 &lt;p&gt;Recently, I stumbled over a &lt;a href=&quot;http://blog.jonathanchannon.com/2016/04/28/what-is-a-hypermedia-client/&quot;&gt;blog post by Jonathan Channon&lt;/a&gt; explaining how he got to realize that hypermedia APIs are not some magical thing but rather a pragmatic approach to avoid coupling between services.
 Also, I’ve been traveling conferences with a talk on &lt;a href=&quot;https://speakerdeck.com/olivergierke/domain-driven-design-and-rest&quot;&gt;Domain-Driven Design and REST&lt;/a&gt; recently that covers the aspect of hypermedia as well and features an — as I think — rather nice example of how effective hypermedia can be when building distributed systems.
@@ -84,9 +84,9 @@ That slight change in the way the client is implemented would’ve made it capab
  
  <entry>
    <title>Why field injection is evil</title>
-   <link href="http://www.olivergierke.de/2013/11/why-field-injection-is-evil/index.html"/>
+   <link href="http://www.olivergierke.de/2013/11/why-field-injection-is-evil/"/>
    <updated>2013-11-22T14:17:00+01:00</updated>
-   <id>http://www.olivergierke.de/2013/11/why-field-injection-is-evil/why-field-injection-is-evil</id>
+   <id>http://www.olivergierke.de/2013/11/why-field-injection-is-evil</id>
    <content type="html">
 &lt;p&gt;I’m quite frequently getting pulled into discussions on Twitter about the different flavors of &lt;a href=&quot;http://en.wikipedia.org/wiki/Dependency_injection&quot;&gt;Dependency Injection&lt;/a&gt;. Also, I’ve repeatedly expressed my &lt;a href=&quot;https://twitter.com/olivergierke/status/314704198908403713&quot;&gt;distaste for field injection&lt;/a&gt; but as Twitter is not the right communication channel to give an in-depth rational about my opinion. So here we go.&lt;/p&gt;
 
@@ -200,9 +200,9 @@ class MyComponent {
  
  <entry>
    <title>666 - Hell not found</title>
-   <link href="http://www.olivergierke.de/2013/09/666-hell-not-found/index.html"/>
+   <link href="http://www.olivergierke.de/2013/09/666-hell-not-found/"/>
    <updated>2013-09-20T20:16:00+02:00</updated>
-   <id>http://www.olivergierke.de/2013/09/666-hell-not-found/666-hell-not-found</id>
+   <id>http://www.olivergierke.de/2013/09/666-hell-not-found</id>
    <content type="html">
 &lt;p&gt;Yesterday evening, a few tweets made it into my Tweetbot column listening to tweets related to Spring Data. The one raising my attention was pointing to a blog post creatively entitled “&lt;a href=&quot;http://movingfulcrum.tumblr.com/post/61693014502/spring-data-and-mongodb-a-mismatch-made-in-hell&quot;&gt;Spring Data MongoDB - A Mismatch Made In Hell&lt;/a&gt;”. As the title already suggests, it contains a rather rigid critique of the features and design approaches we chose for the MongoDB module in the Spring Data project. The post has a very harsh tone and is equipped with a whole bunch of either deep misconceptions or deliberate refusal to see facts, which I found quite surprising. Let me go through it bit by bit and clear the dust it created.&lt;/p&gt;
 
@@ -360,9 +360,9 @@ This means if you are starting out with Spring Data, your very first experience 
  
  <entry>
    <title>Jürgenized</title>
-   <link href="http://www.olivergierke.de/2013/03/juergenized/index.html"/>
+   <link href="http://www.olivergierke.de/2013/03/juergenized/"/>
    <updated>2013-03-14T18:16:00+01:00</updated>
-   <id>http://www.olivergierke.de/2013/03/juergenized/juergenized</id>
+   <id>http://www.olivergierke.de/2013/03/juergenized</id>
    <content type="html">&lt;table&gt;
   &lt;tbody&gt;
     &lt;tr&gt;
@@ -383,9 +383,9 @@ This means if you are starting out with Spring Data, your very first experience 
  
  <entry>
    <title>Websites VS. APIs</title>
-   <link href="http://www.olivergierke.de/2013/02/websites-vs-apis/index.html"/>
+   <link href="http://www.olivergierke.de/2013/02/websites-vs-apis/"/>
    <updated>2013-02-21T00:00:00+01:00</updated>
-   <id>http://www.olivergierke.de/2013/02/websites-vs-apis/websites-vs-apis</id>
+   <id>http://www.olivergierke.de/2013/02/websites-vs-apis</id>
    <content type="html">
 &lt;p&gt;I’ve been recently pulled into some Twitter conversations about the quality of the new open data portal “launched” by the German government available at &lt;a href=&quot;http://govdata.de&quot;&gt;govdata.de&lt;/a&gt;. I put launched in quotation marks as the launch has been a rather rocky one critized &lt;a href=&quot;http://www.dw.de/net-activists-slam-germanys-open-data-portal/a-16611003&quot;&gt;through out&lt;/a&gt; &lt;a href=&quot;http://opengovgermany.com/2013/02/04/german-government-screws-up-open-data/&quot;&gt;the web&lt;/a&gt;.&lt;/p&gt;
 
@@ -438,9 +438,9 @@ This means if you are starting out with Spring Data, your very first experience 
  
  <entry>
    <title>Whoops! Where did my architecture go</title>
-   <link href="http://www.olivergierke.de/2013/01/whoops-where-did-my-architecture-go/index.html"/>
+   <link href="http://www.olivergierke.de/2013/01/whoops-where-did-my-architecture-go/"/>
    <updated>2013-01-15T00:00:00+01:00</updated>
-   <id>http://www.olivergierke.de/2013/01/whoops-where-did-my-architecture-go/whoops-where-did-my-architecture-go</id>
+   <id>http://www.olivergierke.de/2013/01/whoops-where-did-my-architecture-go</id>
    <content type="html">
 &lt;p&gt;I am currently travelling conferences and Java User Groups with a talk called “Whoops! Where did my architecture go?”. It discusses approaches to create and maintain logical architectues in Java code bases, challenges, tools and tries to outline some ideas how one can accomplish this. A core part of the argumentation is the discussion about the importance of Java packages. Jens Schauder has written a &lt;a href=&quot;http://blog.schauderhaft.de/2013/01/13/the-importance-of-packages/&quot;&gt;blog post&lt;/a&gt; about that topic recently and I felt I had some things to add. The more I though about it I got the conclusion that a comment I envision would exceed the length of a reasonable reply I thought I’ll write up a blog post. I will point to the slides of the presentation in places where it comes in handy. The talk is also based on a lot of sample code which we will get to a bit later. The code can be found on &lt;a href=&quot;https://github.com/olivergierke/Whoops-Architecture&quot;&gt;GitHub&lt;/a&gt;.&lt;/p&gt;
 
@@ -535,9 +535,9 @@ This means if you are starting out with Spring Data, your very first experience 
  
  <entry>
    <title>Hello World</title>
-   <link href="http://www.olivergierke.de/2012/12/hello-world/index.html"/>
+   <link href="http://www.olivergierke.de/2012/12/hello-world/"/>
    <updated>2012-12-16T00:00:00+01:00</updated>
-   <id>http://www.olivergierke.de/2012/12/hello-world/hello-world</id>
+   <id>http://www.olivergierke.de/2012/12/hello-world</id>
    <content type="html">
 &lt;p&gt;When my former Wordpress-based blog crashed quite a while ago, I didn’t really bother to set it up again as I was to busy with other things. But as I felt the urge to go beyond Twitter posts to elaborate on certain topics in the recent time I thought I’d give it yet another spin.&lt;/p&gt;
 
@@ -551,9 +551,9 @@ This means if you are starting out with Spring Data, your very first experience 
  
  <entry>
    <title>Spring, logging and JMX</title>
-   <link href="http://www.olivergierke.de/2010/10/spring-logging-and-jmx/index.html"/>
+   <link href="http://www.olivergierke.de/2010/10/spring-logging-and-jmx/"/>
    <updated>2010-10-01T20:16:06+02:00</updated>
-   <id>http://www.olivergierke.de/2010/10/spring-logging-and-jmx/spring-logging-and-jmx</id>
+   <id>http://www.olivergierke.de/2010/10/spring-logging-and-jmx</id>
    <content type="html">
 &lt;p&gt;Pretty much every application out in the wild is using logging to some extend. As applications tend to have bugs (yes, yours as well) it’s a common requirement to alter log levels at runtime. As JMX (Java Management Extensions) is a standard to monitor and manage applications it seems to be a reasonable approach to expose the loggers used in an application via JMX to allow tuning of log levels via a JMX client like jconsole. So let’s take a look on how you enable JMX with Spring.&lt;/p&gt;
 
@@ -587,9 +587,9 @@ This means if you are starting out with Spring Data, your very first experience 
  
  <entry>
    <title>Enabling Hibernate criteria query statistics with AspectJ</title>
-   <link href="http://www.olivergierke.de/2010/09/enabling-hibernate-critera-query-statistics-with-aspectj/index.html"/>
+   <link href="http://www.olivergierke.de/2010/09/enabling-hibernate-critera-query-statistics-with-aspectj/"/>
    <updated>2010-09-15T20:16:06+02:00</updated>
-   <id>http://www.olivergierke.de/2010/09/enabling-hibernate-critera-query-statistics-with-aspectj/enabling-hibernate-critera-query-statistics-with-aspectj</id>
+   <id>http://www.olivergierke.de/2010/09/enabling-hibernate-critera-query-statistics-with-aspectj</id>
    <content type="html">
 &lt;p&gt;In the &lt;code&gt;#java.de&lt;/code&gt; IRC channel someone pointed me to this &lt;a href=&quot;http://opensource.atlassian.com/projects/hibernate/browse/HHH-3452&quot;&gt;request for enhancement&lt;/a&gt; in Hibernate recently. The bottom line here is that Hibernate’s statistics feature that can be used to capture persistence metrics (information about query executions and execution times and so on) does not include queries triggered through using the criteria API.&lt;/p&gt;
 
@@ -611,9 +611,9 @@ As the fix seems to be simply adding a method to an existing class we can levera
  
  <entry>
    <title>Conference autumn 2010</title>
-   <link href="http://www.olivergierke.de/2010/09/conference-autumn-2010/index.html"/>
+   <link href="http://www.olivergierke.de/2010/09/conference-autumn-2010/"/>
    <updated>2010-09-10T20:16:06+02:00</updated>
-   <id>http://www.olivergierke.de/2010/09/conference-autumn-2010/conference-autumn-2010</id>
+   <id>http://www.olivergierke.de/2010/09/conference-autumn-2010</id>
    <content type="html">
 &lt;p&gt;As summer’s fading out more or less, it’s time to take a look at upcoming times. Autumn is  usually quite packed with conferences and this seems to continue this year.&lt;/p&gt;
 
@@ -633,9 +633,9 @@ As the fix seems to be simply adding a method to an existing class we can levera
  
  <entry>
    <title>Hades 2.0.0.RC2 introduces transactional DAOs</title>
-   <link href="http://www.olivergierke.de/2010/06/hades-2-0-0-rc2-introduces-transactional-daos/index.html"/>
+   <link href="http://www.olivergierke.de/2010/06/hades-2-0-0-rc2-introduces-transactional-daos/"/>
    <updated>2010-06-22T20:16:06+02:00</updated>
-   <id>http://www.olivergierke.de/2010/06/hades-2-0-0-rc2-introduces-transactional-daos/hades-2-0-0-rc2-introduces-transactional-daos</id>
+   <id>http://www.olivergierke.de/2010/06/hades-2-0-0-rc2-introduces-transactional-daos</id>
    <content type="html">
 &lt;p&gt;Our latest Hades &lt;a href=&quot;http://redmine.synyx.org/news/18&quot;&gt;release&lt;/a&gt; of the 2.0 branch is introducing transactionality of DAO instances as main new feature. Of course you can read up the reference documentation for some general guidelines but I want to use the chance to give a more detailed look into why we introduce this and how some details work.&lt;/p&gt;
 
@@ -682,9 +682,9 @@ GenericDao&lt;code&gt;) with appropriate defaults (&lt;/code&gt;readOnly` flag s
  
  <entry>
    <title>Changing a project's artifactId in Sonar</title>
-   <link href="http://www.olivergierke.de/2010/06/changing-a-projects-artifact-id-in-sonar/index.html"/>
+   <link href="http://www.olivergierke.de/2010/06/changing-a-projects-artifact-id-in-sonar/"/>
    <updated>2010-06-10T20:16:06+02:00</updated>
-   <id>http://www.olivergierke.de/2010/06/changing-a-projects-artifact-id-in-sonar/changing-a-projects-artifact-id-in-sonar</id>
+   <id>http://www.olivergierke.de/2010/06/changing-a-projects-artifact-id-in-sonar</id>
    <content type="html">
 &lt;p&gt;&lt;a href=&quot;http://sonar.codehaus.org/&quot;&gt;Sonar&lt;/a&gt; is a great tool to take care of code quality in your software projects. I use it heavily to monitor the &lt;a href=&quot;http://techqa.synyx.org/&quot;&gt;open source projects I am involved with&lt;/a&gt;. When working on getting &lt;a href=&quot;http://hades.synyx.org/&quot;&gt;Hades&lt;/a&gt; published into Maven central I had to polish it’s pom.xml and felt the need to align the parent project’s artifact to our chosen OSGi compatible package notation for artifacts. So prior to releasing it to Maven central I changed the artifact id from &lt;code&gt;hades-parent&lt;/code&gt; to &lt;code&gt;org.synyx.hades.parent&lt;/code&gt;. Everything fine until I pushed the metrics of the 1.5.1 release into Sonar.&lt;/p&gt;
 
@@ -696,9 +696,9 @@ GenericDao&lt;code&gt;) with appropriate defaults (&lt;/code&gt;readOnly` flag s
  
  <entry>
    <title>Hades 1.5 released</title>
-   <link href="http://www.olivergierke.de/2010/04/hades-1-5-released/index.html"/>
+   <link href="http://www.olivergierke.de/2010/04/hades-1-5-released/"/>
    <updated>2010-04-11T20:16:06+02:00</updated>
-   <id>http://www.olivergierke.de/2010/04/hades-1-5-released/hades-1-5-released</id>
+   <id>http://www.olivergierke.de/2010/04/hades-1-5-released</id>
    <content type="html">
 &lt;p&gt;As you probably already might have noticed, yesterday we released Hades 1.5. Alongside with that the firs 2.0 release candiate sees the light of the day, too. Let me just take some lines to elaborate on the specialty of this release.&lt;/p&gt;
 
@@ -724,9 +724,9 @@ GenericDao&lt;code&gt;) with appropriate defaults (&lt;/code&gt;readOnly` flag s
  
  <entry>
    <title>Neglected classes in Spring - Part III</title>
-   <link href="http://www.olivergierke.de/2010/04/neglected-classes-in-spring-part-iii/index.html"/>
+   <link href="http://www.olivergierke.de/2010/04/neglected-classes-in-spring-part-iii/"/>
    <updated>2010-04-07T20:16:06+02:00</updated>
-   <id>http://www.olivergierke.de/2010/04/neglected-classes-in-spring-part-iii/neglected-classes-in-spring-part-iii</id>
+   <id>http://www.olivergierke.de/2010/04/neglected-classes-in-spring-part-iii</id>
    <content type="html">
 &lt;p&gt;Java web application developers often face the need to inject a regular Spring bean into a non-Spring-managed artifact like a Servlet or a JSP tag.. If you browse the web for you find various quite outdated solutions to it. No offense, by the time being these were quite appropriate solutions. One of them you’ll probably will find is the following:&lt;/p&gt;
 
@@ -774,9 +774,9 @@ GenericDao&lt;code&gt;) with appropriate defaults (&lt;/code&gt;readOnly` flag s
  
  <entry>
    <title>REST based web applications with Spring 3</title>
-   <link href="http://www.olivergierke.de/2010/04/rest-based-web-applications-with-spring-3/index.html"/>
+   <link href="http://www.olivergierke.de/2010/04/rest-based-web-applications-with-spring-3/"/>
    <updated>2010-04-01T20:16:06+02:00</updated>
-   <id>http://www.olivergierke.de/2010/04/rest-based-web-applications-with-spring-3/rest-based-web-applications-with-spring-3</id>
+   <id>http://www.olivergierke.de/2010/04/rest-based-web-applications-with-spring-3</id>
    <content type="html">&lt;p&gt;Yesterday I gave a talk on REST based web applications with Spring 3.&lt;/p&gt;
 
 &lt;iframe src=&quot;http://de.slideshare.net/slideshow/embed_code/3610375&quot; width=&quot;600&quot; height=&quot;489&quot; frameborder=&quot;0&quot; marginwidth=&quot;0&quot; marginheight=&quot;0&quot; scrolling=&quot;no&quot; style=&quot;border:1px solid #CCC;border-width:1px 1px 0;margin-bottom:1em&quot; allowfullscreen=&quot;true&quot; webkitallowfullscreen=&quot;true&quot; mozallowfullscreen=&quot;true&quot;&gt; 
@@ -796,9 +796,9 @@ GenericDao&lt;code&gt;) with appropriate defaults (&lt;/code&gt;readOnly` flag s
  
  <entry>
    <title>New challenges</title>
-   <link href="http://www.olivergierke.de/2010/02/new-challenges/index.html"/>
+   <link href="http://www.olivergierke.de/2010/02/new-challenges/"/>
    <updated>2010-02-10T19:16:06+01:00</updated>
-   <id>http://www.olivergierke.de/2010/02/new-challenges/new-challenges</id>
+   <id>http://www.olivergierke.de/2010/02/new-challenges</id>
    <content type="html">
 &lt;p&gt;It’s been official for a few days now, so I thought I could drop a public note about me joining &lt;a href=&quot;http://www.springsource.de/&quot;&gt;SpringSource Germany (division of VMware)&lt;/a&gt; as Senior Consultant beginning March 1st this year. Time to look back on three exciting years at &lt;a href=&quot;http://www.synyx.de/&quot;&gt;Synyx&lt;/a&gt; and an outlook of what’s about to come.&lt;/p&gt;
 
@@ -814,9 +814,9 @@ GenericDao&lt;code&gt;) with appropriate defaults (&lt;/code&gt;readOnly` flag s
  
  <entry>
    <title>Neglected classes in Spring - Part II</title>
-   <link href="http://www.olivergierke.de/2010/01/neglected-classes-in-spring-part-ii/index.html"/>
+   <link href="http://www.olivergierke.de/2010/01/neglected-classes-in-spring-part-ii/"/>
    <updated>2010-01-24T19:16:06+01:00</updated>
-   <id>http://www.olivergierke.de/2010/01/neglected-classes-in-spring-part-ii/neglected-classes-in-spring-part-ii</id>
+   <id>http://www.olivergierke.de/2010/01/neglected-classes-in-spring-part-ii</id>
    <content type="html">
 &lt;p&gt;If you have worked with Spring 2.5 annotation based web MVC framework you know that it allows you to freely design you controller method signatures:&lt;/p&gt;
 
@@ -901,9 +901,9 @@ public String showUsers(Model model,
  
  <entry>
    <title>Article on Hades in current issue of German JavaMagazin</title>
-   <link href="http://www.olivergierke.de/2009/06/article-on-hades-in-current-issue-of-german-javamagazin/index.html"/>
+   <link href="http://www.olivergierke.de/2009/06/article-on-hades-in-current-issue-of-german-javamagazin/"/>
    <updated>2009-06-04T07:03:20+02:00</updated>
-   <id>http://www.olivergierke.de/2009/06/article-on-hades-in-current-issue-of-german-javamagazin/article-on-hades-in-current-issue-of-german-javamagazin</id>
+   <id>http://www.olivergierke.de/2009/06/article-on-hades-in-current-issue-of-german-javamagazin</id>
    <content type="html">&lt;p&gt;The June issue of the German &lt;a href=&quot;http://it-republik.de/jaxenter/java-magazin-ausgaben/EJB-3.0-000304.html&quot;&gt;JavaMagzin&lt;/a&gt; features an article about &lt;a href=&quot;http://www.synyx.org/de/projects/hades.html&quot;&gt;Hades&lt;/a&gt; written by myself. I sketch out issues implementing persistence layers briefly and introduce solutions to these issues using Hades. Furthermore fellow developer &lt;a href=&quot;http://blog.alexander-hanschke.de/&quot;&gt;Alexander Hanschke &lt;/a&gt;introduced &lt;a href=&quot;http://www.majug.de&quot;&gt;Java User Group Mannheim&lt;/a&gt; in yet another article, too. Check out the current issue and get your copy.&lt;/p&gt;
 
 &lt;p&gt;Beyond that, we at Synyx decided to give the part of our homepage that deals with our OpenSource projects a brush up. Check out &lt;a href=&quot;http://www.synyx.org&quot;&gt;http://www.synyx.org&lt;/a&gt; to start diggin into the &lt;a href=&quot;http://www.synyx.org/de/projects/&quot;&gt;projects&lt;/a&gt;, read up our &lt;a href=&quot;http://www.synyx.org/de/blogs/&quot;&gt;developer’s blogs&lt;/a&gt; and keep in touch via the &lt;a href=&quot;http://redmine.synyx.org&quot;&gt;project tracker&lt;/a&gt;. Kudos to &lt;a href=&quot;http://bifrost.rei-network.info/blog/&quot;&gt;Philip Reiman&lt;/a&gt; who did most of the work.&lt;/p&gt;
@@ -912,9 +912,9 @@ public String showUsers(Model model,
  
  <entry>
    <title>Diggin' into Spring 3 transactional test facilities</title>
-   <link href="http://www.olivergierke.de/2009/05/diggin-into-spring-3-transactional-test-facilities/index.html"/>
+   <link href="http://www.olivergierke.de/2009/05/diggin-into-spring-3-transactional-test-facilities/"/>
    <updated>2009-05-28T20:16:06+02:00</updated>
-   <id>http://www.olivergierke.de/2009/05/diggin-into-spring-3-transactional-test-facilities/diggin-into-spring-3-transactional-test-facilities</id>
+   <id>http://www.olivergierke.de/2009/05/diggin-into-spring-3-transactional-test-facilities</id>
    <content type="html">
 &lt;p&gt;Today I devoted my day to a general check in how far Hades can be run with the &lt;a href=&quot;http://www.springsource.com/download/community?project=&quot;&gt; latest Spring 3 milestone&lt;/a&gt;. After managing the typical Maven foo I had a project profile up and running that builds &lt;a href=&quot;http://hades.synyx.org&quot;&gt;Hades&lt;/a&gt; against Spring 3 M3 and executes the tests against it. In case you try to migrate some of your code, too, and wonder where &lt;code&gt;spring-agent&lt;/code&gt; JAR has gone: its &lt;code&gt;org.springframework.instrument&lt;/code&gt; now. But back to topic.&lt;/p&gt;
 
@@ -942,9 +942,9 @@ public void checkDoesNotCascadeIfNotConfigured() {
  
  <entry>
    <title>Using Spring's @Configurable in three easy steps</title>
-   <link href="http://www.olivergierke.de/2009/05/using-springs-configurable-in-three-easy-steps/index.html"/>
+   <link href="http://www.olivergierke.de/2009/05/using-springs-configurable-in-three-easy-steps/"/>
    <updated>2009-05-25T20:57:53+02:00</updated>
-   <id>http://www.olivergierke.de/2009/05/using-springs-configurable-in-three-easy-steps/using-springs-configurable-in-three-easy-steps</id>
+   <id>http://www.olivergierke.de/2009/05/using-springs-configurable-in-three-easy-steps</id>
    <content type="html">
 &lt;p&gt;As you might not be aware of, besides injecting dependencies into beans Spring is able to inject dependencies into objects that are not instantiated by Spring. This becomes especially handy if you’re stuck to Domain Driven Design leveraging a rich domain model over an anemic one. As there’s been some &lt;a href=&quot;http://twitter.com/springrod/status/1905699064&quot;&gt;buzz&lt;/a&gt; around that functionality on twitter, I just put some small quickstart project together that has rather stripped down character but shows all the necessary steps nevertheless. The links to the sources as well as the binaries are attached below. Here is what you essentially have to do.&lt;/p&gt;
 
@@ -973,9 +973,9 @@ public void checkDoesNotCascadeIfNotConfigured() {
  
  <entry>
    <title>Hades 0.5.0 released</title>
-   <link href="http://www.olivergierke.de/2009/05/hades-050-released/index.html"/>
+   <link href="http://www.olivergierke.de/2009/05/hades-050-released/"/>
    <updated>2009-05-22T16:40:40+02:00</updated>
-   <id>http://www.olivergierke.de/2009/05/hades-050-released/hades-050-released</id>
+   <id>http://www.olivergierke.de/2009/05/hades-050-released</id>
    <content type="html">
 &lt;p&gt;Let me prodly announce version 0.5.0 of Hades. As our &lt;a href=&quot;http://hades.synyx.org&quot;&gt;project home&lt;/a&gt; gives you the quick overview and access to the latest binaries, sources and documentation I want to use this post to elaborate a little bit on the changes in 0.5.0 as well as the future roadmap.&lt;/p&gt;
 
@@ -1008,9 +1008,9 @@ public void checkDoesNotCascadeIfNotConfigured() {
  
  <entry>
    <title>Achieving application modularity with Hera</title>
-   <link href="http://www.olivergierke.de/2009/05/achieving-application-modularity-with-hera/index.html"/>
+   <link href="http://www.olivergierke.de/2009/05/achieving-application-modularity-with-hera/"/>
    <updated>2009-05-17T16:04:27+02:00</updated>
-   <id>http://www.olivergierke.de/2009/05/achieving-application-modularity-with-hera/achieving-application-modularity-with-hera</id>
+   <id>http://www.olivergierke.de/2009/05/achieving-application-modularity-with-hera</id>
    <content type="html">&lt;p&gt;The &lt;a href=&quot;http://www.javaposse.com/index.php?post_id=479283&quot;&gt;latest episode&lt;/a&gt; of the &lt;a href=&quot;http://www.javaposse.com/&quot;&gt;JavaPosse podcast&lt;/a&gt; presents a session of the this year’s JavaPosse roundup on Scala and application modularity. Although I attended the conference I did not attend this session, which is rather sad in retrospect as the attendees discuss a lot of things I also deal with.&lt;/p&gt;
 
 &lt;p&gt;As a note aside I want to mention, that I am of course aware of &lt;a href=&quot;http://www.osgi.org&quot;&gt;OSGi&lt;/a&gt; and it’s capabilities, that prvide a very sophisticated and mature solution to this problem. Nevertheless using OSGi introduces a fair amount of additional complexity and - despite its maturity - still lacks tool support to a large extend. Thus I won’t discuss anything OSGi related here.&lt;/p&gt;
@@ -1063,9 +1063,9 @@ public void checkDoesNotCascadeIfNotConfigured() {
  
  <entry>
    <title>Unit testing annotation based Spring MVC controllers</title>
-   <link href="http://www.olivergierke.de/2009/05/unit-testing-annotation-based-spring-mvc-controllers/index.html"/>
+   <link href="http://www.olivergierke.de/2009/05/unit-testing-annotation-based-spring-mvc-controllers/"/>
    <updated>2009-05-17T08:18:54+02:00</updated>
-   <id>http://www.olivergierke.de/2009/05/unit-testing-annotation-based-spring-mvc-controllers/unit-testing-annotation-based-spring-mvc-controllers</id>
+   <id>http://www.olivergierke.de/2009/05/unit-testing-annotation-based-spring-mvc-controllers</id>
    <content type="html">
 &lt;p&gt;Although it took me a while to get used to them, I now pretty much like the annotation based programming model for controllers in Spring MVC. The major advantage over the traditional inheritance based approach is, that the methods, that are bound to requests are simple public methods, that can easily be unit tested.&lt;/p&gt;
 
@@ -1128,9 +1128,9 @@ public class MyController {
  
  <entry>
    <title>Hera 0.4 released</title>
-   <link href="http://www.olivergierke.de/2009/03/hera-04-released/index.html"/>
+   <link href="http://www.olivergierke.de/2009/03/hera-04-released/"/>
    <updated>2009-03-30T15:50:48+02:00</updated>
-   <id>http://www.olivergierke.de/2009/03/hera-04-released/hera-04-released</id>
+   <id>http://www.olivergierke.de/2009/03/hera-04-released</id>
    <content type="html">&lt;p&gt;It’s been a silent release, nevertheless I want to post a tiny shout about it. Hera is a small plugin library that allows you to create pluggable architectures based on Spring using build time configuration. You might want to find out details by skimming &lt;a href=&quot;http://www.olivergierke.de/2008/10/09/the-smallest-plugin-system-ever/&quot;&gt;my introducing blog post&lt;/a&gt; about it.&lt;/p&gt;
 
 &lt;p&gt;Version 0.4 is not a very feature rich release as there is actually only one new one. With this release you can leverage the Core Spring’s ordering capabilities (either through implementing &lt;code&gt;Ordered&lt;/code&gt; or by annotating your plugin classes with &lt;code&gt;@Order&lt;/code&gt;) to fix the order of plugins in the registry. Furthermore we made &lt;code&gt;PluginRegistry&lt;/code&gt; an interface with 0.4 and provide a &lt;code&gt;SimplePluginRegistry&lt;/code&gt; (without ordering capabilities) that is completely independent of Spring and a &lt;code&gt;OrderAwarePluginRegistry&lt;/code&gt; that will be used when you use the Hera Spring namespace.&lt;/p&gt;
@@ -1141,9 +1141,9 @@ public class MyController {
  
  <entry>
    <title>Java Posse Roundup 2009 - Part I</title>
-   <link href="http://www.olivergierke.de/2009/03/java-posse-roundup-09-part-i/index.html"/>
+   <link href="http://www.olivergierke.de/2009/03/java-posse-roundup-09-part-i/"/>
    <updated>2009-03-05T10:53:16+01:00</updated>
-   <id>http://www.olivergierke.de/2009/03/java-posse-roundup-09-part-i/java-posse-roundup-09-part-i</id>
+   <id>http://www.olivergierke.de/2009/03/java-posse-roundup-09-part-i</id>
    <content type="html">&lt;p&gt;The first two days are over, time to wrap up the first half of it. The actual conference started on Tuesday but the day before there was a Hackathon on alternative languages on the JVM. But let me start from scratch.&lt;/p&gt;
 
 &lt;p&gt;My flight to the states was actually quite nice although it took me almost 24h to finally get to Crested Butte, Colorado. &lt;a href=&quot;http://maps.google.de/maps?f=q&amp;amp;source=s_q&amp;amp;hl=de&amp;amp;geocode=&amp;amp;q=Whiterock+716,+Crested+Butte,+CO,+USA&amp;amp;sll=38.8758,-106.981773&amp;amp;sspn=0.131502,0.30899&amp;amp;ie=UTF8&amp;amp;ll=40.680638,-106.962891&amp;amp;spn=16.381406,39.550781&amp;amp;t=h&amp;amp;z=5&amp;amp;iwloc=addr&quot;&gt;Crested Butte&lt;/a&gt; is situated in the western Rocky Mountains about 4h south west from Denver. It’s named after the mountain right next to the city and very nice place to do wintersports of all kinds.&lt;/p&gt;
@@ -1180,9 +1180,9 @@ public class MyController {
  
  <entry>
    <title>Hades 0.4 released</title>
-   <link href="http://www.olivergierke.de/2009/02/hades-04-released/index.html"/>
+   <link href="http://www.olivergierke.de/2009/02/hades-04-released/"/>
    <updated>2009-02-26T16:34:58+01:00</updated>
-   <id>http://www.olivergierke.de/2009/02/hades-04-released/hades-04-released</id>
+   <id>http://www.olivergierke.de/2009/02/hades-04-released</id>
    <content type="html">&lt;p&gt;Passionatedly practicing conference driven development I’d like to announce version 0.4 of the DAO implementation library Hades.&lt;/p&gt;
 
 &lt;h2 id=&quot;eclipse-plugin&quot;&gt;Eclipse plugin&lt;/h2&gt;
@@ -1206,9 +1206,9 @@ public class MyController {
  
  <entry>
    <title>Heading Java Posse Roundup 2009</title>
-   <link href="http://www.olivergierke.de/2009/02/heading-javaposse-roundup-2009/index.html"/>
+   <link href="http://www.olivergierke.de/2009/02/heading-javaposse-roundup-2009/"/>
    <updated>2009-02-26T16:15:17+01:00</updated>
-   <id>http://www.olivergierke.de/2009/02/heading-javaposse-roundup-2009/heading-javaposse-roundup-2009</id>
+   <id>http://www.olivergierke.de/2009/02/heading-javaposse-roundup-2009</id>
    <content type="html">&lt;p&gt;2 more days and I will make my way to Crested Butte, Colorado to join this year’s &lt;a href=&quot;http://www.mindviewinc.com/Conferences/JavaPosseRoundup/&quot;&gt;Java Posse Roundup&lt;/a&gt;. Not having attended an “Uncoference” before I really look forward to this style of conference as the &lt;a href=&quot;http://en.wikipedia.org/wiki/Unconference&quot;&gt;concept&lt;/a&gt; sounds promising. The week will be packed with geek activities but also leave room for leisure as Crested Butte is situated in a large skiing area actually. &lt;a href=&quot;http://www.flickr.com/photos/tags/javaposseroundup08/&quot;&gt;Last year’s pictures&lt;/a&gt; look awesome.&lt;/p&gt;
 
 &lt;p&gt;I’ll try to post here now and then to reflect what’s going on over there but i guess &lt;a href=&quot;http://twitter.com/olivergierke&quot;&gt;Twitter&lt;/a&gt; frequency will be much higher.&lt;/p&gt;
@@ -1217,9 +1217,9 @@ public class MyController {
  
  <entry>
    <title>Integrating Hades into existing applications</title>
-   <link href="http://www.olivergierke.de/2009/02/integrating-hades-into-existing-applications/index.html"/>
+   <link href="http://www.olivergierke.de/2009/02/integrating-hades-into-existing-applications/"/>
    <updated>2009-02-06T19:11:58+01:00</updated>
-   <id>http://www.olivergierke.de/2009/02/integrating-hades-into-existing-applications/integrating-hades-into-existing-applications</id>
+   <id>http://www.olivergierke.de/2009/02/integrating-hades-into-existing-applications</id>
    <content type="html">&lt;p&gt;Today I’ve got an email by &lt;a href=&quot;https://www.xing.com/profile/Thomas_Braun14/N1.1.4.2.b6504d&quot;&gt;Thomas Braun&lt;/a&gt; who considered to play around with Hades. He is facing an application with an existing data access layer based on Spring’s &lt;code&gt;HibernateDaoSupport&lt;/code&gt; class. This raised the question of how to integrate Hades into the app without changing existing code.&lt;/p&gt;
 
 &lt;p&gt;Thomas was using &lt;code&gt;AnnotationSessionFactoryBean&lt;/code&gt; to create the &lt;code&gt;SessionFactory&lt;/code&gt; from annotation metadata. As Hades relies on JPA &lt;code&gt;EntityManager&lt;/code&gt; interface the basic question was how to use it next to the SessionFactory while avoiding duplicate metadata evaluation and thus two entity handling infrastructure.&lt;/p&gt;
@@ -1242,9 +1242,9 @@ public class MyController {
  
  <entry>
    <title>Clean Code - Review Part I</title>
-   <link href="http://www.olivergierke.de/2009/01/clean-code-review-part-i/index.html"/>
+   <link href="http://www.olivergierke.de/2009/01/clean-code-review-part-i/"/>
    <updated>2009-01-23T20:37:03+01:00</updated>
-   <id>http://www.olivergierke.de/2009/01/clean-code-review-part-i/clean-code-review-part-i</id>
+   <id>http://www.olivergierke.de/2009/01/clean-code-review-part-i</id>
    <content type="html">&lt;p&gt;As I have twittered already, I am reading “Clean Code” by Robert C. Martin right now. I expected the book to be a very fundamental one. Although there are a few parts I do not entirely agree with, I just rummaged throught chapter 11 “Systems” on my way home and was surprised how condensed Robert summarizes principles constructing software systems that I usually promote discussing such topics with colleagues.&lt;/p&gt;
 
 &lt;h2 id=&quot;separate-constructing-a-system-frum-using-it&quot;&gt;1. Separate constructing a system frum using it&lt;/h2&gt;
@@ -1283,9 +1283,9 @@ public class MyController {
  
  <entry>
    <title>The DAO is dead! Long live the DAO!</title>
-   <link href="http://www.olivergierke.de/2009/01/se-radio-episode-121-or-mappers/index.html"/>
+   <link href="http://www.olivergierke.de/2009/01/se-radio-episode-121-or-mappers/"/>
    <updated>2009-01-14T21:30:09+01:00</updated>
-   <id>http://www.olivergierke.de/2009/01/se-radio-episode-121-or-mappers/se-radio-episode-121-or-mappers</id>
+   <id>http://www.olivergierke.de/2009/01/se-radio-episode-121-or-mappers</id>
    <content type="html">&lt;p&gt;&lt;a href=&quot;http://www.se-radio.net/podcast/2008-12/episode-121-or-mappers-michael-ploed&quot;&gt;Episode 121&lt;/a&gt; of &lt;a href=&quot;http://www.se-radio.net&quot;&gt;Software Engineering Radio&lt;/a&gt; deals with the topic of OR Mappers. Michael Plöd introduces the concept of &lt;a href=&quot;http://en.wikipedia.org/wiki/Object-relational_mapping&quot;&gt;object-relational mapping&lt;/a&gt; technologies, discusses advantages and disadvantages. The content of the episode is very basic to a large extend, which makes it ideal to get an introducing idea of the topic.&lt;/p&gt;
 
 &lt;p&gt;The reason I discuss this here is a discussion Arno (the interviewer) is introducing regarding the necessity of the DAO (Data Access Object) Pattern, if you use OR Mappers. Michael thinks that the DAO Pattern still has the right to exist and I decidedly second that. Let me explain why…&lt;/p&gt;
@@ -1330,9 +1330,9 @@ public class MyController {
  
  <entry>
    <title>Subtleties on java.lang.Enum</title>
-   <link href="http://www.olivergierke.de/2009/01/subtleties-on-javalangenum/index.html"/>
+   <link href="http://www.olivergierke.de/2009/01/subtleties-on-javalangenum/"/>
    <updated>2009-01-12T07:32:01+01:00</updated>
-   <id>http://www.olivergierke.de/2009/01/subtleties-on-javalangenum/subtleties-on-javalangenum</id>
+   <id>http://www.olivergierke.de/2009/01/subtleties-on-javalangenum</id>
    <content type="html">&lt;p&gt;As i twittered a few days ago, I stumbled over a subtle issue in the core Java library. Not as extreme as &lt;a href=&quot;http://www.olivergierke.de/wordpress/2008/12/javac-issues-implementing-generics/&quot;&gt;here&lt;/a&gt; but one to raise ones eyebrows, too.&lt;/p&gt;
 
 &lt;p&gt;I just wanted to write a small method to access an enum value by its &lt;code&gt;String&lt;/code&gt; representation or use a default, if the conversion fails:&lt;/p&gt;
@@ -1392,9 +1392,9 @@ public class MyController {
  
  <entry>
    <title>Hades at Java User Group Karlsruhe</title>
-   <link href="http://www.olivergierke.de/2008/12/hades-at-jug-karlsruhe/index.html"/>
+   <link href="http://www.olivergierke.de/2008/12/hades-at-jug-karlsruhe/"/>
    <updated>2008-12-18T14:11:22+01:00</updated>
-   <id>http://www.olivergierke.de/2008/12/hades-at-jug-karlsruhe/hades-at-jug-karlsruhe</id>
+   <id>http://www.olivergierke.de/2008/12/hades-at-jug-karlsruhe</id>
    <content type="html">&lt;p&gt;Yesterday I gave a presentation about &lt;a href=&quot;http://trac.synyx.org/hades&quot;&gt;Hades&lt;/a&gt; at the Java User Group Karlsruhe. It was preceeded by an introduction to Aspect Oriented Programming by &lt;a href=&quot;http://dlinsin.blogspot.com/&quot;&gt;David Linsin&lt;/a&gt; and Florian Waibel of Netpioneer that showed the usage of AOP to define system architecture constraints.&lt;/p&gt;
 
 &lt;p&gt;You can download the &lt;a href=&quot;http://www.olivergierke.de/wordpress/wp-content/uploads/2008/12/generic-daos-with-hades1.pdf&quot;&gt;slides&lt;/a&gt; as well as the &lt;a href=&quot;http://www.olivergierke.de/wordpress/wp-content/uploads/2008/12/hades-sample.zip&quot;&gt;sample code&lt;/a&gt; here or all stuff at the &lt;a href=&quot;http://groups.google.com/group/jug-karlsruhe&quot;&gt;JUG Karlsruhe Google group&lt;/a&gt;.&lt;/p&gt;
@@ -1403,9 +1403,9 @@ public class MyController {
  
  <entry>
    <title>JavaC issues implementing generics</title>
-   <link href="http://www.olivergierke.de/2008/12/javac-issues-implementing-generics/index.html"/>
+   <link href="http://www.olivergierke.de/2008/12/javac-issues-implementing-generics/"/>
    <updated>2008-12-15T15:02:20+01:00</updated>
-   <id>http://www.olivergierke.de/2008/12/javac-issues-implementing-generics/javac-issues-implementing-generics</id>
+   <id>http://www.olivergierke.de/2008/12/javac-issues-implementing-generics</id>
    <content type="html">&lt;p&gt;Attenting &lt;a href=&quot;http://www.olivergierke.de/wordpress/2008/12/devoxx-2008&quot;&gt;Devoxx last week&lt;/a&gt;, I had the chance to talk to Joshua Bloch about an compiler issue I had a while ago implementing static factory method pattern from his book. Take this as example:&lt;/p&gt;
 
 &lt;pre&gt;&lt;code&gt;public class PluginRegistry &amp;lt;T extends Plugin&amp;lt;S&amp;gt;, S&amp;gt; {
@@ -1452,18 +1452,18 @@ PluginRegistry&amp;lt;Plugin&amp;lt;String&amp;gt;, String&amp;gt; registry =
  
  <entry>
    <title>Spring 3.0 M1 is out now for Maven users, too</title>
-   <link href="http://www.olivergierke.de/2008/12/spring-30-m1-is-out-now-for-maven-users-too/index.html"/>
+   <link href="http://www.olivergierke.de/2008/12/spring-30-m1-is-out-now-for-maven-users-too/"/>
    <updated>2008-12-12T04:17:06+01:00</updated>
-   <id>http://www.olivergierke.de/2008/12/spring-30-m1-is-out-now-for-maven-users-too/spring-30-m1-is-out-now-for-maven-users-too</id>
+   <id>http://www.olivergierke.de/2008/12/spring-30-m1-is-out-now-for-maven-users-too</id>
    <content type="html">&lt;p&gt;After the announcement of the release of Spring 3.0 M1 Jürgen Höller blog comments complained the artifacts not to be available in a Maven repository. Actually, according to Chris Beams, it now is. Take a look at his &lt;a href=&quot;http://blog.springsource.com/2008/12/05/spring-framework-30-m1-released/#comment-131869&quot;&gt;blog comment&lt;/a&gt;. I’m leaching it from the servers right now…&lt;/p&gt;
 </content>
  </entry>
  
  <entry>
    <title>Devoxx 2008</title>
-   <link href="http://www.olivergierke.de/2008/12/devoxx-2008/index.html"/>
+   <link href="http://www.olivergierke.de/2008/12/devoxx-2008/"/>
    <updated>2008-12-11T18:30:16+01:00</updated>
-   <id>http://www.olivergierke.de/2008/12/devoxx-2008/devoxx-2008</id>
+   <id>http://www.olivergierke.de/2008/12/devoxx-2008</id>
    <content type="html">&lt;p&gt;I’m taking a break currently, skipping one of the talks here. Devoxx is actually the most exciting conference I ever attended and I want to take the chance to recap some of the impressions I got here. After 4 days of non-daylight, lots of coffee and coke, I really have to say that I liked it very much. I will see a presentation by &lt;a href=&quot;http://www.devoxx.com/display/JV08/The+next+versions+of+Parleys.com&quot;&gt;Stephan Janssen&lt;/a&gt; on the new &lt;a href=&quot;http://www.parleys.com&quot;&gt;Parleys.com&lt;/a&gt; as well as some other ones tomorrow but as The days were so fully packed, I’ll try to organize stuff a little.&lt;/p&gt;
 
 &lt;h2 id=&quot;monday&quot;&gt;Monday&lt;/h2&gt;
@@ -1527,18 +1527,18 @@ PluginRegistry&amp;lt;Plugin&amp;lt;String&amp;gt;, String&amp;gt; registry =
  
  <entry>
    <title>Hades 0.3 is out</title>
-   <link href="http://www.olivergierke.de/2008/12/hades-03-is-out/index.html"/>
+   <link href="http://www.olivergierke.de/2008/12/hades-03-is-out/"/>
    <updated>2008-12-06T21:19:00+01:00</updated>
-   <id>http://www.olivergierke.de/2008/12/hades-03-is-out/hades-03-is-out</id>
+   <id>http://www.olivergierke.de/2008/12/hades-03-is-out</id>
    <content type="html">&lt;p&gt;I am pleased to announce version 0.3 of &lt;a href=&quot;http://trac.synyx.org/hades&quot;&gt;Hades&lt;/a&gt;, an open source project I lead. The release bundles a new &lt;code&gt;ExtendedGenericDao&lt;/code&gt; implementation based on &lt;a href=&quot;http://www.eclipse.org/eclipselink/&quot;&gt;EclipseLink&lt;/a&gt; as well as some major package refactorings. For more information and a detailed changelog see the &lt;a href=&quot;http://trac.synyx.org/hades&quot;&gt;project homepage&lt;/a&gt;.&lt;/p&gt;
 </content>
  </entry>
  
  <entry>
    <title>On the way to Devoxx</title>
-   <link href="http://www.olivergierke.de/2008/12/on-the-way-to-devoxx/index.html"/>
+   <link href="http://www.olivergierke.de/2008/12/on-the-way-to-devoxx/"/>
    <updated>2008-12-06T17:55:04+01:00</updated>
-   <id>http://www.olivergierke.de/2008/12/on-the-way-to-devoxx/on-the-way-to-devoxx</id>
+   <id>http://www.olivergierke.de/2008/12/on-the-way-to-devoxx</id>
    <content type="html">&lt;p&gt;Tomorrow some colleagues and me will be travelling to Antwerp, Belgium to attend this years &lt;a href=&quot;http://www.devoxx.com&quot;&gt;Devoxx&lt;/a&gt; (formerly known as JavaPolis / Javoxx) conference. I really look forward to this as conferences are always a good change to sniff the latest news and currents as well as meeting a lot of &lt;a href=&quot;http://dlinsin.blogspot.com/&quot;&gt;fellow developers&lt;/a&gt;. Furthermore I will give a short intro into &lt;a href=&quot;http://trac.synyx.org/hades&quot;&gt;Hades&lt;/a&gt; on &lt;a href=&quot;http://www.devoxx.com/display/JV08/Easing+JPA+DAO+development+with+Hades&quot;&gt;Tuesday&lt;/a&gt;.&lt;/p&gt;
 
 &lt;p&gt;I will try to sum up every day with a small blog post as I did on &lt;a href=&quot;http://www.olivergierke.de/wordpress/tag/springone08/&quot;&gt;SpringOne&lt;/a&gt; Europe already.&lt;/p&gt;
@@ -1547,9 +1547,9 @@ PluginRegistry&amp;lt;Plugin&amp;lt;String&amp;gt;, String&amp;gt; registry =
  
  <entry>
    <title>Is REST the next Spring?</title>
-   <link href="http://www.olivergierke.de/2008/12/is-rest-the-next-spring/index.html"/>
+   <link href="http://www.olivergierke.de/2008/12/is-rest-the-next-spring/"/>
    <updated>2008-12-04T18:25:11+01:00</updated>
-   <id>http://www.olivergierke.de/2008/12/is-rest-the-next-spring/is-rest-the-next-spring</id>
+   <id>http://www.olivergierke.de/2008/12/is-rest-the-next-spring</id>
    <content type="html">&lt;p&gt;Browsing the latest JavaMagazin leader written by &lt;a href=&quot;http://www.innoq.com/blog/st/&quot;&gt;Stefan Tilkov&lt;/a&gt;, I stumbled about a phrase in his abstract, that triggered some thought I wanna share with you. Stefan claims REST to be a more lightweight approach to web services than SOAP.&lt;/p&gt;
 
 &lt;p&gt;First I have to admit, that I clearly favour REST style webservices over SOAP one, too. The projects I worked with them were clearly less cluttered, less overheaded, and the API much more close to the domain concepts compared to those rumbling with SOAP. But back to the headline statement.&lt;/p&gt;
@@ -1566,9 +1566,9 @@ PluginRegistry&amp;lt;Plugin&amp;lt;String&amp;gt;, String&amp;gt; registry =
  
  <entry>
    <title>Hades on tour</title>
-   <link href="http://www.olivergierke.de/2008/11/hades-on-tour/index.html"/>
+   <link href="http://www.olivergierke.de/2008/11/hades-on-tour/"/>
    <updated>2008-11-18T10:33:17+01:00</updated>
-   <id>http://www.olivergierke.de/2008/11/hades-on-tour/hades-on-tour</id>
+   <id>http://www.olivergierke.de/2008/11/hades-on-tour</id>
    <content type="html">&lt;p&gt;There some upcoming talks on Hades I will give on a variety of locations and events. As I don’t want to deprive the dates from you, here we go:
 * Dec, 9th 2008 - &lt;a href=&quot;http://www.devoxx.com/display/JV08/Easing+JPA+DAO+development+with+Hades&quot;&gt;Devoxx Conference, Antwerpen&lt;/a&gt;
 * Dec, 17th 2008 - &lt;a href=&quot;http://groups.google.com/groups/jug-karlsruhe&quot;&gt;Java User Group, Karlsruhe&lt;/a&gt;
@@ -1580,9 +1580,9 @@ PluginRegistry&amp;lt;Plugin&amp;lt;String&amp;gt;, String&amp;gt; registry =
  
  <entry>
    <title>The metadata dilemma</title>
-   <link href="http://www.olivergierke.de/2008/11/the-metadata-dilemma/index.html"/>
+   <link href="http://www.olivergierke.de/2008/11/the-metadata-dilemma/"/>
    <updated>2008-11-18T10:24:59+01:00</updated>
-   <id>http://www.olivergierke.de/2008/11/the-metadata-dilemma/the-metadata-dilemma</id>
+   <id>http://www.olivergierke.de/2008/11/the-metadata-dilemma</id>
    <content type="html">&lt;p&gt;Java EE development has been packed with lots of metadata since day one. Things have changed a lot over times and we have been provided with more elegant solutions. I don’t want to go deeply into the ongoing debate on Annotations versus XML but rather go one step back and discuss metadata on a more conceptual level.&lt;/p&gt;
 
 &lt;h2 id=&quot;what-is-metadata&quot;&gt;What is metadata?&lt;/h2&gt;
@@ -1623,9 +1623,9 @@ PluginRegistry&amp;lt;Plugin&amp;lt;String&amp;gt;, String&amp;gt; registry =
  
  <entry>
    <title>Videos of the Four Sided Cube unplugged gig</title>
-   <link href="http://www.olivergierke.de/2008/11/videos-of-the-unplugged-gig/index.html"/>
+   <link href="http://www.olivergierke.de/2008/11/videos-of-the-unplugged-gig/"/>
    <updated>2008-11-02T19:18:02+01:00</updated>
-   <id>http://www.olivergierke.de/2008/11/videos-of-the-unplugged-gig/videos-of-the-unplugged-gig</id>
+   <id>http://www.olivergierke.de/2008/11/videos-of-the-unplugged-gig</id>
    <content type="html">&lt;p&gt;We just played another unplugged gig at fresh!-Club Mannheim last Friday. My wife took videos of some songs with our photo camera. I just mixed that stuff with the recording of the sound guy, who did a very good job (as usual). I like to post “Bad Day’s Rememberance” as sample here. You can find all videos at our &lt;a href=&quot;http://www.youtube.com/foursidedcube&quot;&gt;YouTube channel&lt;/a&gt;.&lt;/p&gt;
 
 &lt;iframe width=&quot;420&quot; height=&quot;315&quot; src=&quot;http://www.youtube.com/embed/GmJLyX2P1YI&quot; frameborder=&quot;0&quot; allowfullscreen=&quot;true&quot;&gt;&lt;/iframe&gt;
@@ -1634,9 +1634,9 @@ PluginRegistry&amp;lt;Plugin&amp;lt;String&amp;gt;, String&amp;gt; registry =
  
  <entry>
    <title>The smallest plugin system ever</title>
-   <link href="http://www.olivergierke.de/2008/10/the-smallest-plugin-system-ever/index.html"/>
+   <link href="http://www.olivergierke.de/2008/10/the-smallest-plugin-system-ever/"/>
    <updated>2008-10-09T10:13:58+02:00</updated>
-   <id>http://www.olivergierke.de/2008/10/the-smallest-plugin-system-ever/the-smallest-plugin-system-ever</id>
+   <id>http://www.olivergierke.de/2008/10/the-smallest-plugin-system-ever</id>
    <content type="html">&lt;p&gt;I blogged about &lt;a href=&quot;http://www.olivergierke.de/wordpress/2008/09/26/hades-02-is-out/&quot;&gt;Hades&lt;/a&gt;, an OpenSource project I lead a while ago. Today I want to launch another neat library. Much smaller than Hades but IMHO useful nevertheless.&lt;/p&gt;
 
 &lt;p&gt;Developing Spring applications you often come to the point of having a component that should get a list of collaborateurs injected. The component in turn does select one or many of these collaborateurs based on a defined criteria and works with them. This raises a few requirements:
@@ -1735,9 +1735,9 @@ PluginRegistry&amp;lt;Plugin&amp;lt;String&amp;gt;, String&amp;gt; registry =
  
  <entry>
    <title>Hades 0.2 is out</title>
-   <link href="http://www.olivergierke.de/2008/09/hades-02-is-out/index.html"/>
+   <link href="http://www.olivergierke.de/2008/09/hades-02-is-out/"/>
    <updated>2008-09-26T20:35:09+02:00</updated>
-   <id>http://www.olivergierke.de/2008/09/hades-02-is-out/hades-02-is-out</id>
+   <id>http://www.olivergierke.de/2008/09/hades-02-is-out</id>
    <content type="html">&lt;p&gt;Today we officially released version 0.2 of &lt;a href=&quot;http://trac.synyx.org/hades&quot;&gt;Hades&lt;/a&gt;, a domain class and DAO development library based on JPA and &lt;a href=&quot;http://www.springframework.org&quot;&gt;Spring&lt;/a&gt;. Hades is mainly based on an idea provided by &lt;a href=&quot;http://jandiandme.blogspot.com/&quot;&gt;Eberhard Wolff&lt;/a&gt; in Java Magazin. Hades feature list reads as follows:&lt;/p&gt;
 
 &lt;ul&gt;
@@ -1761,9 +1761,9 @@ PluginRegistry&amp;lt;Plugin&amp;lt;String&amp;gt;, String&amp;gt; registry =
  
  <entry>
    <title>How to feed link SCM paths into your Trac</title>
-   <link href="http://www.olivergierke.de/2008/09/how-to-feed-long-scm-paths-to-your-trac/index.html"/>
+   <link href="http://www.olivergierke.de/2008/09/how-to-feed-long-scm-paths-to-your-trac/"/>
    <updated>2008-09-26T13:11:35+02:00</updated>
-   <id>http://www.olivergierke.de/2008/09/how-to-feed-long-scm-paths-to-your-trac/how-to-feed-long-scm-paths-to-your-trac</id>
+   <id>http://www.olivergierke.de/2008/09/how-to-feed-long-scm-paths-to-your-trac</id>
    <content type="html">&lt;p&gt;We’re using &lt;a href=&quot;http://trac.edgewall.org&quot;&gt;Trac&lt;/a&gt; 0.10.3 in combination with MySQL at work. Trying to setup a new instance and importing the SVN history i faced an ugly duplicate key error trying to insert the revision logs into the database. As &lt;a href=&quot;http://trac.edgewall.org/ticket/3676&quot;&gt;this ticket &lt;/a&gt;explains this is due to an index over a part of the SVN path affected. By default Trac only uses the first 111 characters of it. This of course will crash if you have deeply nested folders in your project.&lt;/p&gt;
 
 &lt;p&gt;As the ticket describes this is just an index and can easily be dropped with&lt;/p&gt;
@@ -1775,18 +1775,18 @@ PluginRegistry&amp;lt;Plugin&amp;lt;String&amp;gt;, String&amp;gt; registry =
  
  <entry>
    <title>Developers facing the real world</title>
-   <link href="http://www.olivergierke.de/2008/09/developers-facing-the-real-world/index.html"/>
+   <link href="http://www.olivergierke.de/2008/09/developers-facing-the-real-world/"/>
    <updated>2008-09-05T12:45:07+02:00</updated>
-   <id>http://www.olivergierke.de/2008/09/developers-facing-the-real-world/developers-facing-the-real-world</id>
+   <id>http://www.olivergierke.de/2008/09/developers-facing-the-real-world</id>
    <content type="html">&lt;p&gt;A few minutes ago I once again stumbled on the strange fact, that every now and then I unconciously apply development concepts to my everyday life or at least detect concepts or violations of ‘em. Just now, we decided to order lunch at the chinese restaurant round the corner. Rummaging through the restaurants brochure, guess what was the first meal offered: Pizza Magarita. WTF? This clearly violates the principle of &lt;a href=&quot;http://en.wikipedia.org/wiki/Separation_of_concerns&quot;&gt;Separation of Concerns&lt;/a&gt; and is also known as the &lt;a href=&quot;http://en.wikipedia.org/wiki/God_object&quot;&gt;God object antipattern&lt;/a&gt;.&lt;/p&gt;
 </content>
  </entry>
  
  <entry>
    <title>Validating domain objects</title>
-   <link href="http://www.olivergierke.de/2008/08/validating-domain-objects/index.html"/>
+   <link href="http://www.olivergierke.de/2008/08/validating-domain-objects/"/>
    <updated>2008-08-11T20:58:20+02:00</updated>
-   <id>http://www.olivergierke.de/2008/08/validating-domain-objects/validating-domain-objects</id>
+   <id>http://www.olivergierke.de/2008/08/validating-domain-objects</id>
    <content type="html">&lt;p&gt;Fellow developer &lt;a href=&quot;http://dlinsin.blogspot.com/&quot;&gt;David Linsin&lt;/a&gt; wrote a &lt;a href=&quot;http://dlinsin.blogspot.com/2008/08/how-to-validate-your-domain-objects.html&quot;&gt;blogpost&lt;/a&gt; about validation of domain objects recently. I actually wanted to leave him a reply but it got kinda long so I decided to post it here. So this is what came to my mind:&lt;/p&gt;
 
 &lt;p&gt;Prototyping some web portal kind of software I’ve encountered a similar situation. Take a User domain object as example for this problem. I decided to have a domain object as well as DTOs for maybe different clients. Why did I decide to do so? Well, the example beautifully shows what is a client specific vie on domain data. To edit the user on a web frontend (no matter if you want to create a new user or edit an existing one) you mostly let the real application user enter a password twice to ensure he enters the one he really wanted to enter. Nevertheless I of course don’t want to extend my domain object to hold a second password field, just because one single client needs it.&lt;/p&gt;
@@ -1805,9 +1805,9 @@ PluginRegistry&amp;lt;Plugin&amp;lt;String&amp;gt;, String&amp;gt; registry =
  
  <entry>
    <title>Effective bug smashing with test cases</title>
-   <link href="http://www.olivergierke.de/2008/07/effective-bug-smashing-with-test-cases/index.html"/>
+   <link href="http://www.olivergierke.de/2008/07/effective-bug-smashing-with-test-cases/"/>
    <updated>2008-07-01T11:59:50+02:00</updated>
-   <id>http://www.olivergierke.de/2008/07/effective-bug-smashing-with-test-cases/effective-bug-smashing-with-test-cases</id>
+   <id>http://www.olivergierke.de/2008/07/effective-bug-smashing-with-test-cases</id>
    <content type="html">&lt;p&gt;There are a lot of opinions buzzing around about how testing and test driven development helps you writing better software. Reading &lt;a href=&quot;http://www.amazon.de/Secrets-Rockstar-Programmers-Riding-Crest/dp/0071490833/ref=sr_1_1?ie=UTF8&amp;amp;s=books-intl-de&amp;amp;qid=1214904407&amp;amp;sr=8-1&quot;&gt;Secrets of the rockstar programmers&lt;/a&gt; just now, I’ve stumbled over an intresting interview with &lt;a href=&quot;http://www.bileblog.org/about/&quot;&gt;Hani Suleiman&lt;/a&gt;, co-author of &lt;a href=&quot;http://www.amazon.de/Next-Generation-Java-Testing-Advanced/dp/0321503104/ref=sr_1_1?ie=UTF8&amp;amp;s=books-intl-de&amp;amp;qid=1214904551&amp;amp;sr=8-1&quot;&gt;Next Generation Java Testing&lt;/a&gt;. As this is a book purely on testing, you could expect him to be a fervent advocat of TDD. Surprisingly, he takes a very pragmatic approach to testing and simply states, that it should be as easy as possible to be done while understanding that deadlines often prevent you from equipping your polished code with the last 20 percent of test coverage.&lt;/p&gt;
 
 &lt;p&gt;Nevertheless, the quote, that pinged my mind, was this one:&lt;/p&gt;
@@ -1837,9 +1837,9 @@ PluginRegistry&amp;lt;Plugin&amp;lt;String&amp;gt;, String&amp;gt; registry =
  
  <entry>
    <title>SpringOne 2008 - Application platform keynote</title>
-   <link href="http://www.olivergierke.de/2008/06/application-platform-keynote/index.html"/>
+   <link href="http://www.olivergierke.de/2008/06/application-platform-keynote/"/>
    <updated>2008-06-12T12:00:19+02:00</updated>
-   <id>http://www.olivergierke.de/2008/06/application-platform-keynote/application-platform-keynote</id>
+   <id>http://www.olivergierke.de/2008/06/application-platform-keynote</id>
    <content type="html">&lt;p&gt;Adrian Colyer led the send day’s keynote centered about the Spring Source Application Platform. Unfortunately the duck that became famous last year could not be with him this year. Fortunately Rob Harrop - AP lead developer - replaced it quite well ;).&lt;/p&gt;
 
 &lt;p&gt;Adrian and Rob coined out the primary challanges of enterprise applications the standard has not resolved. Of course they presented OSGi as the main foundation to build a solution on that could solve these problems: modularity, dynamics and so on.&lt;/p&gt;
@@ -1852,9 +1852,9 @@ PluginRegistry&amp;lt;Plugin&amp;lt;String&amp;gt;, String&amp;gt; registry =
  
  <entry>
    <title>Spring 2008 - Summing up day one</title>
-   <link href="http://www.olivergierke.de/2008/06/summing-up-day-one/index.html"/>
+   <link href="http://www.olivergierke.de/2008/06/summing-up-day-one/"/>
    <updated>2008-06-12T11:58:48+02:00</updated>
-   <id>http://www.olivergierke.de/2008/06/summing-up-day-one/summing-up-day-one</id>
+   <id>http://www.olivergierke.de/2008/06/summing-up-day-one</id>
    <content type="html">&lt;p&gt;First da of SpringOne was really intresting. I saw a lot of good talks, either to earn new knowledge or ideas to share thoughts about or at least get a feeling that attitudes, ideas and programming habits I cultivate are very much state of the art.&lt;/p&gt;
 
 &lt;p&gt;After the session I enjoyed to talk to a few Spring developers discussing ideas and problems I’ve stumbled above. I talked to Christian Dupuis - lead developer of SpringIDE and the Spring Tool Suite - to get tighter integration of a generic DAO library im currentl working on. He gave me useful tips of how to get the IDE to recognize beans i create through a custom namespace. Maybe we can get our hands on this today and get this working.&lt;/p&gt;
@@ -1871,9 +1871,9 @@ PluginRegistry&amp;lt;Plugin&amp;lt;String&amp;gt;, String&amp;gt; registry =
  
  <entry>
    <title>5 (or 3) aspects you probably haven't thought about</title>
-   <link href="http://www.olivergierke.de/2008/06/5-or-3-aspects-you-probably-havent-thought-about/index.html"/>
+   <link href="http://www.olivergierke.de/2008/06/5-or-3-aspects-you-probably-havent-thought-about/"/>
    <updated>2008-06-11T20:09:35+02:00</updated>
-   <id>http://www.olivergierke.de/2008/06/5-or-3-aspects-you-probably-havent-thought-about/5-or-3-aspects-you-probably-havent-thought-about</id>
+   <id>http://www.olivergierke.de/2008/06/5-or-3-aspects-you-probably-havent-thought-about</id>
    <content type="html">&lt;p&gt;Alef Arendsen started by giving a short introduction into basic AOP concepts. After that he presented a sample project using Hibernate and JDBC data access together. He construted a business case where the Hibernate property of delaying actual data insert to the database until transaction commit. The solution to the problem would be to flush the hibernate session appropriately. But what means appropriately in this case? Who is responsible to execute the flush? Alef constructed an aspect that watches JdbcTemplate operations and executes the flush accordingly.&lt;!--more--&gt;&lt;/p&gt;
 
 &lt;p&gt;The next example was about retrieving localized data. Localized in the sense, that Alef wanted to access all car parts available in a given area. He introduced a view localizing the data into the database and let Hibernate work against that view. Finally he let the current area to retrieve the data for be propagated. This was realized applying an advice to transaction begin time to write the session state area context into the database. To prevent duplicate propagation Alef introduced the AspectJ cflow concept allowing to define pointcuts in the context of anoher pointcut. This means you can describe a pointcut to match a transactional method and only get it fired on the first transactional method even if it triggers other transactional methods that would fire the advice again otherwise. The neat thing about this advice application was, that the filter logic is kept in the database. The aspect itself is only the controller for the actually transparent logic.&lt;/p&gt;
@@ -1886,9 +1886,9 @@ PluginRegistry&amp;lt;Plugin&amp;lt;String&amp;gt;, String&amp;gt; registry =
  
  <entry>
    <title>EclipseLink - High performance persistence for Spring</title>
-   <link href="http://www.olivergierke.de/2008/06/eclipselink-hig-performance-persistence-for-spring/index.html"/>
+   <link href="http://www.olivergierke.de/2008/06/eclipselink-hig-performance-persistence-for-spring/"/>
    <updated>2008-06-11T17:57:14+02:00</updated>
-   <id>http://www.olivergierke.de/2008/06/eclipselink-hig-performance-persistence-for-spring/eclipselink-hig-performance-persistence-for-spring</id>
+   <id>http://www.olivergierke.de/2008/06/eclipselink-hig-performance-persistence-for-spring</id>
    <content type="html">&lt;p&gt;Rob Harrop and Shaun Smith gave an overview about Oracle Toplinks successor EclipseLink. They started by outlining the problems Rob faced when trying to integrate a JPA provider into SpringSource Application Platform. Shaun then gave a brief overview over EclipseLink which definately exceeds ToplinkEssentials functionality I have used before. It seems to abstract data access in a more broad way including access to XML or JCA.&lt;/p&gt;
 
 &lt;p&gt;A major point of the bothy guy’s talk was caching. Shaun presented a demo where a listener constantly triggered a query to the database. It of course was only executed once. Further queries hit the cache as expected. The nice thing about EclipseLink then was that a thread updating the data transparently updated the cached value, so that the changes were reflected in the listener without triggering a new query.&lt;/p&gt;
@@ -1901,9 +1901,9 @@ PluginRegistry&amp;lt;Plugin&amp;lt;String&amp;gt;, String&amp;gt; registry =
  
  <entry>
    <title>Thomas Risberg - Persistence tuning for Spring environments</title>
-   <link href="http://www.olivergierke.de/2008/06/thomas-risberg-persistence-tuning-for-the-spring-environments/index.html"/>
+   <link href="http://www.olivergierke.de/2008/06/thomas-risberg-persistence-tuning-for-the-spring-environments/"/>
    <updated>2008-06-11T14:37:31+02:00</updated>
-   <id>http://www.olivergierke.de/2008/06/thomas-risberg-persistence-tuning-for-the-spring-environments/thomas-risberg-persistence-tuning-for-the-spring-environments</id>
+   <id>http://www.olivergierke.de/2008/06/thomas-risberg-persistence-tuning-for-the-spring-environments</id>
    <content type="html">&lt;p&gt;Thomas Risberg, Spring JDBC lead developer, held a talk about data access performance tuning using Spring. He focused on different things like optimizing JDBC statements, transaction manager and data source implementation choices and how you you can configure OR mappers properly.&lt;/p&gt;
 
 &lt;p&gt;Besides tuning the application Thomas mentioned a few optimization possibilities around your software. Getting to know the tweaks and trick of you particular database, letting the DBA take a look at the table structure and SQL statments generated can bring you forward, too.&lt;/p&gt;
@@ -1916,9 +1916,9 @@ PluginRegistry&amp;lt;Plugin&amp;lt;String&amp;gt;, String&amp;gt; registry =
  
  <entry>
    <title>SpringOne 2008 - Jürgen Höller - Spring 2.5 on it's way to 3.0</title>
-   <link href="http://www.olivergierke.de/2008/06/jurgen-holler-spring-25-on-its-way-to-30/index.html"/>
+   <link href="http://www.olivergierke.de/2008/06/jurgen-holler-spring-25-on-its-way-to-30/"/>
    <updated>2008-06-11T13:26:41+02:00</updated>
-   <id>http://www.olivergierke.de/2008/06/jurgen-holler-spring-25-on-its-way-to-30/jurgen-holler-spring-25-on-its-way-to-30</id>
+   <id>http://www.olivergierke.de/2008/06/jurgen-holler-spring-25-on-its-way-to-30</id>
    <content type="html">&lt;p&gt;In the first part of Jürgen’s talk he summarized the main innovations of Spring 2.5. The release brought significant enhancements regarding stereotype annotation configuration of Spring components. He especially focused on the combination of annotation configuration and AspectJ load-time-weaving. He pointed out some nice examples on the use of @Configurable to transparently inject Spring beans into components created outside the bean container and using @Transactional to allow even in-component method calls to be transactionally intercepted.&lt;/p&gt;
 
 &lt;p&gt;Jürgen summarized this part of his presentation by giving recomendations for mixing configuration types. Annotation configuration is primarily meant to express stereotype configuration - meaning to express default configuration. You always have the option to override these defaults by external XML configuration.&lt;/p&gt;
@@ -1931,9 +1931,9 @@ PluginRegistry&amp;lt;Plugin&amp;lt;String&amp;gt;, String&amp;gt; registry =
  
  <entry>
    <title>SpringOne 2008 - Kickoff</title>
-   <link href="http://www.olivergierke.de/2008/06/springone-kickoff/index.html"/>
+   <link href="http://www.olivergierke.de/2008/06/springone-kickoff/"/>
    <updated>2008-06-11T12:20:15+02:00</updated>
-   <id>http://www.olivergierke.de/2008/06/springone-kickoff/springone-kickoff</id>
+   <id>http://www.olivergierke.de/2008/06/springone-kickoff</id>
    <content type="html">&lt;p&gt;We got up early this morning because we had no clue at all how to get to the conference center. After having breakfast with some of the SpringSource guys we somehow managed to get to the Metropolis. It was quite difficult as the only almost direct line from the hotel is so new, that isn’t noted on any train plan. Happy searching!&lt;/p&gt;
 
 &lt;p&gt;Rod Johnson, who we accidently met in the hotel’s elevetor this morning, opened SpringOne 2008 with a keynote exceeding two hours. He primarily stated Springs current position in enterprise development and outlined benefits developers and architects gain from using Spring and SpringSource’s enterprise offerings. Keith Donald and Christian Dupuis gave short overviews of Spring development in the web and the SpringSource Tool Suite.&lt;/p&gt;
@@ -1944,9 +1944,9 @@ PluginRegistry&amp;lt;Plugin&amp;lt;String&amp;gt;, String&amp;gt; registry =
  
  <entry>
    <title>My software engineering book Top 5</title>
-   <link href="http://www.olivergierke.de/2008/06/my-software-engineering-book-top-5/index.html"/>
+   <link href="http://www.olivergierke.de/2008/06/my-software-engineering-book-top-5/"/>
    <updated>2008-06-08T14:03:33+02:00</updated>
-   <id>http://www.olivergierke.de/2008/06/my-software-engineering-book-top-5/my-software-engineering-book-top-5</id>
+   <id>http://www.olivergierke.de/2008/06/my-software-engineering-book-top-5</id>
    <content type="html">&lt;p&gt;As I &lt;a href=&quot;http://www.olivergierke.de/wordpress/2008/06/06/reading-domain-driven-design-again/&quot;&gt;rummage in Eric Evans’ &lt;strong&gt;Domain Driven Design&lt;/strong&gt; again&lt;/a&gt;, I thougt I’d collect my favourite software engineering books to provide a list of what you as a software professional should have taken a glance at. Althought it seems to be a hitlist, actually there is no real ranking between the chosen.&lt;/p&gt;
 
 &lt;!--more--&gt;
@@ -1995,9 +1995,9 @@ PluginRegistry&amp;lt;Plugin&amp;lt;String&amp;gt;, String&amp;gt; registry =
  
  <entry>
    <title>Reading "Domain Driven Design" again</title>
-   <link href="http://www.olivergierke.de/2008/06/reading-domain-driven-design-again/index.html"/>
+   <link href="http://www.olivergierke.de/2008/06/reading-domain-driven-design-again/"/>
    <updated>2008-06-06T14:56:51+02:00</updated>
-   <id>http://www.olivergierke.de/2008/06/reading-domain-driven-design-again/reading-domain-driven-design-again</id>
+   <id>http://www.olivergierke.de/2008/06/reading-domain-driven-design-again</id>
    <content type="html">&lt;p&gt;Currently I read Eric Evans’ “&lt;a href=&quot;http://www.amazon.com/Domain-Driven-Design-Tackling-Complexity-Software/dp/0321125215/ref=sr_1_1?ie=UTF8&amp;amp;s=books-intl-de&amp;amp;qid=1212756929&amp;amp;sr=8-1&quot;&gt;Domain Driven Design&lt;/a&gt;” once again. Having done so 3 times already, I discovered a paragraph that reminded me of a &lt;a href=&quot;http://dlinsin.blogspot.com/2008/05/do-you-care-about-your-code.html&quot;&gt;blog post&lt;/a&gt; written by David Linsin a while ago. Eric writes as follows:&lt;/p&gt;
 &lt;blockquote&gt;&quot;Well-written code ca be very communicative, but the message it communicates isnot guaranteed to be accurate. Oh, the reality of the **behaviour** caused by a section of code is inescapeable. but a method name can be ambiguous, misleading, or out of date compared to the internals of the method. The assertions in a test are rigorous, but the story told byvariable names and the organization of the code is not. Good programming style keeps this connection as direct as possible, but it is still an exercise in self-discipline. It takes fastidiousness to write code that doesn&#39;t just **do** the right thing but also **says** the right thing&quot;&lt;/blockquote&gt;
 &lt;p&gt;This states that well written code is not about just to look nice in your IDE - it’s about communicating. I e.g. favour an EmailAddress class over a simple String property in a User type cause this simple change distills so much more semantics.&lt;/p&gt;
@@ -2010,9 +2010,9 @@ PluginRegistry&amp;lt;Plugin&amp;lt;String&amp;gt;, String&amp;gt; registry =
  
  <entry>
    <title>Switching language / SpringOne ahead</title>
-   <link href="http://www.olivergierke.de/2008/06/switching-language-springone-ahead/index.html"/>
+   <link href="http://www.olivergierke.de/2008/06/switching-language-springone-ahead/"/>
    <updated>2008-06-04T21:16:24+02:00</updated>
-   <id>http://www.olivergierke.de/2008/06/switching-language-springone-ahead/switching-language-springone-ahead</id>
+   <id>http://www.olivergierke.de/2008/06/switching-language-springone-ahead</id>
    <content type="html">&lt;p&gt;As I am concentrating on IT related posts more and more in this blog, I’ll post in English from now on. Currently I’ve not deciced whether to translate old posts. Depends on how I will find time.&lt;/p&gt;
 
 &lt;p&gt;Next Tuesday I’ll hit the road towards Antwerpen where this years SpringOne will take place. I really look forward to meet all the guys and soak up Spring spirit. I’ll post about the sessions I attend.&lt;/p&gt;
@@ -2021,9 +2021,9 @@ PluginRegistry&amp;lt;Plugin&amp;lt;String&amp;gt;, String&amp;gt; registry =
  
  <entry>
    <title>Clueso - So sehr dabei</title>
-   <link href="http://www.olivergierke.de/2008/06/clueso-so-sehr-dabei/index.html"/>
+   <link href="http://www.olivergierke.de/2008/06/clueso-so-sehr-dabei/"/>
    <updated>2008-06-01T20:23:38+02:00</updated>
-   <id>http://www.olivergierke.de/2008/06/clueso-so-sehr-dabei/clueso-so-sehr-dabei</id>
+   <id>http://www.olivergierke.de/2008/06/clueso-so-sehr-dabei</id>
    <content type="html">&lt;p&gt;Zufrüh geflucht. Donnerstag abend schneite die Versandbenachrichtigung in meinen Strompostkasten. “Dann ist die nie und nimmer morgen Mittag da.”, dachte ich und war schon etwas geknickt. Als ich Freitag Mittag nach Hause kam, lag der Benachichtigungszettel im Briefkasten ;). Da ich es allerdings nicht erwarten konnte die Platte schon Freitag zu hören, gabs früh um 6 einfach noch die iTunes Edition. Da das Wochenende gespickt war mit 17 Stunden Autofahren, gab es reichlich Gelegenheit “So sehr dabei” zu sein und Eindrücke zu verarbeiten. Zeit, nach gefühltem 10 Mal hören Resumé zu ziehen.&lt;!--more--&gt;&lt;/p&gt;
 
 &lt;p&gt;Das mittlerweile 4. Album von Clueso trägt wie oben schon erwähnt den Namen “So sehr dabei”. Die iTunes Edition enthält ein paar Audiokommentare zu diversen Songs und auch zum Album selbst. Spannend dabei ist, dass der Titel der Platte wohl langezeit vakant war. Der andere Kandidat war “Augen zu”, Track Nummer 2 des Albums. Meiner Meinung nach hat der falsche Titel das Rennen gemacht. Warum? Dazu später mehr.&lt;/p&gt;
@@ -2048,9 +2048,9 @@ PluginRegistry&amp;lt;Plugin&amp;lt;String&amp;gt;, String&amp;gt; registry =
  
  <entry>
    <title>Spass mit Maven Archetypes</title>
-   <link href="http://www.olivergierke.de/2008/04/spass-mit-maven-archetypes/index.html"/>
+   <link href="http://www.olivergierke.de/2008/04/spass-mit-maven-archetypes/"/>
    <updated>2008-04-22T17:37:13+02:00</updated>
-   <id>http://www.olivergierke.de/2008/04/spass-mit-maven-archetypes/spass-mit-maven-archetypes</id>
+   <id>http://www.olivergierke.de/2008/04/spass-mit-maven-archetypes</id>
    <content type="html">&lt;p&gt;Wir führen in der &lt;a href=&quot;http://www.synyx.de&quot; title=&quot;Synyx GmbH &amp;amp; Co. KG&quot; target=&quot;_blank&quot;&gt;Firma&lt;/a&gt; nach und nach &lt;a href=&quot;http://www.docbook.org&quot; title=&quot;Docbook&quot; target=&quot;_blank&quot;&gt;Docbook&lt;/a&gt; als Dokumentationsstandard ein. Mit &lt;a href=&quot;http://docs.codehaus.org/display/MAVENUSER/Docbkx+Maven+Plugin&quot; title=&quot;Dokumentation zu docbkx&quot; target=&quot;_blank&quot;&gt;docbkx&lt;/a&gt; steht auch ein Plugin für unser Buildsystem &lt;a href=&quot;http://maven.apache.org/&quot; title=&quot;Maven&quot; target=&quot;_blank&quot;&gt;Maven&lt;/a&gt; zur Verfügung. Nachdem ich die letzte Woche das Synyx CI in ein XSLT Stylesheet gegossen hatte, versuchte ich aus dem Proof of Concept Maven Projekt einen Archetype zu machen.&lt;!--more--&gt;&lt;/p&gt;
 
 &lt;p&gt;Archetypes sind Projektvorlagen in Maven mit denen man bei einem Projektstart on the fly eine Ordnerstruktur generieren und Konfigurationsfiles vorerzeugen kann. Dies verringert den Aufwandand die Infrastruktur einzurichten am Anfang eines Projektes erheblich.&lt;/p&gt;
@@ -2067,9 +2067,9 @@ PluginRegistry&amp;lt;Plugin&amp;lt;String&amp;gt;, String&amp;gt; registry =
  
  <entry>
    <title>Trac 0.10.3 auf MySQL</title>
-   <link href="http://www.olivergierke.de/2008/04/trac-0103-auf-mysql/index.html"/>
+   <link href="http://www.olivergierke.de/2008/04/trac-0103-auf-mysql/"/>
    <updated>2008-04-21T15:59:47+02:00</updated>
-   <id>http://www.olivergierke.de/2008/04/trac-0103-auf-mysql/trac-0103-auf-mysql</id>
+   <id>http://www.olivergierke.de/2008/04/trac-0103-auf-mysql</id>
    <content type="html">&lt;p&gt;Ich habe mir bei meinem &lt;a href=&quot;http://www.synyx.de&quot;&gt;Arbeitgeber&lt;/a&gt; für ein paar kleinere Projekte ein &lt;a href=&quot;http://trac.edgewall.org&quot;&gt;Trac&lt;/a&gt; eingerichtet, das gegen eine &lt;a href=&quot;http://www.mysql.com/&quot;&gt;MySQL&lt;/a&gt; Datenbank läuft. Das ganze macht besonders im Zusammenspiel mit &lt;a href=&quot;http://www.eclipse.org/mylyn/&quot;&gt;Mylyn&lt;/a&gt; großen Spaß. Gestern fiel mir jedoch auf, dass ein paar der vorbereiteten Ticketqueries nicht funktionierten. Angeblich sei der Query falsch.&lt;!--more--&gt;&lt;/p&gt;
 
 &lt;p&gt;Nach kurzer Recherche stieß ich auf einige die &lt;a href=&quot;http://groups.google.com/group/trac-users/browse_thread/thread/bf57366c435e57b5/5f7900106c34f5d5?lnk=gst&amp;amp;q=ticket+mysql#5f7900106c34f5d5&quot;&gt;das gleiche Problem&lt;/a&gt; hatten. Es handelt sich wohl um einen &lt;a href=&quot;http://trac.edgewall.org/ticket/4387&quot;&gt;known Bug&lt;/a&gt;, der mit Release 0.10.4 behoben sein wird. Denjenigen die - wie ich - nicht so einfach auf diese Version upgraden können, sei geraten einfach die einfachen Hochkommata um Vorkommen von &lt;code&gt;$User&lt;/code&gt; in den Queries zu entfernen. Dann tut alles wieder wie erwartet.&lt;/p&gt;
@@ -2078,9 +2078,9 @@ PluginRegistry&amp;lt;Plugin&amp;lt;String&amp;gt;, String&amp;gt; registry =
  
  <entry>
    <title>Spring Webinar</title>
-   <link href="http://www.olivergierke.de/2008/03/spring-webinar/index.html"/>
+   <link href="http://www.olivergierke.de/2008/03/spring-webinar/"/>
    <updated>2008-03-10T20:46:03+01:00</updated>
-   <id>http://www.olivergierke.de/2008/03/spring-webinar/spring-webinar</id>
+   <id>http://www.olivergierke.de/2008/03/spring-webinar</id>
    <content type="html">&lt;p&gt;Nächsten Dienstag (18.03.08) werde ich über den IRC des Forums &lt;a href=&quot;http://www.tutorials.de&quot; title=&quot;Tutorials.de&quot; target=&quot;_blank&quot;&gt;tutorials.de&lt;/a&gt; ein Minitutorial zu Thema “Leichtgewichtige JavaEE Entwicklung mit Spring” halten. Der Code basiert zum Großteil auf dem &lt;a href=&quot;http://www.synyx.de/de/galleries/download/schulungen/j2ee-entwicklung-mit-spring-beispielcode.zip&quot; title=&quot;Beispielcode zum Webinar&quot; target=&quot;_blank&quot;&gt;Beispielcode&lt;/a&gt; meines Vortrages bei der Java User Group Karlsruhe.&lt;/p&gt;
 
 &lt;p&gt;Nähere Informationen zum Vortrag gibts &lt;a href=&quot;http://http://www.tutorials.de/forum/java-technology-webconferences/306938-18-03-2008-21-00-uhr-java-entwickler-chat-zum-thema-lightweight-javaee-mit-spring.html&quot; title=&quot;Informationen zum Spring Webinar&quot; target=&quot;_blank&quot;&gt;hier&lt;/a&gt;.&lt;/p&gt;
@@ -2089,9 +2089,9 @@ PluginRegistry&amp;lt;Plugin&amp;lt;String&amp;gt;, String&amp;gt; registry =
  
  <entry>
    <title>Agim Emruli - Spring WebFlow</title>
-   <link href="http://www.olivergierke.de/2008/03/agim-emruli-spring-webflow/index.html"/>
+   <link href="http://www.olivergierke.de/2008/03/agim-emruli-spring-webflow/"/>
    <updated>2008-03-03T18:30:33+01:00</updated>
-   <id>http://www.olivergierke.de/2008/03/agim-emruli-spring-webflow/agim-emruli-spring-webflow</id>
+   <id>http://www.olivergierke.de/2008/03/agim-emruli-spring-webflow</id>
    <content type="html">&lt;p&gt;&lt;a href=&quot;http://www.agimemruli.de/&quot;&gt;Agim&lt;/a&gt; schloss die Vortragsreihe mit einer Präsentation zu &lt;a href=&quot;http://www.springframework.org/webflow&quot;&gt;Spring WebFlow&lt;/a&gt; und Spring Faces. Zu Beginn stellte er die zentralen Konuepte Flow und Conversation vor und ging im weiteren auf den Flow scoped &lt;code&gt;PersistenceContext&lt;/code&gt; ein, der Persistenzkontexte an einen Flow bindet und somit unnötiges mergen von Domänenklassen an eine Datenbanksession vermeidet, dadurch aber das Risiko erhöht Probleme mit dem Optimistic Locking zu bekommen.&lt;!--more--&gt;&lt;/p&gt;
 
 &lt;p&gt;Spring Faces ist ein JSF Integration für Spring WebFlow. Diese erlaubt die nahtlose Integration von JSF Komponenten in Spring WebFlow. Abschließend gab Agim noch Best Practices beim Arbeiten mit beiden Frameworks preis.&lt;/p&gt;
@@ -2100,9 +2100,9 @@ PluginRegistry&amp;lt;Plugin&amp;lt;String&amp;gt;, String&amp;gt; registry =
  
  <entry>
    <title>Erich Eichinger - Spring.NET</title>
-   <link href="http://www.olivergierke.de/2008/03/erich-eichinger-erich-eichinger-springnet/index.html"/>
+   <link href="http://www.olivergierke.de/2008/03/erich-eichinger-erich-eichinger-springnet/"/>
    <updated>2008-03-03T17:30:16+01:00</updated>
-   <id>http://www.olivergierke.de/2008/03/erich-eichinger-erich-eichinger-springnet/erich-eichinger-erich-eichinger-springnet</id>
+   <id>http://www.olivergierke.de/2008/03/erich-eichinger-erich-eichinger-springnet</id>
    <content type="html">&lt;p&gt;Spring ist nicht nur im Javaumfeld beliebt sonder erfreut sich auch in .NET Umgebungen steigendere Beliebtheit. &lt;a href=&quot;https://www.xing.com/profile/Erich_Eichinger&quot;&gt;Erich&lt;/a&gt; stellte den aktuellen Stand des .NET Ports von Spring vor. Der aktuelle Funktionsumfang des Projekts kann ungefähr mit dem Stand von Spring 1.2 allerdings mit Namespace Support gleichgesetzt werden. Erfahrenen Springanwender sollten sich also ohne große Mühe in &lt;a href=&quot;http://www.springframework.net/&quot;&gt;Spring .NET&lt;/a&gt; zurechtfinden.&lt;!--more--&gt;&lt;/p&gt;
 
 &lt;p&gt;Spring .NET beschränkt sich allerdings nicht nur auf den Port bereits existierender Funktionalität aus der Java Version von Spring. Mit der Spring Expression Language (SpEL) entstehen auch interessante Features die wohl früher oder später auch auf die Java Plattform protiert werden. Mit der SpEL lassen sich zum Beispiel Exceptionübersetzungen und Retrymechanismen in DSL Manier formulieren:&lt;/p&gt;
@@ -2115,9 +2115,9 @@ PluginRegistry&amp;lt;Plugin&amp;lt;String&amp;gt;, String&amp;gt; registry =
  
  <entry>
    <title>Arjen Poutsma - Spring WebServices</title>
-   <link href="http://www.olivergierke.de/2008/03/arjen-poutsma-spring-webservices/index.html"/>
+   <link href="http://www.olivergierke.de/2008/03/arjen-poutsma-spring-webservices/"/>
    <updated>2008-03-03T16:15:54+01:00</updated>
-   <id>http://www.olivergierke.de/2008/03/arjen-poutsma-spring-webservices/arjen-poutsma-spring-webservices</id>
+   <id>http://www.olivergierke.de/2008/03/arjen-poutsma-spring-webservices</id>
    <content type="html">&lt;p&gt;&lt;a href=&quot;http://blog.springframework.com/arjen/&quot;&gt;Arjen&lt;/a&gt; stellte mit &lt;a href=&quot;http://www.springframework.org/spring-ws&quot;&gt;Spring WebServices&lt;/a&gt; ein WebService Framework vor, dass explizit den dokumentgetriebenen Contract-First Ansatz addressiert. Hierbei beschränkt man sich jedoch darauf die Messages als XSD zu beschreiben. Das verfassen von WSDL Dateien wird überflüssig. Ebenfalls ist es nicht nötig Stubklassen generieren zu lassen.&lt;!--more--&gt;&lt;/p&gt;
 
 &lt;p&gt;Arjen zeigte anhand eines kleines Hotelbuchungsbeispiels die grundätzliche Vorgehensweise und deutete die verschiedenen Integrationsmechanismen an (DOM API oder Object XML Mapping.&lt;/p&gt;
@@ -2130,9 +2130,9 @@ PluginRegistry&amp;lt;Plugin&amp;lt;String&amp;gt;, String&amp;gt; registry =
  
  <entry>
    <title>Mike Wiesner - Spring Security</title>
-   <link href="http://www.olivergierke.de/2008/03/mike-wiesner-spring-security/index.html"/>
+   <link href="http://www.olivergierke.de/2008/03/mike-wiesner-spring-security/"/>
    <updated>2008-03-03T14:45:55+01:00</updated>
-   <id>http://www.olivergierke.de/2008/03/mike-wiesner-spring-security/mike-wiesner-spring-security</id>
+   <id>http://www.olivergierke.de/2008/03/mike-wiesner-spring-security</id>
    <content type="html">&lt;p&gt;&lt;a href=&quot;http://www.mwiesner.com/&quot;&gt;Mike&lt;/a&gt; stellte dann das aktuelle M2 Release von &lt;a href=&quot;http://acegisecurity.sourceforge.net/&quot;&gt;Spring Security&lt;/a&gt; vor. Hier ging er sehr detailliert auf den in M1 eingeführten Namespace ein, der die Konfiguration des Frameworks erheblich vereinfacht. Die auf der Standard Bean Konfiguration basierende Konfiguration war unheimlich umfangreich und ein Kritikpunkt des 1.x Release. Die Dokumentation des Namespaces war Hauptinhalt des M2 Releases.&lt;!--more--&gt;&lt;/p&gt;
 
 &lt;p&gt;Insgesamt ist durch den Namespace die Konfiguration erheblich kürzer und - IMHO noch wichtiger - wesentlich sprechender geworden. Mike stellte einzelne XML Elemente im Detail vor und bot damit mit seinen Folien einen ersten Draft der für die finale Version angekündigte Doku. Abschließend zeigte Mike noch die Verwendung der &lt;code&gt;&amp;lt;authz:... /&amp;gt;&lt;/code&gt; Taglibrary vor und gab einen kurzen Einblick in den manuellen Zugriff auf Authentifikationsdaten.&lt;/p&gt;
@@ -2141,9 +2141,9 @@ PluginRegistry&amp;lt;Plugin&amp;lt;String&amp;gt;, String&amp;gt; registry =
  
  <entry>
    <title>Jürgen Höller - Spring 2.5</title>
-   <link href="http://www.olivergierke.de/2008/03/jurgen-holler-spring-25/index.html"/>
+   <link href="http://www.olivergierke.de/2008/03/jurgen-holler-spring-25/"/>
    <updated>2008-03-03T12:25:11+01:00</updated>
-   <id>http://www.olivergierke.de/2008/03/jurgen-holler-spring-25/jurgen-holler-spring-25</id>
+   <id>http://www.olivergierke.de/2008/03/jurgen-holler-spring-25</id>
    <content type="html">
 &lt;p&gt;Als nächstes gab &lt;a href=&quot;http://blog.springsource.com/main/author/juergenh/&quot;&gt;Jürgen Höller&lt;/a&gt; Einsichten in neue Features von &lt;a href=&quot;http://www.springframework.org&quot;&gt;Spring 2.5&lt;/a&gt;. Diese bauen zum Großteil auf Features von 2.0 auf und vereinfachen die Nutzung dieser. Dies betrifft vor allem die Unterstützung der Common Annotations (JSR-250) die auch in JavaEE Verwendung finden.&lt;/p&gt;
 
@@ -2159,9 +2159,9 @@ PluginRegistry&amp;lt;Plugin&amp;lt;String&amp;gt;, String&amp;gt; registry =
  
  <entry>
    <title>Eberhard Wolff - Spring Portfolio</title>
-   <link href="http://www.olivergierke.de/2008/03/eberhard-wolff-spring-portfolio/index.html"/>
+   <link href="http://www.olivergierke.de/2008/03/eberhard-wolff-spring-portfolio/"/>
    <updated>2008-03-03T10:30:33+01:00</updated>
-   <id>http://www.olivergierke.de/2008/03/eberhard-wolff-spring-portfolio/eberhard-wolff-spring-portfolio</id>
+   <id>http://www.olivergierke.de/2008/03/eberhard-wolff-spring-portfolio</id>
    <content type="html">&lt;p&gt;Nach eine kurzen organisatorischen Einführung begann &lt;a href=&quot;http://jandiandme.blogspot.com/&quot;&gt;Eberhard&lt;/a&gt; mit einem Ãœberblick über OSGi, das dynamische Komponentenmodell für Java. Danach stellte er &lt;a href=&quot;http://www.springframework.org/osgi&quot;&gt;Spring OSGi&lt;/a&gt; im Detail vor, das einem die Arbeit mit OSGi etwas erleichtert und die Anwendung völlig unabhängig von OSGi APIs zu prgrammieren. Das Deklarieren von Services, die für andere Bundles sichtbar sein sollen geschieht hierbei wie gewohnt mit einem Spring Namespace.&lt;!--more--&gt;&lt;/p&gt;
 
 &lt;p&gt;Als nächstes stellte Eberhard Spring Integration vor, das hilfreiche Unterstützung für EAI Projekte bietet. Er ging auf Kernabstraktionen ein und stellte verschiedene Konfigurationsmechanismen (Plain Java, XML mit Beans, XML mit Namespaces, Annotationen) vor. Interessant dabei war für mich insbesondere, dass Spring Subprojekte alle auf dem gleichen grundsätzlichen Programmiermodell aufsetzen: grundsätzliche Abstraktionen über Interfaces, diverse Basisimplemenierungen für einfache Fälle und die Konfigurationsmöglichkeiten, die ich oben bereits erwähnt hatte.&lt;/p&gt;
@@ -2172,18 +2172,18 @@ PluginRegistry&amp;lt;Plugin&amp;lt;String&amp;gt;, String&amp;gt; registry =
  
  <entry>
    <title>Spring Release Party</title>
-   <link href="http://www.olivergierke.de/2008/03/spring-release-party/index.html"/>
+   <link href="http://www.olivergierke.de/2008/03/spring-release-party/"/>
    <updated>2008-03-03T08:36:11+01:00</updated>
-   <id>http://www.olivergierke.de/2008/03/spring-release-party/spring-release-party</id>
+   <id>http://www.olivergierke.de/2008/03/spring-release-party</id>
    <content type="html">&lt;p&gt;Gleich gehts auf nach Stuttgart zur Spring Release Party. Diesmal findet die Party &lt;strong&gt;nach&lt;/strong&gt; dem Release von Spring 2.5 vor etwa 4 Monaten. Bei der &lt;a href=&quot;http://www.jugs.de/protokolle2006.html#300306&quot;&gt;letzten Party&lt;/a&gt; war man ja etwa 6 Monate zu früh ;). Der Event scheint sich zu einem festen Termin bei Spring Releases zu etablieren.&lt;/p&gt;
 </content>
  </entry>
  
  <entry>
    <title>Neue Four Sided Cube Platte am 8.2.2008</title>
-   <link href="http://www.olivergierke.de/2008/02/neue-four-sided-cube-platte-am-822008/index.html"/>
+   <link href="http://www.olivergierke.de/2008/02/neue-four-sided-cube-platte-am-822008/"/>
    <updated>2008-02-01T22:03:05+01:00</updated>
-   <id>http://www.olivergierke.de/2008/02/neue-four-sided-cube-platte-am-822008/neue-four-sided-cube-platte-am-822008</id>
+   <id>http://www.olivergierke.de/2008/02/neue-four-sided-cube-platte-am-822008</id>
    <content type="html">&lt;p&gt;&lt;img src=&quot;http://www.olivergierke.de/wordpress/wp-content/uploads/2008/02/cdteaser_datum.jpg&quot; alt=&quot;CD Teaser 4&quot; /&gt;&lt;/p&gt;
 
 &lt;p&gt;Was lange währt wird endlich gut. Nächsten Freitag kommt unsere neue LP. Viel Arbeit steckt in dem kleinen Silberling aber auch jede Menge Spass, Leidenschaft und eine verdammt coole Zeit.&lt;/p&gt;
@@ -2194,9 +2194,9 @@ PluginRegistry&amp;lt;Plugin&amp;lt;String&amp;gt;, String&amp;gt; registry =
  
  <entry>
    <title>Googles Android</title>
-   <link href="http://www.olivergierke.de/2007/11/googles-android/index.html"/>
+   <link href="http://www.olivergierke.de/2007/11/googles-android/"/>
    <updated>2007-11-14T12:04:43+01:00</updated>
-   <id>http://www.olivergierke.de/2007/11/googles-android/googles-android</id>
+   <id>http://www.olivergierke.de/2007/11/googles-android</id>
    <content type="html">&lt;p&gt;Vor ein paar Tagen hat &lt;a href=&quot;http://www.google.de&quot; title=&quot;Google&quot; target=&quot;_blank&quot;&gt;Google &lt;/a&gt;ein SDK für sein Handybetriebssystem Android veröffentlicht. Gerade eben hatte ich ein wenig Zeit mal damit rumzuzspielen. Der erste Eindruck ist echt klasse…&lt;!--more--&gt;&lt;/p&gt;
 
 &lt;p&gt;Ich hatte bereits in ein paar Projekten mit J2ME Erfahrung machen müssen und dabei festgestellt das Handyentwicklung eher Handygefrickel ist. Das Entwickeln auf Basis einer abgespekten JavaSE ist mühsam und zieht eine Reihe zum Teil sehr hässlicher Workarounds nach sich.&lt;/p&gt;
@@ -2209,36 +2209,36 @@ PluginRegistry&amp;lt;Plugin&amp;lt;String&amp;gt;, String&amp;gt; registry =
  
  <entry>
    <title>13949712720901ForOSX</title>
-   <link href="http://www.olivergierke.de/2007/11/13949712720901forosx/index.html"/>
+   <link href="http://www.olivergierke.de/2007/11/13949712720901forosx/"/>
    <updated>2007-11-05T13:43:44+01:00</updated>
-   <id>http://www.olivergierke.de/2007/11/13949712720901forosx/13949712720901forosx</id>
+   <id>http://www.olivergierke.de/2007/11/13949712720901forosx</id>
    <content type="html">&lt;p&gt;“Hö, wie bitte?”, dachte ich, als ich diese Zeichenkette im &lt;a href=&quot;http://www.retokiefer.com/archives/13949712720901forosx/&quot;&gt;Blog eines Bekannten&lt;/a&gt; las. Hintergrund ist folgender: Auf dem aktuellen Apple Betriebssystem “Leopard” gibt es noch keine Java 6. Was für den Ottonormal MacUser (gibt es die überhaupt ? ;) kein großes Problem darstellt, ist für Entwickler relativ problematisch. Die Zeichenkette oben ist nun eine Art Web 2.0 Unterschriftensammlung, Apple dazu zu bewegen recht zeitnah ein Java 6 für Leopard bereitzustellen. Hier also meine Unterschrift…&lt;/p&gt;
 </content>
  </entry>
  
  <entry>
    <title>Four Sided Cube mit neuer Hompage</title>
-   <link href="http://www.olivergierke.de/2007/10/four-sided-cube-mit-neuer-hompage/index.html"/>
+   <link href="http://www.olivergierke.de/2007/10/four-sided-cube-mit-neuer-hompage/"/>
    <updated>2007-10-13T18:00:54+02:00</updated>
-   <id>http://www.olivergierke.de/2007/10/four-sided-cube-mit-neuer-hompage/four-sided-cube-mit-neuer-hompage</id>
+   <id>http://www.olivergierke.de/2007/10/four-sided-cube-mit-neuer-hompage</id>
    <content type="html">&lt;p&gt;Wie ihr &lt;a href=&quot;http://www.foursidedcube.de&quot;&gt;hier&lt;/a&gt; sehen könnt haben Four Sided Cube eine neue Webseite. Darauf zu finden ist unter anderem das Recordingtagebuch zum 4. Album, was noch dieses Jahr erscheinen wird. Ich werde da wohl so alle 2 Tage Stories und nette Anekdoten des Recordinggeschehens festhalten. Schaut vorbei…&lt;/p&gt;
 </content>
  </entry>
  
  <entry>
    <title>Domainumzug</title>
-   <link href="http://www.olivergierke.de/2007/09/domainumzug/index.html"/>
+   <link href="http://www.olivergierke.de/2007/09/domainumzug/"/>
    <updated>2007-09-27T15:56:22+02:00</updated>
-   <id>http://www.olivergierke.de/2007/09/domainumzug/domainumzug</id>
+   <id>http://www.olivergierke.de/2007/09/domainumzug</id>
    <content type="html">&lt;p&gt;Wie ihr vielleicht bemerkt habt, läuft die Seite jetzt unter www.olivergierke.de. Der Grund ist ein sehr simpler - ich werde morgen heiraten und den Namen meiner Frau annehmen. Ansonsten habe ich mich endlich mal bequemt, eine aktuelle Worpressversion einzuspielen. ;) Muss los, es gibt noch viel zu tun…&lt;/p&gt;
 </content>
  </entry>
  
  <entry>
    <title>Neues von Four Sided Cube</title>
-   <link href="http://www.olivergierke.de/2007/08/neues-von-four-sided-cube/index.html"/>
+   <link href="http://www.olivergierke.de/2007/08/neues-von-four-sided-cube/"/>
    <updated>2007-08-12T13:31:05+02:00</updated>
-   <id>http://www.olivergierke.de/2007/08/neues-von-four-sided-cube/neues-von-four-sided-cube</id>
+   <id>http://www.olivergierke.de/2007/08/neues-von-four-sided-cube</id>
    <content type="html">&lt;p&gt;Wie ihr bestimmt schon oben bei den Fotos gesehen habt, gibt es endlich aktuelle Bandfotos von Four Sided Cube. Wir hatten an einem wettertechnisch durchwachsenen Tag viel Spaß am Neckarsteg in Ladenburg. Weitere Arbeiten des Fotografen Jan findet ihr bei &lt;a href=&quot;http://www.flickr.com/photos/90861917@N00/&quot;&gt;Flickr&lt;/a&gt;.&lt;/p&gt;
 
 &lt;p&gt;Die neuen Bilder sind quasi Startschuss für einen neuen Abschnitt FSC. Wir spielen am 9.9. als Headliner beim Ladenburger Altstadtfest, werden dort schon ein paar neue Songs präsentieren und wahrscheinlich bis dahin auch eine überarbeitete Webseite haben. Danach gehts ins Studio um die Arbeit der letzten Monate festzuhalten. Wenn alles klappt gibt es dann zum diesjährigen FESTival eine neue FSC Scheibe.&lt;/p&gt;
@@ -2247,9 +2247,9 @@ PluginRegistry&amp;lt;Plugin&amp;lt;String&amp;gt;, String&amp;gt; registry =
  
  <entry>
    <title>Dixie Chicks - Shut up and sing</title>
-   <link href="http://www.olivergierke.de/2007/08/dixie-chicks-shut-up-and-sing/index.html"/>
+   <link href="http://www.olivergierke.de/2007/08/dixie-chicks-shut-up-and-sing/"/>
    <updated>2007-08-12T13:24:58+02:00</updated>
-   <id>http://www.olivergierke.de/2007/08/dixie-chicks-shut-up-and-sing/dixie-chicks-shut-up-and-sing</id>
+   <id>http://www.olivergierke.de/2007/08/dixie-chicks-shut-up-and-sing</id>
    <content type="html">&lt;p&gt;Ein spontaner Kinobesuch gestern Abend führte mich in den Film “Dixie Chicks - Shut up and sing”. Es ist die Geschichte der erfolgreichsten Frauenband weltweit, der Dixie Chicks. Leadsängerin Natalie Maines äußerte am 10. März 2003 bei einem Konzert in London während einer Ansage folgenden Satz:&lt;/p&gt;
 &lt;blockquote&gt;**&quot;Just so you know, weâ€™re on the good side with yâ€™all. We do not want this war, this violence, and weâ€™re ashamed that the President of the United States is from Texas.&quot; &lt;cite&gt;- &lt;/cite&gt;**&lt;cite style=&quot;font-style: normal&quot;&gt;Natalie Maines&lt;/cite&gt;&lt;/blockquote&gt;
 &lt;p&gt;Darauf folgte eine hexenjagdähnliche Hetzkampagne in ganz Amerika. CDs wurden vernichtet, die Countryradiosender boykottierten die Band komplett, es kam sogar zu Morddrohungen gegenüber Natalie.&lt;/p&gt;
@@ -2267,9 +2267,9 @@ PluginRegistry&amp;lt;Plugin&amp;lt;String&amp;gt;, String&amp;gt; registry =
  
  <entry>
    <title>Drum CLinic mit Ralf Gustke, Wolfgang Haffner und Felix Lehrmann im Rock Shop Karlsruhe</title>
-   <link href="http://www.olivergierke.de/2007/04/drum-clinic-mit-ralf-gustke-wolfgang-haffner-und-felix-lehmann-im-rock-shop-karlsruhe/index.html"/>
+   <link href="http://www.olivergierke.de/2007/04/drum-clinic-mit-ralf-gustke-wolfgang-haffner-und-felix-lehmann-im-rock-shop-karlsruhe/"/>
    <updated>2007-04-28T20:17:57+02:00</updated>
-   <id>http://www.olivergierke.de/2007/04/drum-clinic-mit-ralf-gustke-wolfgang-haffner-und-felix-lehmann-im-rock-shop-karlsruhe/drum-clinic-mit-ralf-gustke-wolfgang-haffner-und-felix-lehmann-im-rock-shop-karlsruhe</id>
+   <id>http://www.olivergierke.de/2007/04/drum-clinic-mit-ralf-gustke-wolfgang-haffner-und-felix-lehmann-im-rock-shop-karlsruhe</id>
    <content type="html">&lt;p&gt;Grad eben bin ich zurück von einem Drumworkshop mit den 3 oben genannten Herren. Gute 2 Stunden deilkates Drumming gabs im Rockshop Karlsruhe auf die Ohren. Ausserdem diese oder jene kleine Anekdote.&lt;!--more--&gt;Als erstes betrat Felix Lehrmann die Bühne und spielte zu Rivo Drei Playbacks, die mit schon sehr bekannt waren, dem großen Restlichen Publikum allerdings schon das staunen ins Gesicht zauberten. Ja, der ist erst 22 ;).&lt;/p&gt;
 
 &lt;p&gt;Nach ihm kam Wolfgang Haffner auf die Bühne, der wohl so eine Art Kopf der Truppe war. Zumindest erzählte er von einer sehr entspannten Workshopwoche. Die Clinic in Karlsruhe war wohl die letzte der Tour und alle 3 schienen das Ende arg zu bedauern. Lustig waren 2 Anekdoten die er erzählte: das neue Jazzride, was er mit der Firma Meinl zusammen entworfen hat, trägt wohl den Namen “Jazz Club Ride” aufgrund seiner großen liebe zum Nürnberger Fußballverein. Da seine Yamaha Signature Snare auch wegen dieser Liebe in rot schwarz gehalten ist, lässt den Eindruck aufkommen er plane ein komplettes Drumset für den Verein - vielleicht sollte er mal nach einer Finanzspritze fragen ;).&lt;/p&gt;
@@ -2284,9 +2284,9 @@ PluginRegistry&amp;lt;Plugin&amp;lt;String&amp;gt;, String&amp;gt; registry =
  
  <entry>
    <title>AOP Logging ist kein Logging - oder wie IT Zeitschriften erheblich nachlassen...</title>
-   <link href="http://www.olivergierke.de/2007/04/aop-logging-ist-kein-logging-oder-wie-it-fachzeitschriften-erheblich-nachlassen/index.html"/>
+   <link href="http://www.olivergierke.de/2007/04/aop-logging-ist-kein-logging-oder-wie-it-fachzeitschriften-erheblich-nachlassen/"/>
    <updated>2007-04-03T13:27:51+02:00</updated>
-   <id>http://www.olivergierke.de/2007/04/aop-logging-ist-kein-logging-oder-wie-it-fachzeitschriften-erheblich-nachlassen/aop-logging-ist-kein-logging-oder-wie-it-fachzeitschriften-erheblich-nachlassen</id>
+   <id>http://www.olivergierke.de/2007/04/aop-logging-ist-kein-logging-oder-wie-it-fachzeitschriften-erheblich-nachlassen</id>
    <content type="html">&lt;p&gt;Als ich mir vor ein paar Tagen die aktuelle JavaSpektrum zugelegt habe, sah der Inhalt ganz vielversprechend aus. Modelbasierte Entwicklung (hieß es bisher nicht immer modellgetriebene Entwicklung?), neues von AspectJ - die Themenliste klang gut. Nachdem ich dann allerdings den zweiten Artikel las, der mit der versprochenen Ãœberschrift relativ wenig zu tun hatte, kam schon eine Art Misstimmung auf. Ein Artikel, der angeblich die Arbeit mit den Eclipse WST dokumentieren sollte, entpuppte sich als kurzer Abriss über Spring, Axis und das Java Caching System. Für das WST blieben dann noch ein paar kurze Zeilen, die allerdings nicht mehr Information beinhalteten als die gemeinhin bekannten Eclipse Tutorials. Dann stieß ich (mal wieder) auf einen Fehler, der meiner Meinung nach penetrant übersehen wird…&lt;!--more--&gt;&lt;/p&gt;
 
 &lt;p&gt;Der Artikel über AspectJ ging natürlich auf die Grundlagen aspektorientierter Programmierung ein. Als Anwendungsbeispiel für AOP fällt in jedem Artikel eigentlich das Thema Logging. Was dabei immer verschwiegen wird ist, das mit “Logging mit AOP” nichts anderes gemeint ist als Tracing mit AOP. Das Pointcutmodell von AOP Implementierungen wie AspectJ oder Spring AOP bezieht sich sinnvollerweise auf Methodenaufrufe.&lt;/p&gt;
@@ -2299,9 +2299,9 @@ PluginRegistry&amp;lt;Plugin&amp;lt;String&amp;gt;, String&amp;gt; registry =
  
  <entry>
    <title>Recordingworkshop an der Popakademie</title>
-   <link href="http://www.olivergierke.de/2007/01/recordingworkshop-an-der-popakademie/index.html"/>
+   <link href="http://www.olivergierke.de/2007/01/recordingworkshop-an-der-popakademie/"/>
    <updated>2007-01-21T21:59:35+01:00</updated>
-   <id>http://www.olivergierke.de/2007/01/recordingworkshop-an-der-popakademie/recordingworkshop-an-der-popakademie</id>
+   <id>http://www.olivergierke.de/2007/01/recordingworkshop-an-der-popakademie</id>
    <content type="html">&lt;p&gt;Am vergangenen Wochenende fand wieder ein Seminarwochenende an der Popakademie statt. Ich hatte mich für den Aufbauworkshop “Recording” angemeldet und freute mich auf ein spannendes Wochenende im Studio. Dozent war Marcus Thiel, freier Mitarbeiter an der Popakademie, Toningeneur und Produzent.&lt;!--more--&gt;Der Samstag begann gemütlich mit einer Vorstellungsrunde und Tasse Kaffee. Danach stellte Marcus nochmal verschiedene Mikrofontypen vor, erläuterte Einsatzbereiche und Preissegmente. Nach dem Essen probierten wir die einzelnen Mikros dann praktisch aus um preisliche sowie bauartbedingte Unterschiede zu erhören. Zum Ende hin besprachen wir kurz Grundlagen von Dynamikprozessoren und Effekten, ehe wir diese an dem “Mannheim Song” von Chris Cosmo wiederum praktisch erhören konnten. Der Song lag ungemischt im Logic und wir konnten die verschiedenen Mittelchen und Wege mal an sauber recordeten Spuren ausprobieren.
 Insgesamt bot der erste Teil für mich nicht wahnsinnig viel neues, hier und da konnte ich mir jedoch einen Trick abschauen.&lt;/p&gt;
 
@@ -2316,9 +2316,9 @@ Insgesamt bot der erste Teil für mich nicht wahnsinnig viel neues, hier und da 
  
  <entry>
    <title>Joy Denalane zum Thema "Artist Development" @ Popakademie</title>
-   <link href="http://www.olivergierke.de/2007/01/joy-denalane-zum-thema-artist-development-popakademie/index.html"/>
+   <link href="http://www.olivergierke.de/2007/01/joy-denalane-zum-thema-artist-development-popakademie/"/>
    <updated>2007-01-17T12:32:56+01:00</updated>
-   <id>http://www.olivergierke.de/2007/01/joy-denalane-zum-thema-artist-development-popakademie/joy-denalane-zum-thema-artist-development-popakademie</id>
+   <id>http://www.olivergierke.de/2007/01/joy-denalane-zum-thema-artist-development-popakademie</id>
    <content type="html">&lt;p&gt;Gestern war Joy zu Gast in der OpenHouse Reihe der Popakademie. Dort referieren bekannte Größen aus der Musikwelt über bestimmte Themen, ihre Ansichten, Eigenheiten und Erfahrungen. Leider fand die Veranstaltung nicht wie aus anderen OpenHouse Seminaren gewohnt um 19 Uhr statt sondern schon um 18 Uhr. So stand ich also fünf vor sieben vor einer verschlossenen Tür. Arrrgh…&lt;!--more--&gt;Da ab und zu allerdings jemand aus dem Foyer kam, konnte ich wenigstens noch der Diskussionsrunde folgen. Das Thema drehte sich natürlich im groben um Joys Entscheidung auf dem aktuellen Album englisch zu singen, was für sie eine Entscheidung persönliche Entscheidung war. An den kommerziellen Erfolg ihres Erstlingswerks “Mamani” konnte “Born and raised”  dadurch auch trotz eines für Soulalben verhältnismäßige hohen Charteinstieges nicht anknüpfen. Dass Joy und Four Music Labelchef Fitz Braum, der ebenfalls anwesend war, dies als okay ansahen macht durchaus einmal mehr die Sonderstellung eines Labels wie Four Music deutlich. Auch in (musik)wirtschaftlich schwierigen Zeiten, setzt das Label auf Kontinuität und artist development, womit wir den Kreis zum Vortragsthema wieder geschlossen hätten ;).&lt;/p&gt;
 
 &lt;p&gt;Insgesamt immer wieder nett, mal Meinungen, Erfahrungen und kleine Anekdoten aus “dem Inneren” der Musikbranche zu hören zu bekommen.  Joy ist nächste Woche Donnerstag anlässlich des Mannheimer Stadtjubiläums zu Gast in der Alten Feuerwache in Mannheim.&lt;/p&gt;
@@ -2330,9 +2330,9 @@ Insgesamt bot der erste Teil für mich nicht wahnsinnig viel neues, hier und da 
  
  <entry>
    <title>Vortrag - Komponentenbasierte Softwareentwicklung in PHP</title>
-   <link href="http://www.olivergierke.de/2007/01/vortrag-komponentenbasierte-softwareentwicklung-mit-php/index.html"/>
+   <link href="http://www.olivergierke.de/2007/01/vortrag-komponentenbasierte-softwareentwicklung-mit-php/"/>
    <updated>2007-01-12T13:43:37+01:00</updated>
-   <id>http://www.olivergierke.de/2007/01/vortrag-komponentenbasierte-softwareentwicklung-mit-php/vortrag-komponentenbasierte-softwareentwicklung-mit-php</id>
+   <id>http://www.olivergierke.de/2007/01/vortrag-komponentenbasierte-softwareentwicklung-mit-php</id>
    <content type="html">&lt;p&gt;Gestern habe ich bei der PHP User Group Frankfurt einen Vortrag zum Thema “Komponentenbasierte Softwareentwicklung mit PHP” gehalten. Dabei habe ich das Dependency Injection Framework Garden vorgestellt und anhand eines Beispieldesigns unsere Weiterentwicklung des Frameworks und die generelle Arbeit mit Dependency Injection gezeigt. Die Vortragsfolien, sowie die Sourcen von Garden findet ihr auf der Webseite der PHPUG.&lt;/p&gt;
 &lt;ul&gt;
 	&lt;li&gt;[PHP User Group Frankfurt](http://www.phpugffm.de)&lt;/li&gt;
@@ -2345,9 +2345,9 @@ Insgesamt bot der erste Teil für mich nicht wahnsinnig viel neues, hier und da 
  
  <entry>
    <title>FESTival 2006 - Neues von Four Sided Cube</title>
-   <link href="http://www.olivergierke.de/2006/12/festival-2006-neues-von-four-sided-cube/index.html"/>
+   <link href="http://www.olivergierke.de/2006/12/festival-2006-neues-von-four-sided-cube/"/>
    <updated>2006-12-01T18:02:01+01:00</updated>
-   <id>http://www.olivergierke.de/2006/12/festival-2006-neues-von-four-sided-cube/festival-2006-neues-von-four-sided-cube</id>
+   <id>http://www.olivergierke.de/2006/12/festival-2006-neues-von-four-sided-cube</id>
    <content type="html">&lt;p&gt;Am 23.12.2006 findet das alljährliche FESTival als Benefizveranstaltung für das Jugendzentrum Kiste in selbigem in Ladenburg. Diese Jahr sind neben Four Sided Cube die Bands Cages und OIDO mit von der Partie. Ich freu mich auf einen gemütlichen Gig am Tag vor Weihnachten.&lt;/p&gt;
 
 &lt;p&gt;In Vorbereitung des Events arbeiten wir bereits seit etlichen Wochen an neuen Songs und werden wohl auch einige davon beim FESTival spielen. Es sind viele interessante Sachen dabei, vielleicht auch die ein oder andere Ãœberraschung ;)&lt;/p&gt;
@@ -2359,9 +2359,9 @@ Insgesamt bot der erste Teil für mich nicht wahnsinnig viel neues, hier und da 
  
  <entry>
    <title>Mein Weg zu Spring</title>
-   <link href="http://www.olivergierke.de/2006/10/mein-weg-zu-spring/index.html"/>
+   <link href="http://www.olivergierke.de/2006/10/mein-weg-zu-spring/"/>
    <updated>2006-10-21T23:09:08+02:00</updated>
-   <id>http://www.olivergierke.de/2006/10/mein-weg-zu-spring/mein-weg-zu-spring</id>
+   <id>http://www.olivergierke.de/2006/10/mein-weg-zu-spring</id>
    <content type="html">&lt;p&gt;Mein erster Blogpost zum Thema Informatik. Während meines Studiums hat sich mein Interesse vor allem im Bereich Serveranwendungen mit Java entwickelt. Zum ersten kam ich damit während des Programmiermethodikpraktikums im Sommersemester ‘05. Wir entwickelten eine Art Studenten- bzw. Tutoriumsverwaltung auf der Basis der EJB 2.1 und JBoss. Der technische Overhead den die Technolgie mit sich brachte erschlug meine Arbeitsgruppe und mich schon ziemlich. Da musste es etwas besseres geben…&lt;!--more--&gt;Auf der Suche nach Alternativen lief mit das Buch “J2EE Development without EJB” von Rod Johnson über den Weg. Zum damaligen Zeitpunkt schon 1 Jahr alt, brachte das Buch eine Alternative zum EJB Stack als Democode mit sich. Was ich damals noch nicht wusste - dieses Stück Code hatte sich bereits zu einem Open Source Framework entwickelt: Spring.&lt;/p&gt;
 
 &lt;p&gt;Auch wenn der Buchtitel nach polemischer Abrechnung klingt - er fasst eigentlich nur eine nüchterne Analyse des damaligen Standes der Technik zusammen. Der EJB2.1 Standard zog von der ersten Codezeile an einen riesigen Overhead nach sich und verlangte umständliches Implementieren einer Vielzahl von Interfaces, egal ob man überhaupt Features wie die physische Verteilung von Objekten auf verschiedenen Servern wirklich Nutzen wollte. Desweiteren musste man die Kommunikation zwischen Komponenten von Hand programmieren und verbrachte dadurch mehr Zeit damit, Infrastruktur zu programmieren, als Businesscode zu schreiben.&lt;/p&gt;
@@ -2385,9 +2385,9 @@ Insgesamt bot der erste Teil für mich nicht wahnsinnig viel neues, hier und da 
  
  <entry>
    <title>Wallis Bird</title>
-   <link href="http://www.olivergierke.de/2006/10/wallis-bird/index.html"/>
+   <link href="http://www.olivergierke.de/2006/10/wallis-bird/"/>
    <updated>2006-10-15T16:24:10+02:00</updated>
-   <id>http://www.olivergierke.de/2006/10/wallis-bird/wallis-bird</id>
+   <id>http://www.olivergierke.de/2006/10/wallis-bird</id>
    <content type="html">&lt;p&gt;Zum ersten Mal gehört hatte ich von Wallis Bird über Christian Vinne, einen Schlagzeuger von der Popakademie Mannheim, den ich über ein paar Ecken kenne. Er hätte da ein paar Gigs mit so einer irischen Sängerin gespielt. Ahja, okay… Als Rainer, Sänger meiner Band “Four Sided Cube” und ebenfalls Popakademiestudent von Wallis erzählte und sie unheimlich spannend fand musste ich mir die Sache natürlich näher ansehen. Myspace gecheckt, ihre Webseite besucht - ja, das klingt nett.&lt;!--more--&gt;&lt;/p&gt;
 
 &lt;p&gt;Als Wallis dann letztens hier in der Feuerwache spielte, lies ich mir natürlich nicht die Chance nehmen, mir das mal live anzusehen. Es war ein denkwürdiges Konzert - nicht nur für mich, sondern wohl auch für die Band. Es ging technisch eigentlich alles schief, was schief gehen kann. Dennoch blieben die drei - Wallis (Gitarre &amp;amp; Gesang), Christian (Drums &amp;amp; Vocal entertainment ;) und sein Bruder Michael (Bass) locker. Wallis hatte das Publikum eigentlich von Anfang an auf ihrer Seite. Unheimlich sympathisch, chaotisch und durchgeknallt im positiven Sinne - das hat Unterhaltungswert. Doch was bei manchen in nur übertriebener Selbstdarstellung endet, kanalisiert sie in Songs die so unheimlich vor Emotion strotzen, Spass machen und dabei musikalisch auf einem unglaublich hohen Niveau sind.&lt;/p&gt;
@@ -2403,9 +2403,9 @@ Wallis’ aktuelle EP heißt “Branches Untangle” und ist auf ihrer Webseite 
  
  <entry>
    <title>Neues Template</title>
-   <link href="http://www.olivergierke.de/2006/10/neues-template/index.html"/>
+   <link href="http://www.olivergierke.de/2006/10/neues-template/"/>
    <updated>2006-10-15T16:08:22+02:00</updated>
-   <id>http://www.olivergierke.de/2006/10/neues-template/neues-template</id>
+   <id>http://www.olivergierke.de/2006/10/neues-template</id>
    <content type="html">&lt;p&gt;Nachdem ich mit WordPress relativ zufrieden bin, lies mir das dunkle Template keine Ruhe. Deshalb hier was frischeres. Den Header werde ich sicher nochmal austauschen. Desweiteren habe ich mich entschlossen, den Blog um Posts über Gedanken zu meiner Arbeit im IT Bereich auszuweiten. Ausserdem habe ich eine Kategorie für Musiktipps eingerichtet, da mir in letzter Zeit jede Menge Künstler begegnet sind, die es verdient haben gefeatured zu werden.&lt;/p&gt;
 
 &lt;p&gt;Viel Spass damit…&lt;/p&gt;
@@ -2414,9 +2414,9 @@ Wallis’ aktuelle EP heißt “Branches Untangle” und ist auf ihrer Webseite 
  
  <entry>
    <title>Barfuss in Bildern</title>
-   <link href="http://www.olivergierke.de/2006/10/barfuss-in-bildern/index.html"/>
+   <link href="http://www.olivergierke.de/2006/10/barfuss-in-bildern/"/>
    <updated>2006-10-01T19:08:54+02:00</updated>
-   <id>http://www.olivergierke.de/2006/10/barfuss-in-bildern/barfuss-in-bildern</id>
+   <id>http://www.olivergierke.de/2006/10/barfuss-in-bildern</id>
    <content type="html">&lt;p&gt;Gestern früh fand das Fotoshooting für die Barfuss Platte statt. Ich hatte &lt;a href=&quot;http://www.fotocommunity.de/pc/account/myprofile/544103&quot;&gt;Nico Becherer&lt;/a&gt;, einen befreundeten Musiker und Fotografen, gebeten die Fotos zu schießen und da sich das gute Wetter wahrscheinlich bald dem Ende zu neigt, hatten wir diesen Samstag als Termin unserer Wahl auserkoren. Der Wetterbericht hatte allerdings Regen angesagt.&lt;!--more--&gt;&lt;/p&gt;
 
 &lt;p&gt;Nachdem es also zunächst eher düster aussah und ich schon Angst hatte, die ganze Aktion könnte ins Wasser fallen, kam so gegen 10 Uhr doch glatt die Sonne raus ;). Ich hatte passend zum Namen Motive wie Fußabdrücke im Sand, nasse Fußabdrücke auf einem Holzsteg, Füße im Gras usw. im Kopf. Nico hat mir gestern Nacht noch die ersten Ergebnisse geschickt und ich muss sagen, meine Erwartungen wurden übertroffen. Einen kleinen Eindruck von den Bildern könnt ihr in Nico’s &lt;a href=&quot;http://www.fotocommunity.de/pc/pc/mypics/544103&quot; target=&quot;_blank&quot;&gt;Gallerie in der Fotocommunity&lt;/a&gt; bekommen. Ich setz mich dann mal an die Coverentwürfe ;)&lt;/p&gt;
@@ -2425,9 +2425,9 @@ Wallis’ aktuelle EP heißt “Branches Untangle” und ist auf ihrer Webseite 
  
  <entry>
    <title>Bilder vom Gig bei Rock @ Church</title>
-   <link href="http://www.olivergierke.de/2006/09/bilder-vom-gig-bei-rock-church/index.html"/>
+   <link href="http://www.olivergierke.de/2006/09/bilder-vom-gig-bei-rock-church/"/>
    <updated>2006-09-12T20:49:54+02:00</updated>
-   <id>http://www.olivergierke.de/2006/09/bilder-vom-gig-bei-rock-church/bilder-vom-gig-bei-rock-church</id>
+   <id>http://www.olivergierke.de/2006/09/bilder-vom-gig-bei-rock-church</id>
    <content type="html">&lt;p&gt;Kurzes Update… ich habe ein paar Bilder vom Gig am Samstag rausgekramt und die zu ein paar anderen Photos von einem vorherigen Gig bei meinem &lt;a href=&quot;http://www.myspace.com/oliverschlicht&quot;&gt;Myspace Account&lt;/a&gt; hochgeladen. Glücklicherweise kann man die Slideshow auch recht leicht in Webseiten einbinden ;) Et voila.&lt;/p&gt;
 
 &lt;p&gt;Die Bilder stammen von einer sehr nette Photografin namens Jutta Leiske (&lt;a href=&quot;http://www.fokus-eventphotos.de&quot;&gt;www.fokus-eventphotos.de&lt;/a&gt;), die regelmäßig uns und andere Bands fotografiert und es dabei eindrucksvoll versteht Konzertatmosphäre einzufangen und festzu halten. Besucht einfach mal die Seite - es lohnt sich.&lt;/p&gt;
@@ -2436,9 +2436,9 @@ Wallis’ aktuelle EP heißt “Branches Untangle” und ist auf ihrer Webseite 
  
  <entry>
    <title>Hallo mal wieder</title>
-   <link href="http://www.olivergierke.de/2006/09/hallo-mal-wieder/index.html"/>
+   <link href="http://www.olivergierke.de/2006/09/hallo-mal-wieder/"/>
    <updated>2006-09-02T12:29:50+02:00</updated>
-   <id>http://www.olivergierke.de/2006/09/hallo-mal-wieder/hallo-mal-wieder</id>
+   <id>http://www.olivergierke.de/2006/09/hallo-mal-wieder</id>
    <content type="html">&lt;p&gt;Es ist schon wieder 3 Monate her seit dem letzten Update. Wie ihr seht, hab ich das CMS gewechselt. Wollte was einfaches, sportliches. Bisher gefällt mir Wordpress sehr gut ;) Es sind noch nicht alle Contents im neuen System aber ich geb mir mühe, das so schnell wie möglich nachzuholen. Hier kurz die nettesten neuen Features:&lt;/p&gt;
 &lt;ul&gt;
 	&lt;li&gt;links findet ihr immer die aktuellsten Dates, wie sie auch auf der Soulism Seite zu finden sind&lt;/li&gt;
@@ -2457,9 +2457,9 @@ REINHAUN!&lt;/p&gt;
  
  <entry>
    <title>Es tut sich was</title>
-   <link href="http://www.olivergierke.de/2006/05/es-tut-sich-was/index.html"/>
+   <link href="http://www.olivergierke.de/2006/05/es-tut-sich-was/"/>
    <updated>2006-05-01T20:06:28+02:00</updated>
-   <id>http://www.olivergierke.de/2006/05/es-tut-sich-was/es-tut-sich-was</id>
+   <id>http://www.olivergierke.de/2006/05/es-tut-sich-was</id>
    <content type="html">&lt;p&gt;Sorry, dass seit dem letzten Update so viel Zeit ins Land gegangen ist, aber mein Studium neigt sich dem Ende zu (und eine Abschlussarbeit schreibt sich nicht von allein ;) und auch musikalisch hat sich einiges getan.&lt;/p&gt;
 
 &lt;p&gt;Da das Label Einsdreizehn in seiner alten Form nicht mehr zu betreiben war (vor allem aus zeitlichen Gründen), entschied ich mich, zusammen mit Fridl Schreiter ein neues Baby aus der Taufe zu heben. Soulism - so der Name - soll nun einen etwas anderen Ansatz fahren.&lt;!--more--&gt; Weg von dem “Ein Label hat Künstler, die haben Platten usw” hin zu eine Plattform für erdige Musik mit Seele, die allen offen steht, die sich in gewissen Grundeinstellungen von Soulism wiederfinden. Aufgeteil ist das ganze in die Bereiche Music und Management, wobei ich primär den Music Bereich übernehme und Fridl das Management. Schon in den ersten zwei Monaten haben sich Interessante Connections und Projekte ergeben. Mehr dazu findet ihr allerdings auf der Seite direkt… viel Spass damit und drückt uns die Daumen, dass wir viel bewegen können.&lt;/p&gt;
@@ -2476,9 +2476,9 @@ Die ersten Livertermine findet ihr auf &lt;a href=&quot;http://www.oliverschlich
  
  <entry>
    <title>Quo vadis 2006?</title>
-   <link href="http://www.olivergierke.de/2005/12/quo-vadis-2006/index.html"/>
+   <link href="http://www.olivergierke.de/2005/12/quo-vadis-2006/"/>
    <updated>2005-12-14T12:10:12+01:00</updated>
-   <id>http://www.olivergierke.de/2005/12/quo-vadis-2006/quo-vadis-2006</id>
+   <id>http://www.olivergierke.de/2005/12/quo-vadis-2006</id>
    <content type="html">&lt;p&gt;Hallo zusammen,&lt;/p&gt;
 
 &lt;p&gt;nach dem das Jahr 2005 sich dem Ende zu neigt, hier noch ein kleines Update, woran ich gerade so sitze und was 2006 bevorsteht.
@@ -2490,9 +2490,9 @@ Zusammen mit Fridl (www.rkee.net) bin ich momentan dabei das “alte” Label Ei
  
  <entry>
    <title>SPAX Projekt am Start / Bandtreffenupdate</title>
-   <link href="http://www.olivergierke.de/2005/08/spax-projekt-am-start-bandtreffenupdate/index.html"/>
+   <link href="http://www.olivergierke.de/2005/08/spax-projekt-am-start-bandtreffenupdate/"/>
    <updated>2005-08-13T16:02:12+02:00</updated>
-   <id>http://www.olivergierke.de/2005/08/spax-projekt-am-start-bandtreffenupdate/spax-projekt-am-start-bandtreffenupdate</id>
+   <id>http://www.olivergierke.de/2005/08/spax-projekt-am-start-bandtreffenupdate</id>
    <content type="html">&lt;p&gt;Seit letzten Montag ist das Ergebnis des “Allcityallstars” Projekts von SPAX auf dem Markt. Ich habe hierfür Friedel “RKee” Schreiter bei der Produktion des Titeltracks “Schattenkrieger” unterstützt. Leider gabs kurz vor Mixingschluss ein paar kleine Missverständnisse, so dass unser Streicherarrangement und das von Fridl gespielte Klavier beim Mix etwas stark in den Hintergrund geraten sind. Ein bissl ärgerlich, aber angesichts der über 20 vertretenen Acts und der enormen organisatorischen Arbeit nicht ganz so tragisch. Alles in allem eine angenehme Zusammenarbeit, dessen Ergebnis sich hören lassen kann.&lt;!--more--&gt;&lt;/p&gt;
 
 &lt;p&gt;Mehr Informationen findet ihr unter &lt;a href=&quot;http://www.oliverschlicht.de/wordpress/www.allcityallstars.de&quot;&gt;www.allcityallstars.de&lt;/a&gt;, zu kaufen gibts die Scheibe im Shop von www.mzee.com&lt;/p&gt;
@@ -2505,9 +2505,9 @@ Zusammen mit Fridl (www.rkee.net) bin ich momentan dabei das “alte” Label Ei
  
  <entry>
    <title>Clueso Remixcontestergebnisse / Neues Projekt</title>
-   <link href="http://www.olivergierke.de/2005/07/clueso-remixcontestergebnisse-neues-projekt/index.html"/>
+   <link href="http://www.olivergierke.de/2005/07/clueso-remixcontestergebnisse-neues-projekt/"/>
    <updated>2005-07-09T14:23:57+02:00</updated>
-   <id>http://www.olivergierke.de/2005/07/clueso-remixcontestergebnisse-neues-projekt/clueso-remixcontestergebnisse-neues-projekt</id>
+   <id>http://www.olivergierke.de/2005/07/clueso-remixcontestergebnisse-neues-projekt</id>
    <content type="html">&lt;p&gt;Seit circa 1,5h sind die Ergebnisse des Contests online. Leider haben wir es nicht unter die Topplätze geschafft. Ein besuch von &lt;a href=&quot;http://www.start-ab.com&quot; target=&quot;_blank&quot;&gt;www.start-ab.com&lt;/a&gt; lohnt sich jedoch trotzdem - es gibt viele gute Remixe dort.&lt;/p&gt;
 
 &lt;p&gt;Zum diesjähigen Bandtreffen habe ich ein recht außergewöhnliches Projekt ins Leben gerufen. Ich werde mich mit 3 befreundeten Musikern (Martin Schneider, Alexander Lau, Friedemann Schreiter) eine Woche vor dem Event in meiner Heimatstadt Forst treffen. Wir werden dort unter dem Namen “Die üblichen Verdächtigen” 4 Tage mit Proben verbringen. Weiterhin mit von der Partie sind die Sängerinnen Raphaela Poltermann, Julia Schöning und der Rapper Dita Rantel. Wir haben vor mit den 3en ein 45 minütiges Programm auszuarbeiten, was dann am Freitag beim Bandreffen präsentiert wird.&lt;/p&gt;
@@ -2520,9 +2520,9 @@ Zusammen mit Fridl (www.rkee.net) bin ich momentan dabei das “alte” Label Ei
  
  <entry>
    <title>Remixcontestsong online</title>
-   <link href="http://www.olivergierke.de/2005/06/remixcontestsong-online/index.html"/>
+   <link href="http://www.olivergierke.de/2005/06/remixcontestsong-online/"/>
    <updated>2005-06-05T19:54:56+02:00</updated>
-   <id>http://www.olivergierke.de/2005/06/remixcontestsong-online/remixcontestsong-online</id>
+   <id>http://www.olivergierke.de/2005/06/remixcontestsong-online</id>
    <content type="html">&lt;p&gt;Da nun alle Remixe zum Contest online sind, hier auch nun mein Beitrag.&lt;/p&gt;
 
 &lt;p&gt;&lt;a href=&quot;http://www.soulism.de/soulismv2/content/e306/furtherContent308/projects452/mediaList/files456/pizzaschachteln_113remix.mp3&quot;&gt;Clueso - Pizzaschachteln (113 Remix)&lt;/a&gt;&lt;/p&gt;
@@ -2543,9 +2543,9 @@ Oliver Schlicht: Drums/Bass/Gitarre/Klavier&lt;/p&gt;
  
  <entry>
    <title>Clueso Remix Context dieses Wochenende</title>
-   <link href="http://www.olivergierke.de/2005/06/clueso-remix-contest-dieses-wochenende/index.html"/>
+   <link href="http://www.olivergierke.de/2005/06/clueso-remix-contest-dieses-wochenende/"/>
    <updated>2005-06-04T19:51:14+02:00</updated>
-   <id>http://www.olivergierke.de/2005/06/clueso-remix-contest-dieses-wochenende/clueso-remix-contest-dieses-wochenende</id>
+   <id>http://www.olivergierke.de/2005/06/clueso-remix-contest-dieses-wochenende</id>
    <content type="html">&lt;p&gt;Dieses wochenende findet über das Webportal &lt;a href=&quot;http://www.start-ab.com&quot;&gt;www.start-ab.com&lt;/a&gt; ein Remixcontest zu der am Montag erscheinden Single “Pizzaschachteln” des Erfurter FourMusic Artists Clueso statt.
 Mitsamt den üblichen verdächtigen Martin Schneider (Gitarrensolo) und Friedeman Schreiter (Piano) und der Sängerin Isabel Haist habe ich ein nettes Stück musik zum Song von Clueso produziert. Abgabetermin ist Montag 6 Uhr. Sobald man die Sachen rausgeben darf findet ihr den Song hier auf der Seite…&lt;/p&gt;
 
@@ -2555,9 +2555,9 @@ Mitsamt den üblichen verdächtigen Martin Schneider (Gitarrensolo) und Friedema
  
  <entry>
    <title>Updates... was geht momentan?</title>
-   <link href="http://www.olivergierke.de/2005/04/4/index.html"/>
+   <link href="http://www.olivergierke.de/2005/04/4/"/>
    <updated>2005-04-01T17:30:30+02:00</updated>
-   <id>http://www.olivergierke.de/2005/04/4/4</id>
+   <id>http://www.olivergierke.de/2005/04/4</id>
    <content type="html">&lt;p&gt;Hallo zusammen. Ich hab’s endlich geschafft, mal ein Photo (bzw. mehrere für ne Photomontage ;-) vom kompletten Set zu machen, da wir vor gut 3 Wochen in einen neuen Proberaum in Mannheim gezogen sind. Das Projekt, mit dem ich jetzt da Musik mach hat noch keinen offiziellen Namen - egal, die sind eh Schall und Rauch. Wir bewegen uns musikalisch zwischen Soul, Funk, HipHop, Pop und die ersten Songs klingen vielversprechend. Momentan suchen wir noch ein paar Mitmusiker, die die Sache komplett machen… ich halte euch auf dem Laufenden ;-)&lt;!--more--&gt;&lt;/p&gt;
 
 &lt;p&gt;In Sachen Raphaela gehts auch voran: der Martin schreibt seit kurzem fleißig eine art Albumtagebuch auf der Einsdreizehn-Seite (www.einsdreizehn.de) Reinschauen lohnt. Bei meinem Beusch in Forst, in der Woche vor Ostern hab ich wieder einige nette Songideen vom Martin mitgenommen. Das Kind gedeiht momentan recht prächtig…&lt;/p&gt;
@@ -2574,9 +2574,9 @@ Mitsamt den üblichen verdächtigen Martin Schneider (Gitarrensolo) und Friedema
  
  <entry>
    <title>So viel neues...</title>
-   <link href="http://www.olivergierke.de/2005/02/so-viel-neues/index.html"/>
+   <link href="http://www.olivergierke.de/2005/02/so-viel-neues/"/>
    <updated>2005-02-13T14:12:24+01:00</updated>
-   <id>http://www.olivergierke.de/2005/02/so-viel-neues/so-viel-neues</id>
+   <id>http://www.olivergierke.de/2005/02/so-viel-neues</id>
    <content type="html">&lt;p&gt;Da sind es schon weider 6 Monate, die ich nun in Mannheim wohne. Ein halbes Jahr musikalische Um- und Neuorientierung.
 Die Rockband, in die ich hier im Oktober eingestiegen bin wagt sich am 26.02.2005 zum ersten mal aus dem Proberaum. “True Tempest” werden in Wallstadt ihr Bühnendebut feiern. Jedoch werde ich die Band aus musikalischen Gründen nach dem Gig wieder verlassen.&lt;/p&gt;
 
