@@ -38,9 +38,11 @@
     
   </p>
   
-<p>Recently, I stumbled over a <a href="http://blog.jonathanchannon.com/2016/04/28/what-is-a-hypermedia-client/">blog post by Jonathan Channon</a> explaining how he got to realize that hypermedia APIs are not some magical thing but rather a pragmatic approach to avoid coupling between services.
+<p>Recently, I stumbled over a <a href="http://blog.jonathanchannon.com/2016/04/28/what-is-a-hypermedia-client/">blog post by Jonathan Channon</a> explaining how he got to realize that hypermedia APIs are not some magical thing but rather a pragmatic approach to reduce coupling between services.
 Also, I’ve been traveling conferences with a talk on <a href="https://speakerdeck.com/olivergierke/domain-driven-design-and-rest">Domain-Driven Design and REST</a> recently that covers the aspect of hypermedia as well and features an — as I think — rather nice example of how effective hypermedia can be when building distributed systems.
 I’ll come back to the example in a bit but let’s start with some fundamentals.</p>
+
+<p><a name="fundamentals"></a></p>
 
 <h2 id="fundamentals">Fundamentals</h2>
 
@@ -48,11 +50,13 @@ I’ll come back to the example in a bit but let’s start with some fundamental
 That could be a simple mobile app for your business, or it could be a microservice architecture (especially en vogue these days).
 Independent deployability can even an important requirement if the same team manages individual services as it will allow you to roll out new features of an individual system without having to wait for others.</p>
 
-<p>The crucial thing here is, that you want to avoid or can’t even afford to have to deploy the interacting systems together.
+<p>The crucial thing here is, that you want to avoid — or can’t even afford — to have to deploy the interacting systems together.
 Thus, breaking APIs is basically a no-go for the server or at least has to be avoided as much as possible.
 But when do we get into the state of a “broken API”? Whenever the assumptions the client made before are not met by the server anymore.
 We need to make sure the client makes as little assumptions about the server as possible.
 Hypermedia allows you to achieve exactly that as a lot of assumptions that you might naïvely code into your client can actually be simplified to the decision “Is a link with the given link relation present or not?”.</p>
+
+<p><a name="an-example"></a></p>
 
 <h2 id="an-example">An Example</h2>
 
@@ -71,19 +75,20 @@ Notice how the order can only be canceled in the payment expected state in this 
     …,
     "status" : "payment expected"
 }
-
 </code></pre>
 
 <p>The client would have to know about the resource to issue the request to, the HTTP method it’s supposed to use and the payload it has to send to the server.
 You could even tip your toes into hypermedia and let the client look for the link to find the request target but hypermedia is not going to free the server from knowing about the request method and payload details.
 So, what is the problem with that approach of inspecting the representation in such detail?</p>
 
+<p><a name="adapting-to-change"></a></p>
+
 <h2 id="adapting-to-change">Adapting to change</h2>
 
 <p>Assume there are a couple of changed and new requirements coming up:</p>
 
 <ol>
-  <li>As parts of the payload are intended to be displayed to the user, they’re supposed to be internationlized. So German users would get a “Zu bezahlen” instead.</li>
+  <li>As parts of the payload are intended to be displayed to the user, they’re supposed to be internationlized. So German users would get a “Zur Kasse gehen” instead.</li>
   <li>Canceling an order is now also allowed <em>after the drinks have been prepared</em>.</li>
 </ol>
 
@@ -94,11 +99,42 @@ Bummer!
 What could we have done instead?</p>
 
 <p>As I also describe in the talk, using hypermedia is basically about reducing critical decisions in the client to the presence of a link with a certain name in a certain context.
-We could’ve just implemented our mobile client that way: whenever the representation of an order contains a <code>cancel</code> link, we display the corresponding button and trigger the documented HTTP call to issue the cancellation if it’s pressed.
-This fundamentally reduces the knowledge baked into the client to nothing but the presence of the link.
+We could’ve just implemented our mobile client that way: whenever the representation of an order contains a <code>cancel</code> link, we display the corresponding button and trigger the documented HTTP call to issue the cancellation if it’s pressed.</p>
+
+<pre><code>GET /orders/4711
+
+{
+    "_links" : {
+      "cancel" : "…"
+    }, …
+    "status" : "…"
+}
+</code></pre>
+
+<p>This fundamentally reduces the knowledge baked into the client to nothing but the presence of the link.
 That slight change in the way the client is implemented would’ve made it capable to not break due to a change in the API (1, as it would just forward the value of the field to display to the user) and even pick up a new feature transparently (2, as it would transparently display the button in a completely different state of the order as well).</p>
 
-<p>That brings me back to <a href="http://blog.jonathanchannon.com/2016/04/28/what-is-a-hypermedia-client/">Jonathan’s article</a> (please go ahead and read it if you haven’t already) in which he outlines how important it is that clients really embrace hypermedia to use it for their benefits and that it’s not enough for servers to just serve hypermedia enabled representations.</p>
+<p><a name="conceptual-changes"></a></p>
+
+<h2 id="what-have-we-done-effectively">What have we done effectively?</h2>
+
+<p>We basically traded two different kinds of complexity here.</p>
+
+<script async="" class="speakerdeck-embed" data-slide="52" data-id="a96550a9853d48078257b7ae7f331dfa" data-ratio="1.77777777777778" src="//speakerdeck.com/assets/embed.js"></script>
+
+<p>The naive approach described in the beginning of the post lets the system end up in the left part of the spectrum as adds semantics to certain parts of the payload and by that replicates business logic already implemented on the server.
+That duplication across system boundaries is what effectively creates the coupling which we have to avoid to make sure we can roll out changes to the server easily.
+That said, this reduction in coupling doesn’t come for free: we paid for it by slightly increasing the protocol knowledge (the client knowing about the media type, how to find links, knowing the semantics of the link relations).</p>
+
+<p>So we actually make the client dumber and smarter at the same time: dumber about the business rules and smarter about the protocol.
+That’s a great trade-off as the protocol semantics are much less likely to change in comparison to the business rules, which effectively makes the client less brittle against changes on the server and thus allows the latter to change more significantly without breaking the client.</p>
+
+<p>That said, please check out <a href="http://blog.jonathanchannon.com/2016/04/28/what-is-a-hypermedia-client/">Jonathan’s article</a> in which he outlines how important it is that clients really embrace hypermedia to use it for their benefits and that it’s not enough for servers to just serve hypermedia enabled representations.</p>
+
+<p><a name="changelog"></a></p>
+
+<h4 id="changelog">Changelog</h4>
+<p>2016-08-07: Added a paragraph to elaborate on the conceptual differences of the approaches and the architectural consequences on system coupling. Minor wording updates for the previously existing content.</p>
 
 </div>
 
