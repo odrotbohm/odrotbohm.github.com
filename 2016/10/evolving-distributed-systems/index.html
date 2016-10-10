@@ -1,0 +1,355 @@
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+   <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+   <title>Oliver Gierke - Evolving Distributed Systems</title>
+   <meta name="author" content="Oliver Gierke" />
+   <link href="/atom.xml" rel="alternate" title="Blog Atom Feed" type="application/atom+xml" />
+
+   <!-- syntax highlighting CSS -->
+   <link rel="stylesheet" href="/assets/themes/tom/css/syntax.css" type="text/css" />
+
+   <!-- Homepage CSS -->
+   <link rel="stylesheet" href="/assets/themes/tom/css/screen.css" type="text/css" media="screen, projection" />
+
+   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Fira+Sans:bold|Fira+Sans:light" type="text/css" />
+
+   <!-- Typekit -->
+   <script type="text/javascript" src="http://use.typekit.com/jpd0pfm.js"></script>
+   <script type="text/javascript">try{Typekit.load();}catch(e){}</script>
+</head>
+<body>
+
+  <div class="site">
+    <div class="title">
+      <a href="/">Oliver Gierke</a>
+
+      <a class="extra" href="/archive.html">Archive</a>
+      <a class="extra" href="/about.html">About</a>
+      <a class="extra" href="/tags.html">Tags</a>
+    </div>
+
+    
+<div id="post">
+  <h1>Evolving Distributed Systems</h1>
+  <p class="meta">
+    09 October 2016 
+    
+  </p>
+  
+<p>I’ve recently been pulled into <a href="https://twitter.com/olivergierke/status/782958179391004672">a discussion</a> about the effect of contracts in distributed systems both technically and regarding team communication.
+As usual, 140 characters are quite a limitation for reasonable discussion I thought I’d summarize my ideas here.</p>
+
+<p><a name="context"></a></p>
+
+<h2 id="where-do-we-come-from">Where do we come from?</h2>
+
+<p>Let’s get the elephant out of the room: everyone is talking about microservices these days.
+Just like so many others, I’ve never been a fan of the term as it implies a focus on <em>size</em> and <em>small</em>.
+While there are definitely <a href="https://vimeo.com/148843366">advantages to <em>smaller</em></a> — but that in turn raises the question: “Smaller than what?”
+We need to come up with a proper context.
+Assuming we’re about to ship the same amount of functionality, the smaller the systems, the more of them we usually have to deal with.
+That in turn creates new and most certainly <em>different</em> challenges — both organizationally and from a systems architecture point of view.</p>
+
+<p>I usually prefer to speak of “a system of systems”.
+I don’t care much about size for the sake of size if a system meets its functional and non-functional requirements.
+It’s interesting to observe people assuming a system on the one side of the size spectrum (i.e. a single, monolithic application) is fundamentally flawed and problematic per se, but hardly anyone looks a the risks and negative side effects of potentially over-dividing a system.</p>
+
+<p>So let’s stay with the assumption that we build a system of systems and let’s take a look of the effects on the architecture of such a division.</p>
+
+<p><a name="inter-systems-communication"></a></p>
+
+<h2 id="effect-on-inter-system-communication">Effect on inter-system communication</h2>
+
+<p>If a system is comprised of systems in turn, a crucial aspect of the overall architecture is if and how the individual systems communicate with each other.
+The approach I usually see here is that they expose APIs — usually HTTP &amp; JSON (aka. street-REST) based — and a request they serve involves actively reaching out to other services in the system.</p>
+
+<p>This approach has a couple of important effects: a user request to the overall system, causes quite a few internal requests, systems calling other systems, which — without any mitigating means — causes latency to pile up.
+Also, a lot of API surface has to be created and maintained which usually causes the teams to slow down as changes have to be synchronized, API “versions” are created (which <a href="https://www.infoq.com/news/2013/12/api-versioning">creates effort</a>).
+More on that below.</p>
+
+<p>To mitigate the former, a quick technical answer is found: communication needs to be done asynchronously and in a reactive way.
+Even with that in places use of HTTP and REST in general is deemed inappropriate and especially non-performant, so that “more efficient”, usually more RPC-style communication protocols are recommended.
+There’s a certain irony in the latter, as most usage of HTTP I usually see, follows RPC mechanisms more than it does follow REST  constraints in the first place and it’s weird to see people hope to avoid getting the effects of RPC-style communication when they use HTTP RCP-style.</p>
+
+<p><a name="solving-the-right-problem"></a></p>
+
+<h2 id="are-we-solving-the-right-problem">Are we solving the right problem?</h2>
+
+<p>Let’s take a step back and think about what our architecture was supposed to support in the first place: we wanted to achieve business agility.
+We wanted to build software around business teams and features, so that can ship new functionality <em>without having to wait for other teams</em>.
+This means, when defining our systems architecture, we need to enable the individual systems to evolve <em>independently</em> of the others, too, right?</p>
+
+<p>The first question we can raise here is, whether it is a good idea to let the systems communicate a lot, as communication means we need to agree on an API in the first place, which in turn creates coupling.
+The least coupling of systems is achieved amongst the ones that don’t speak to each other at all, which is basically boils down to the first law of distributed computing: don’t do it.</p>
+
+<p>Also note how the over-partitioning of the system described above results in the requirement of evolvability — the primary driver behind our architecture — getting intermingled with the aspect of efficiency.
+To a large degree, low coupling and efficiency are contradicting requirements in the first place.
+This seems to indicate that we should try to avoid the separation in places where efficiency is concern of great priority.</p>
+
+<p><a name="scs"></a></p>
+
+<h2 id="self-contained-systems-scs">Self-Contained Systems (SCS)</h2>
+
+<p>An interesting approach to the separation of a system into systems are <a href="http://scs-architecture.org/">Self-Contained Systems (SCS)</a>.
+The fundamental idea of SCS is simple: you comprise a systems of web-applications per a <a href="http://martinfowler.com/bliki/BoundedContext.html">Domain-Driven Design Bounded Context</a>, i.e. the primary separation aspect is business capabilities.
+Technical separation is a downstream concern (potentially into microservices)and can be used <em>within</em> an SCS but it’s regarded an implementation detail.</p>
+
+<p>Here is the most crucial aspects of SCS within the current context of discussion:
+Self-Contained Systems strictly try to avoid inter-systems communication when serving user requests, which means they act on local (potentially replicated) data only and rather expose events potentially relevant to other parties, instead of notifying them explicitly.
+Inter-systems communication can be implemented separately using messaging or the scheduled pulling of events from other systems.</p>
+
+<p>What seems like a quite strict and limiting restriction in the first place has an important upside: it alone removes — or at least mitigates — a lot of the downstream problems that had to be handled in the unrestricted approach described above.
+Not having to deal with the accumulated latency and perceived poor performance of in-process calls, we can now concentrate on the aspect of our architecture that we considered most important in the first place: independent evolvability.</p>
+
+<p><a name="api-evolution"></a></p>
+
+<h2 id="api-evolution">API evolution</h2>
+
+<p>Let’s assume we have two systems (potentially SCS) that we decided need to talk to each other.
+When designing the inter-systems communication and deciding for a particular technology we again need to think about the fundamental goal of the separation in the first place: independent evolvability.</p>
+
+<p>What does independent evolvability mean actually? Fundamentally, it means that we’re able to deploy a new version of one of the participants — don’t mix up “version” with “API version” here, I’ll get to that in a second — without breaking the other.
+That means, the ability to change either side of the communication without turning that into a breaking change is a key aspect in the design and choice of technology for such communication.</p>
+
+<p><a name="rest"></a></p>
+
+<h2 id="rest">REST</h2>
+
+<p>If you read up on Roy’s thesis and the <a href="https://www.ics.uci.edu/~fielding/pubs/dissertation/web_arch_domain.htm#sec_4_1">requirements the World Wide Web imposed on its architecture</a>, you’ll find that it basically reads like a description for the requirements imposed on micro-service architectures.
+That shouldn’t be a surprise as the web is basically the most distributed system ever built in the first place.
+Turn that around and you’ll realize that it might not be bad to follow the ideas of the web when building a distributed system that’s supposed to scale and evolve.</p>
+
+<p>Evolvability is a key aspect of the architectural style REST:</p>
+
+<blockquote>
+  <p>…, extensibility allows us to avoid getting stuck forever with the limitations of what was deployed.
+Even if it were possible to build a software system that perfectly matches the requirements of its users, those requirements will change over time just as society changes over time.
+A system intending to be as long-lived as the Web must be prepared for change. — Roy T. Fielding, <a href="https://www.ics.uci.edu/~fielding/pubs/dissertation/web_arch_domain.htm#sec_4_1_2">Architectural Styles and Design of Network-based Software Architectures (Section 4.1.2)</a></p>
+</blockquote>
+
+<p>That might raise the question why people complain about it being non-performant and inappropriate for distributed systems?
+A pretty obvious observations in most of the claims I see is that people use HTTP in a way that’s more RPC-like than it is REST.
+That usually includes ignoring key constraints, that are important to the architectural effects REST promises.</p>
+
+<p>In software, an architectural style describes a set of constraints that — if followed — lead to certain traits of a system.
+It might be a REST-special thing, but people seem to assume they could get the benefits of it entirely but pick and choose only the constraints that are easy to implement.
+Unfortunately, that’s not how it works.
+Hypermedia is a required constraint for a REST API, especially, if the pursued effect of applying the style is evolvability.</p>
+
+<p>On the other hand, being the most performant communication has never been a primary driver of HTTP as it favors low coupling and scalability over efficiency.
+That doesn’t mean the latter is totally out of scope: there’s caching, there’s compression, there are partial responses, there is support for (binary) media types etc.
+Still, these means are shaped in a way they don’t undermine the other traits deemed more important.</p>
+
+<p><a name="crud-apis"></a></p>
+
+<h2 id="the-problem-of-crud-apis">The problem of CRUD APIs</h2>
+
+<p>Let’s be honest, a lot of self-proclaimed REST APIs around these days are basically HTTP based CRUD APIs that expose database content as JSON.
+The effect of that is that the documentation and specification of those APIs is very focussed on describing the individual resources and the data fields found in the JSON (Swagger being the most prominent instance of a tool creating incentives to do exactly that).</p>
+
+<blockquote>
+  <p>The more generic your API, the more coupling you create.</p>
+</blockquote>
+
+<p>The motivation for that usually is that this generic approach allows easy client implementations “as they can all just behave the same way” or “it’s the easiest way to talk to a server”.
+Also, a lot of the specifics of the data — e.g. the field <code>status</code> in a representation of an order only being able to contain three different values — are easy to create, generate by inspecting server side code, a service description language etc.
+So what is the downside of that?</p>
+
+<ol>
+  <li>
+    <p><em>The service looking like that is hardly containing any business value.</em>
+It exposes <a href="https://speakerdeck.com/stilkov/wait-what-our-microservices-have-actual-human-users-1?slide=11">data, not business functionality</a>.
+There <em>is</em> a client somewhere implementing features, but it’s not on the server.</p>
+  </li>
+  <li>
+    <p><em>If there is some kind of logic — usually at least data validation — it has to be replicated on both the server and the client creating the coupling</em> we so desperately wanted to avoid in the first place as it has to be kept in sync.
+If there is some higher-level logic implemented that can be used via the API — a client being able to place an order, submit payment information etc. — it is completely implicit and the functionality to use that has to be implemented by <em>all</em> clients.
+Also, it means the clients will have to inspect the payload more closely, which reduces the legroom the server has to actually make changes to it.</p>
+  </li>
+  <li>
+    <p><em>The more your API is considered to provide data only, the more clients want a lot of control over the retrieval.</em>
+They want to be very specific about the fields a representation is supposed to return.
+They might even be able to formulate detailed predicates to filter collection resources.
+Giving in to these incentives is not even a problem per se, you just have to be aware of the consequences.
+You create strong coupling between the client and the server.
+Your clients might be able to gain a little efficiency but you pay for that with stronger coupling.
+Don’t be surprised to run into RPC-like characteristics of your remote communication, if you use HTTP in an RPC style.</p>
+  </li>
+</ol>
+
+<p>To summarize the situation: the more generic you make your API the less value you create with that API, the more coupling you create, as business logic is moved into clients.
+That’s something which is not the most intuitive thing to see and something that a lot of developers oversee.</p>
+
+<p><a name="contracts"></a></p>
+
+<h2 id="the-problem-of-contracts">The problem of contracts</h2>
+
+<p>The RPC-style approach to systems interacting then also usually leads to a strong focus on defining contracts between the systems, a desire to generate clients and server stubs so that the interaction can be tested etc.</p>
+
+<p>The idea of a contract between two communicating parties and the management of those contracts is quite a natural one to come to.
+It promises reliability and control.
+If both parties adhere to the contract, everything’s supposed to work, right?
+That’s not even wrong.
+However contracts imply a couple of downsides in the very special context we try to apply them in:</p>
+
+<ol>
+  <li>
+    <p><em>A contract requires parties to communicate in the first place.</em> Remember that we wanted to evolve systems <strong>independently</strong>?
+Once in a contractual agreement, every change has to be signed off by both sides.
+We introduce new reasons to talk when we wanted to actually reduce the friction.
+I totally acknowledge that the lack of communication might be a problem within an organization in the first place.
+However, if that’s the case, introducing something that creates more need to communicate can actually be a counter productive thing.
+Just because there’s more to talk about, it doesn’t fix the problem of non-communication in the first place.</p>
+  </li>
+  <li>
+    <p><em>Contracts are often set up in a way that they’re (or try to be) extremely specific, especially on the level of data formats exchanged.</em>
+What — if looked at, superficially — sounds like a great idea, can actually be a problem regarding evolvability as it creates incentives for clients to make assumptions they shouldn’t have made in the first place.
+If we start documenting all available values a field in the representation can have, the server will never ever be able to change it.
+This gets even worse if business rules are formulated based on those detailed descriptions, as it usually leads to clients implementing them that way (inspecting the payload closely), which replicates the business rules already present on the server and thus creates coupling — something we wanted to avoid in the first place.</p>
+  </li>
+  <li>
+    <p>The focus on defining the contract leads to the acceptance that changes to a system can only be implemented in a breaking way.
+This usually leads to teams completely ignoring other means to ship those changes because: “Hey, we have contracts!”.
+Thus a change in contract leading to what’s called “a version of the API”, which then raises the question how to version it.
+Hint: <a href="https://www.infoq.com/articles/roy-fielding-on-versioning">you don’t</a>.</p>
+  </li>
+</ol>
+
+<blockquote>
+  <p>A problem you can avoid is a problem you don’t have to fix.</p>
+</blockquote>
+
+<p>Generally speaking, my biggest problem with contracts is that they lead to the assumption that a change to an API needs to be a breaking one.
+It also leads to involved parties completely skipping the question how to bring themselves into a situation (by making architectural and technical decisions) so that much less changes are likely to be breaking ones.
+Again, a problem you can avoid is a problem you don’t have to fix.</p>
+
+<p>“Well,” I hear you say, “but there <em>is</em> shared semantics.
+We have to agree on something, right?”
+Exactly!
+I don’t dispute that fact, and I also don’t dispute that it’s a good thing to to come up with some sort of contract in the first place.
+I criticize two things: people overseeing the negative implications (or at least the effects subverting the original idea of the architecture) and blindly turning it into a tools problem: “Oh, I can generate this from that and I’ll be done.”
+Often times, tooling hides the negative effects it imposes its outcome by dazzling users with ease of applicability and fancy UIs.
+If it looks good, it’s got to be good, right?</p>
+
+<p>“Enough chitchat, what do you suggest instead?” — First of all, my core point is that in a system of systems context, you’re better of prioritizing the problem of <em>how to evolve your system in a non-breaking way</em> over the one of how to handle breaking changes: if a change is not a breaking one in the first place, there’s no need for communication when rolling out the feature, there’s no “new version”.
+You just ship.
+If required, the other party picks up the change asynchronously.
+But we were able to decouple the deployments of the system in the first place.</p>
+
+<p>“But <em>I</em> have to deal with breaking changes!” I hear you say.
+Fine, I answer.
+But I’d still argue a lot of them look like they’re breaking ones, because you’ve so finically painted yourself into a corner by ignoring the means technology exposes to turn your allegedly breaking changes into non-breaking ones.
+Which brings me back to the very often overlooked constraint REST brings in that regard: hypermedia.</p>
+
+<p><a name="hypermedia"></a></p>
+
+<h2 id="hypermedia-to-the-rescue">Hypermedia to the rescue</h2>
+
+<p>As mentioned before, the aspect of hypermedia (the presence of links in representations in the first place and its advanced partner Hypermedia As The Engine Of Application State (HATEOAS) is a key constraint within REST to enable evolvability in a system.
+The latter is a tool to indicate to clients <em>what</em> they can do with the resource at hand and <em>when</em> — or <em>if</em> at all — they can actually invoke certain functionality.
+As I’ve written up a concrete sample for the benefits of that approach in <a href="http://olivergierke.de/2016/04/benefits-of-hypermedia">this blog post</a>, I’d like to concentrate on the effect that this approach has on an architectural level.</p>
+
+<p>First, when using hypermedia, we need to focus on different things when designing and documenting APIs.
+Focus less on URLs, URL structures and the last nifty detail of fields in the representation (as that creates coupling).
+Focus more on the media type(s) served and the semantics of link relations:</p>
+
+<ul>
+  <li>What does it mean if a link with a certain name can be found?</li>
+  <li>Which HTTP method(s) can be used to follow that link?</li>
+  <li>What do I need to submit as payload?</li>
+  <li>What do I get as response?</li>
+</ul>
+
+<p>We effectively start to document resource <em>types</em>, not individual resources.
+In my opinion the very first question is the most important one to answer, as that’s gonna be the answer a client will build its state detection around: instead of inspecting a payload field for a certain value (e.g. <code>status : "payment expected"</code>), it can inspect the links available to decide whether to offer functionality in the UI (e.g. is the <code>payment</code> link present?).
+That approach shines especially in the area of security: instead of having to teach the client whether it is or is not allowed to do something to the system via a separate chain of requests to the server (did I hear you scream: <em>“INEFFICIENT!”</em>?), you can rather let the server decide whether to advertise that functionality in the first place.
+The client just picks up the link if present.
+You basically try to reduce as many decisions of the client to a plain “Yes or no?”.</p>
+
+<p>If that’s in place and clients adheres to those rules of not implementing business logic based on business fields in the representation, the server gains a lot more legroom for changes in the first place.
+In the best case that might allow us to teach the clients new tricks without having to change it in the first place, e.g. if a link shows up in a certain resource state the client didn’t explicitly expect it to appear but then just picks it up (again, please refer to the <a href="http://olivergierke.de/2016/04/benefits-of-hypermedia">other blog post</a> discussing the hypermedia example in detail).
+However, remember that automatically learning new trick wasn’t our primary goal in the first place, but being able to redeploy changed systems without breaking others.
+The most important bit here is that we avoid to document details of the API that create incentives to strongly couple the clients to those details.
+More information, more details often times is worse.</p>
+
+<p>That’s one of the reasons I am very critical with self-proclaimed REST (when they actually mean HTTP) design and description languages like RAML or Swagger.
+Trying to be both at the same time — specification of what the server should be <em>and</em> documentation to the client — they intermingle concerns and create a lot of incentives to expose implementation details to clients.
+Information that clients then make use of and by that tightly couple themselves to the server.
+Even worse, they create a kind of coupling that the designer or user of the described API might not even be aware of and which might not even be necessary.
+Some information might have ended up in the description to support the server implementation but eventually ends up in the client.</p>
+
+<p><a name="tl-dr"></a></p>
+
+<h2 id="tldr">tl;dr</h2>
+
+<p>To build an evolvable distributed system you want to get away with <em>just enough</em> inter-systems specification, not with <em>as much as tools can easily generate</em>.
+You want to focus on the ability to make non-breaking changes over handling breaking ones.
+You want to avoid the need for communication, not create incentives to increase it.</p>
+
+</div>
+
+<div id="related">
+  <h2>Related Posts</h2>
+  <ul class="posts">
+    
+      <li><span>29 Apr 2016</span> &raquo; <a href="/2016/04/benefits-of-hypermedia/">The Benefits of Hypermedia APIs</a></li>
+    
+      <li><span>22 Nov 2013</span> &raquo; <a href="/2013/11/why-field-injection-is-evil/">Why field injection is evil</a></li>
+    
+      <li><span>20 Sep 2013</span> &raquo; <a href="/2013/09/666-hell-not-found/">666 - Hell not found</a></li>
+    
+  </ul>
+</div>
+
+
+
+
+  <div id="disqus_thread"></div>
+<script type="text/javascript">
+    var disqus_developer = 1;
+    var disqus_shortname = 'olivergierke'; // required: replace example with your forum shortname
+    
+    /* * * DON'T EDIT BELOW THIS LINE * * */
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+
+
+
+
+
+
+    <div class="footer">
+      <div class="contact">
+        <p>
+          Oliver Gierke<br />
+          Soul Power!<br />
+        </p>
+      </div>
+      <div class="contact">
+        <p>
+          <a href="http://github.com/olivergierke/">github.com/olivergierke</a><br />
+          <a href="http://twitter.com/olivergierke/">twitter.com/olivergierke</a><br />
+          <a href='mailto:info@olivergierke.de'>info@olivergierke.de</a>
+        </p>
+      </div>
+      <div class="rss">
+        <a href="/atom.xml">
+          <img src="/assets/themes/tom/images/rss.png" alt="Subscribe to Atom Feed" />
+        </a>
+      </div>
+    </div>
+  </div>
+  <a href="http://github.com/olivergierke"><img style="position: absolute; top: 0; right: 0; border: 0;" src="http://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png" alt="Fork me on GitHub" /></a>
+
+  
+</body>
+</html>
+

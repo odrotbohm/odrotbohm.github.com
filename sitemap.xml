@@ -126,7 +126,7 @@
     </url>
     <url>
         <loc>http://www.olivergierke.de/2008/03/jurgen-holler-spring-25/</loc>
-        <lastmod>2016-04-29T13:32:03+02:00</lastmod>
+        <lastmod>2016-10-09T13:36:57+02:00</lastmod>
     </url>
     <url>
         <loc>http://www.olivergierke.de/2008/03/mike-wiesner-spring-security/</loc>
@@ -407,6 +407,10 @@
     <url>
         <loc>http://www.olivergierke.de/2016/04/benefits-of-hypermedia/</loc>
         <lastmod>2016-08-07T05:11:40+02:00</lastmod>
+    </url>
+    <url>
+        <loc>http://www.olivergierke.de/2016/10/evolving-distributed-systems/</loc>
+        <lastmod>2016-10-09T14:05:31+02:00</lastmod>
     </url>
     <url>
         <loc>http://www.olivergierke.de/about/</loc>
