@@ -4,7 +4,7 @@
  <title>Oliver Gierke</title>
  <link href="http://www.olivergierke.de/atom.xml" rel="self"/>
  <link href="http://www.olivergierke.de"/>
- <updated>2016-10-09T14:05:32+02:00</updated>
+ <updated>2016-10-11T09:11:00+02:00</updated>
  <id>http://www.olivergierke.de</id>
  <author>
    <name>Oliver Gierke</name>
@@ -26,8 +26,8 @@ As usual, 140 characters are quite a limitation for reasonable discussion I thou
 &lt;h2 id=&quot;where-do-we-come-from&quot;&gt;Where do we come from?&lt;/h2&gt;
 
 &lt;p&gt;Let’s get the elephant out of the room: everyone is talking about microservices these days.
-Just like so many others, I’ve never been a fan of the term as it implies a focus on &lt;em&gt;size&lt;/em&gt; and &lt;em&gt;small&lt;/em&gt;.
-While there are definitely &lt;a href=&quot;https://vimeo.com/148843366&quot;&gt;advantages to &lt;em&gt;smaller&lt;/em&gt;&lt;/a&gt; — but that in turn raises the question: “Smaller than what?”
+Just like so many others, I’ve never been a fan of the term, as it implies a focus on &lt;em&gt;size&lt;/em&gt; and &lt;em&gt;small&lt;/em&gt;.
+While there are definitely &lt;a href=&quot;https://vimeo.com/148843366&quot;&gt;advantages to smaller&lt;/a&gt; — but that raises the question: “Smaller than what?”
 We need to come up with a proper context.
 Assuming we’re about to ship the same amount of functionality, the smaller the systems, the more of them we usually have to deal with.
 That in turn creates new and most certainly &lt;em&gt;different&lt;/em&gt; challenges — both organizationally and from a systems architecture point of view.&lt;/p&gt;
@@ -45,13 +45,13 @@ It’s interesting to observe people assuming a system on the one side of the si
 &lt;p&gt;If a system is comprised of systems in turn, a crucial aspect of the overall architecture is if and how the individual systems communicate with each other.
 The approach I usually see here is that they expose APIs — usually HTTP &amp;amp; JSON (aka. street-REST) based — and a request they serve involves actively reaching out to other services in the system.&lt;/p&gt;
 
-&lt;p&gt;This approach has a couple of important effects: a user request to the overall system, causes quite a few internal requests, systems calling other systems, which — without any mitigating means — causes latency to pile up.
+&lt;p&gt;This approach has a couple of important effects: a user request to the overall system causes quite a few internal requests, systems calling other systems, which — without any mitigating means — causes latency to pile up.
 Also, a lot of API surface has to be created and maintained which usually causes the teams to slow down as changes have to be synchronized, API “versions” are created (which &lt;a href=&quot;https://www.infoq.com/news/2013/12/api-versioning&quot;&gt;creates effort&lt;/a&gt;).
 More on that below.&lt;/p&gt;
 
 &lt;p&gt;To mitigate the former, a quick technical answer is found: communication needs to be done asynchronously and in a reactive way.
 Even with that in places use of HTTP and REST in general is deemed inappropriate and especially non-performant, so that “more efficient”, usually more RPC-style communication protocols are recommended.
-There’s a certain irony in the latter, as most usage of HTTP I usually see, follows RPC mechanisms more than it does follow REST  constraints in the first place and it’s weird to see people hope to avoid getting the effects of RPC-style communication when they use HTTP RCP-style.&lt;/p&gt;
+There’s a certain irony in the latter, as most usage of HTTP I usually see, follows RPC mechanisms more than it does follow REST constraints in the first place and it’s weird to see people hope to avoid getting the effects of RPC-style communication when they use HTTP RCP-style.&lt;/p&gt;
 
 &lt;p&gt;&lt;a name=&quot;solving-the-right-problem&quot;&gt;&lt;/a&gt;&lt;/p&gt;
 
@@ -62,7 +62,7 @@ We wanted to build software around business teams and features, so that can ship
 This means, when defining our systems architecture, we need to enable the individual systems to evolve &lt;em&gt;independently&lt;/em&gt; of the others, too, right?&lt;/p&gt;
 
 &lt;p&gt;The first question we can raise here is, whether it is a good idea to let the systems communicate a lot, as communication means we need to agree on an API in the first place, which in turn creates coupling.
-The least coupling of systems is achieved amongst the ones that don’t speak to each other at all, which is basically boils down to the first law of distributed computing: don’t do it.&lt;/p&gt;
+The least coupling of systems is achieved amongst the ones that don’t speak to each other at all, which basically boils down to the first law of distributed computing: don’t do it.&lt;/p&gt;
 
 &lt;p&gt;Also note how the over-partitioning of the system described above results in the requirement of evolvability — the primary driver behind our architecture — getting intermingled with the aspect of efficiency.
 To a large degree, low coupling and efficiency are contradicting requirements in the first place.
@@ -74,14 +74,14 @@ This seems to indicate that we should try to avoid the separation in places wher
 
 &lt;p&gt;An interesting approach to the separation of a system into systems are &lt;a href=&quot;http://scs-architecture.org/&quot;&gt;Self-Contained Systems (SCS)&lt;/a&gt;.
 The fundamental idea of SCS is simple: you comprise a systems of web-applications per a &lt;a href=&quot;http://martinfowler.com/bliki/BoundedContext.html&quot;&gt;Domain-Driven Design Bounded Context&lt;/a&gt;, i.e. the primary separation aspect is business capabilities.
-Technical separation is a downstream concern (potentially into microservices)and can be used &lt;em&gt;within&lt;/em&gt; an SCS but it’s regarded an implementation detail.&lt;/p&gt;
+Technical separation is a downstream concern (potentially using even smaller microservices) and can be used &lt;em&gt;within&lt;/em&gt; an SCS but it’s regarded an implementation detail.&lt;/p&gt;
 
 &lt;p&gt;Here is the most crucial aspects of SCS within the current context of discussion:
-Self-Contained Systems strictly try to avoid inter-systems communication when serving user requests, which means they act on local (potentially replicated) data only and rather expose events potentially relevant to other parties, instead of notifying them explicitly.
+Self-Contained Systems strictly try to avoid inter-systems communication when serving user requests, which means they act on local (potentially replicated) data only and rather expose events potentially relevant to other parties instead of notifying them explicitly.
 Inter-systems communication can be implemented separately using messaging or the scheduled pulling of events from other systems.&lt;/p&gt;
 
 &lt;p&gt;What seems like a quite strict and limiting restriction in the first place has an important upside: it alone removes — or at least mitigates — a lot of the downstream problems that had to be handled in the unrestricted approach described above.
-Not having to deal with the accumulated latency and perceived poor performance of in-process calls, we can now concentrate on the aspect of our architecture that we considered most important in the first place: independent evolvability.&lt;/p&gt;
+Not having to deal with the accumulated latency and perceived poor performance of inter-process calls, we can now concentrate on the aspect of our architecture that we considered most important in the first place: independent evolvability.&lt;/p&gt;
 
 &lt;p&gt;&lt;a name=&quot;api-evolution&quot;&gt;&lt;/a&gt;&lt;/p&gt;
 
@@ -90,7 +90,7 @@ Not having to deal with the accumulated latency and perceived poor performance o
 &lt;p&gt;Let’s assume we have two systems (potentially SCS) that we decided need to talk to each other.
 When designing the inter-systems communication and deciding for a particular technology we again need to think about the fundamental goal of the separation in the first place: independent evolvability.&lt;/p&gt;
 
-&lt;p&gt;What does independent evolvability mean actually? Fundamentally, it means that we’re able to deploy a new version of one of the participants — don’t mix up “version” with “API version” here, I’ll get to that in a second — without breaking the other.
+&lt;p&gt;What does independent evolvability actually mean? Fundamentally, it means that we’re able to deploy a new version of one of the participants — don’t mix up “version” with “API version” here, I’ll get to that in a second — without breaking the other.
 That means, the ability to change either side of the communication without turning that into a breaking change is a key aspect in the design and choice of technology for such communication.&lt;/p&gt;
 
 &lt;p&gt;&lt;a name=&quot;rest&quot;&gt;&lt;/a&gt;&lt;/p&gt;
@@ -111,7 +111,7 @@ A system intending to be as long-lived as the Web must be prepared for change. �
 
 &lt;p&gt;That might raise the question why people complain about it being non-performant and inappropriate for distributed systems?
 A pretty obvious observations in most of the claims I see is that people use HTTP in a way that’s more RPC-like than it is REST.
-That usually includes ignoring key constraints, that are important to the architectural effects REST promises.&lt;/p&gt;
+That usually includes ignoring key constraints that are important to the architectural effects REST promises.&lt;/p&gt;
 
 &lt;p&gt;In software, an architectural style describes a set of constraints that — if followed — lead to certain traits of a system.
 It might be a REST-special thing, but people seem to assume they could get the benefits of it entirely but pick and choose only the constraints that are easy to implement.
