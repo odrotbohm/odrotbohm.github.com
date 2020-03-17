@@ -4,7 +4,7 @@
  <title>Oliver Drotbohm</title>
  <link href="http://www.olivergierke.de/atom.xml" rel="self"/>
  <link href="http://www.olivergierke.de"/>
- <updated>2020-03-17T17:52:00+01:00</updated>
+ <updated>2020-03-17T18:06:12+01:00</updated>
  <id>http://www.olivergierke.de</id>
  <author>
    <name>Oliver Drotbohm</name>
@@ -290,6 +290,24 @@ I’ve filed &lt;a href=&quot;https://github.com/raphw/byte-buddy/issues/820&quo
 A set of interfaces describing the building blocks as well as their relationships was suggested potentially shipped as a library.
 Improved JPA default mappings based on those building blocks were implemented using a ByteBuddy &lt;code&gt;Plugin&lt;/code&gt;.
 Additional Spring Data integration was suggested to make it easy to resolve associations between aggregates explicitly.&lt;/p&gt;
+
+&lt;p&gt;The library and sample code lives in this &lt;a href=&quot;https://github.com/odrotbohm/jddd&quot;&gt;GitHub repository&lt;/a&gt;.
+Binaries currently available from the &lt;a href=&quot;https://repo.spring.io/libs-snapshot/org/jddd&quot;&gt;Spring Artifactory repository&lt;/a&gt;:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-xml&quot; data-lang=&quot;xml&quot;&gt;&lt;span class=&quot;nt&quot;&gt;&amp;lt;repositories&amp;gt;&lt;/span&gt;
+  &lt;span class=&quot;nt&quot;&gt;&amp;lt;repository&amp;gt;&lt;/span&gt;
+    &lt;span class=&quot;nt&quot;&gt;&amp;lt;id&amp;gt;&lt;/span&gt;spring-libs-snapshot&lt;span class=&quot;nt&quot;&gt;&amp;lt;/id&amp;gt;&lt;/span&gt;
+    &lt;span class=&quot;nt&quot;&gt;&amp;lt;url&amp;gt;&lt;/span&gt;https://repo.spring.io/libs-snapshot&lt;span class=&quot;nt&quot;&gt;&amp;lt;/url&amp;gt;&lt;/span&gt;
+  &lt;span class=&quot;nt&quot;&gt;&amp;lt;/repository&amp;gt;&lt;/span&gt;
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;/repositories&amp;gt;&lt;/span&gt;
+
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;dependencies&amp;gt;&lt;/span&gt;
+  &lt;span class=&quot;nt&quot;&gt;&amp;lt;dependency&amp;gt;&lt;/span&gt;
+    &lt;span class=&quot;nt&quot;&gt;&amp;lt;groupId&amp;gt;&lt;/span&gt;org.jddd&lt;span class=&quot;nt&quot;&gt;&amp;lt;/groupId&amp;gt;&lt;/span&gt;
+    &lt;span class=&quot;nt&quot;&gt;&amp;lt;artifactId&amp;gt;&lt;/span&gt;jdd-core&lt;span class=&quot;nt&quot;&gt;&amp;lt;/artifactId&amp;gt;&lt;/span&gt;
+    &lt;span class=&quot;nt&quot;&gt;&amp;lt;version&amp;gt;&lt;/span&gt;0.0.1-SNAPSHOT&lt;span class=&quot;nt&quot;&gt;&amp;lt;/version&amp;gt;&lt;/span&gt; &lt;span class=&quot;c&quot;&gt;&amp;lt;!-- Replace with current version if needed --&amp;gt;&lt;/span&gt;
+  &lt;span class=&quot;nt&quot;&gt;&amp;lt;/dependency&amp;gt;&lt;/span&gt;
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;/dependencies&amp;gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 
 &lt;p&gt;Looking forward to your feedback, questions and comments!&lt;/p&gt;
 </content>

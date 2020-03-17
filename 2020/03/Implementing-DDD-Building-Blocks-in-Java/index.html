@@ -317,6 +317,24 @@ A set of interfaces describing the building blocks as well as their relationship
 Improved JPA default mappings based on those building blocks were implemented using a ByteBuddy <code>Plugin</code>.
 Additional Spring Data integration was suggested to make it easy to resolve associations between aggregates explicitly.</p>
 
+<p>The library and sample code lives in this <a href="https://github.com/odrotbohm/jddd">GitHub repository</a>.
+Binaries currently available from the <a href="https://repo.spring.io/libs-snapshot/org/jddd">Spring Artifactory repository</a>:</p>
+
+<figure class="highlight"><pre><code class="language-xml" data-lang="xml"><span class="nt">&lt;repositories&gt;</span>
+  <span class="nt">&lt;repository&gt;</span>
+    <span class="nt">&lt;id&gt;</span>spring-libs-snapshot<span class="nt">&lt;/id&gt;</span>
+    <span class="nt">&lt;url&gt;</span>https://repo.spring.io/libs-snapshot<span class="nt">&lt;/url&gt;</span>
+  <span class="nt">&lt;/repository&gt;</span>
+<span class="nt">&lt;/repositories&gt;</span>
+
+<span class="nt">&lt;dependencies&gt;</span>
+  <span class="nt">&lt;dependency&gt;</span>
+    <span class="nt">&lt;groupId&gt;</span>org.jddd<span class="nt">&lt;/groupId&gt;</span>
+    <span class="nt">&lt;artifactId&gt;</span>jdd-core<span class="nt">&lt;/artifactId&gt;</span>
+    <span class="nt">&lt;version&gt;</span>0.0.1-SNAPSHOT<span class="nt">&lt;/version&gt;</span> <span class="c">&lt;!-- Replace with current version if needed --&gt;</span>
+  <span class="nt">&lt;/dependency&gt;</span>
+<span class="nt">&lt;/dependencies&gt;</span></code></pre></figure>
+
 <p>Looking forward to your feedback, questions and comments!</p>
 
 </div>
