@@ -3,8 +3,8 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
 <head>
    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
-   <title>Oliver Gierke - Effective bug smashing with test cases</title>
-   <meta name="author" content="Oliver Gierke" />
+   <title>Oliver Drotbohm - Effective bug smashing with test cases</title>
+   <meta name="author" content="Oliver Drotbohm" />
    <meta name="google-site-verification" content="jK1GPyjzTp269nR-GMzfjkdcdR0Y-b3gHHWUIgebv8M" />
    <link href="/atom.xml" rel="alternate" title="Blog Atom Feed" type="application/atom+xml" />
 
@@ -14,7 +14,7 @@
    <!-- Homepage CSS -->
    <link rel="stylesheet" href="/assets/themes/tom/css/screen.css" type="text/css" media="screen, projection" />
 
-   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Fira+Sans:bold|Fira+Sans:light" type="text/css" />
+   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fira+Sans:wght@300;700&display=swap" type="text/css" />
 
    <!-- Typekit -->
    <script type="text/javascript" src="http://use.typekit.com/jpd0pfm.js"></script>
@@ -24,7 +24,7 @@
 
   <div class="site">
     <div class="title">
-      <a href="/">Oliver Gierke</a>
+      <a href="/">Oliver Drotbohm</a>
 
       <a class="extra" href="/archive">Archive</a>
       <a class="extra" href="/about">About</a>
@@ -35,7 +35,12 @@
 <div id="post">
   <h1>Effective bug smashing with test cases</h1>
   <p class="meta">
-    01 July 2008 
+    <!-- Whitespace added for readability -->
+    
+    July
+    1st,
+      
+    2008
     
   </p>
   <p>There are a lot of opinions buzzing around about how testing and test driven development helps you writing better software. Reading <a href="http://www.amazon.de/Secrets-Rockstar-Programmers-Riding-Crest/dp/0071490833/ref=sr_1_1?ie=UTF8&amp;s=books-intl-de&amp;qid=1214904407&amp;sr=8-1">Secrets of the rockstar programmers</a> just now, I’ve stumbled over an intresting interview with <a href="http://www.bileblog.org/about/">Hani Suleiman</a>, co-author of <a href="http://www.amazon.de/Next-Generation-Java-Testing-Advanced/dp/0321503104/ref=sr_1_1?ie=UTF8&amp;s=books-intl-de&amp;qid=1214904551&amp;sr=8-1">Next Generation Java Testing</a>. As this is a book purely on testing, you could expect him to be a fervent advocat of TDD. Surprisingly, he takes a very pragmatic approach to testing and simply states, that it should be as easy as possible to be done while understanding that deadlines often prevent you from equipping your polished code with the last 20 percent of test coverage.</p>
@@ -43,9 +48,9 @@
 <p>Nevertheless, the quote, that pinged my mind, was this one:</p>
 
 <blockquote>
-  <p>The user said, “This thing doesn’t work.” You’re gonna test something that potentially doesn’t work. And so, once you have that test, it’s very easy, because you have that verifiable bug.
-&lt;p style="text-align: right;"&gt;(Hani Suleiman on testing and bugs)&lt;/p&gt;</p>
+  <p>The user said, “This thing doesn’t work.” You’re gonna test something that potentially doesn’t work. And so, once you have that test, it’s very easy, because you have that verifiable bug.</p>
 </blockquote>
+<p style="text-align: right;">(Hani Suleiman on testing and bugs)</p>
 
 <p>Let me elaborate on that a little bit. Hani’s observations largely correspond to the way I usually get started swinging my swat. So suppose you have system in state A in your version control system and a bug report claiming that there is something wrong in this state. Starting to find the cause for the bug you typically accept the ticket, indicating that you are currently working on it. Assume you can reproduce the issue with a test case you fix the according code snippets, make sure you get that green bar and commit everything to the VCS again. Finally you mark the ticket as fixed and add “fixed with revision XYZ” as comment to guarantee tracability, that’s it.</p>
 
@@ -54,7 +59,7 @@
 <p>Comparing the original state of the VCS (revision XYZ - 1) and the fixed state of the VCS (revision XYZ) you only see one more test case and some modified. Who really tells you that the test case did not work before? As you have committed the already working test case along with the changes, you don’t have a possibility to check, whether the test case is really tight enough to reproduce the problem correctly. So wouldn’t it be better to add the following step to the bug fixing heuristic described above:</p>
 
 <ul>
-  <li>After you have completed the test case reproducing the issue you check that one in into the VCS (although this is not buildable, due to the failing testcase!)	</li>
+  <li>After you have completed the test case reproducing the issue you check that one in into the VCS (although this is not buildable, due to the failing testcase!)</li>
   <li>You add a comment to the ticket that the current revision lets you reproduce the bug</li>
   <li>Continue, like described above</li>
 </ul>
@@ -69,11 +74,11 @@
   <h2>Related Posts</h2>
   <ul class="posts">
     
+      <li><span>17 Mar 2020</span> &raquo; <a href="/2020/03/Implementing-DDD-Building-Blocks-in-Java/">Implementing DDD Building Blocks in Java</a></li>
+    
       <li><span>09 Oct 2016</span> &raquo; <a href="/2016/10/evolving-distributed-systems/">Evolving Distributed Systems</a></li>
     
       <li><span>29 Apr 2016</span> &raquo; <a href="/2016/04/benefits-of-hypermedia/">The Benefits of Hypermedia APIs</a></li>
-    
-      <li><span>22 Nov 2013</span> &raquo; <a href="/2013/11/why-field-injection-is-evil/">Why field injection is evil</a></li>
     
   </ul>
 </div>
@@ -104,14 +109,14 @@
     <div class="footer">
       <div class="contact">
         <p>
-          Oliver Gierke<br />
+          Oliver Drotbohm<br />
           Soul Power!<br />
         </p>
       </div>
       <div class="contact">
         <p>
-          <a href="http://github.com/olivergierke/">github.com/olivergierke</a><br />
-          <a href="http://twitter.com/olivergierke/">twitter.com/olivergierke</a><br />
+          <a href="http://github.com/odrotbohm/">github.com/odrotbohm</a><br />
+          <a href="http://twitter.com/odrotbohm/">twitter.com/odrotbohm</a><br />
           <a href='mailto:info@olivergierke.de'>info@olivergierke.de</a>
         </p>
       </div>
@@ -122,7 +127,7 @@
       </div>
     </div>
   </div>
-  <a href="http://github.com/olivergierke"><img style="position: absolute; top: 0; right: 0; border: 0;" src="http://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png" alt="Fork me on GitHub" /></a>
+  <a href="http://github.com/odrotbohm"><img style="position: absolute; top: 0; right: 0; border: 0;" src="http://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png" alt="Fork me on GitHub" /></a>
 
   
 </body>

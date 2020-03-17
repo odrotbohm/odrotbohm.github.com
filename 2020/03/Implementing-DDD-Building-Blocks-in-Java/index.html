@@ -1,0 +1,386 @@
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+   <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+   <title>Oliver Drotbohm - Implementing DDD Building Blocks in Java</title>
+   <meta name="author" content="Oliver Drotbohm" />
+   <meta name="google-site-verification" content="jK1GPyjzTp269nR-GMzfjkdcdR0Y-b3gHHWUIgebv8M" />
+   <link href="/atom.xml" rel="alternate" title="Blog Atom Feed" type="application/atom+xml" />
+
+   <!-- syntax highlighting CSS -->
+   <link rel="stylesheet" href="/assets/themes/tom/css/syntax.css" type="text/css" />
+
+   <!-- Homepage CSS -->
+   <link rel="stylesheet" href="/assets/themes/tom/css/screen.css" type="text/css" media="screen, projection" />
+
+   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fira+Sans:wght@300;700&display=swap" type="text/css" />
+
+   <!-- Typekit -->
+   <script type="text/javascript" src="http://use.typekit.com/jpd0pfm.js"></script>
+   <script type="text/javascript">try{Typekit.load();}catch(e){}</script>
+</head>
+<body>
+
+  <div class="site">
+    <div class="title">
+      <a href="/">Oliver Drotbohm</a>
+
+      <a class="extra" href="/archive">Archive</a>
+      <a class="extra" href="/about">About</a>
+      <a class="extra" href="/tags">Tags</a>
+    </div>
+
+    
+<div id="post">
+  <h1>Implementing DDD Building Blocks in Java</h1>
+  <p class="meta">
+    <!-- Whitespace added for readability -->
+    
+    March
+    17th,
+    
+    2020
+    
+  </p>
+  
+<p>When it comes to implementing building blocks of DDD, developers often struggle to find a good balance between conceptual purity and technical pragmatism.
+In this article I’m going to discuss an experimental idea to express some of tactical design concepts of DDD in Java code and derive the metadata to e.g. implement persistence without polluting the domain model with annotations on the one hand and an additional mapping layer on the other.</p>
+
+<h2 id="context">Context</h2>
+
+<p>In Java applications the building blocks of Domain-Driven Design can be implemented in a variety of ways.
+Those ways usually make different trade-offs in decoupling the actual domain model from technology specific aspects.
+A lot of Java projects err on the side of still annotating their model classes with e.g. JPA annotations for easy persistence that not requires maintaining a separate persistence model.
+Whether that’s a good idea is out of scope for this article.
+The primary focus of it is to see how we make the model more focused on DDD even in that case.</p>
+
+<p>Another aspect we’re going to touch on is how to make DDD building blocks visible within the code.
+Often a lot of them can be indirectly identified, e.g. by analyzing that the domain type managed by a Spring Data repository having to be an aggregate by definition.
+However, in that particular case we’re relying on a particular persistence technology to be in use to derive exactly that information.
+Also, it would be nice if we could reason about the role of a type by looking at it without any other context.</p>
+
+<p><a name="sample"></a></p>
+<h2 id="sample">Sample</h2>
+
+<p>Let’s start with a quick example that allows us to highlight the challenges.
+Note, that the model is not the only way you could design it.
+I am just describing what could be the result of a design in a particular context.
+It’s about how an aggregate, entity or value object can be represented in code and the effect of one particular way of doing that.
+We model <code>Customer</code>s that consist of <code>Address</code>es, <code>Order</code>s that consist of <code>LineItem</code>s which in turn point to <code>Product</code>s and point to the <code>Customer</code> that placed the order.
+Both <code>Customer</code> and <code>Order</code> are aggregates conceptually.</p>
+
+<p><strong>A sample excerpt domain model</strong></p>
+
+<p style="text-align: center;"><img src="/assets/images/sample.svg" alt="Sample UML" /></p>
+
+<p>Let’s start with the <code>Order</code>’s relationship to the <code>Customer</code>
+aggregate. A very naive representation in code that uses JPA annotations
+directly would probably look something like this:</p>
+
+<figure class="highlight"><pre><code class="language-java" data-lang="java"><span class="nd">@Entity</span>
+<span class="kd">class</span> <span class="nc">Order</span> <span class="o">{</span>
+  <span class="nd">@EmbeddedId</span> <span class="nc">OrderId</span> <span class="n">id</span><span class="o">;</span>
+  <span class="nd">@ManyToOne</span> <span class="nc">Customer</span> <span class="n">customer</span><span class="o">;</span>
+  <span class="nd">@OneToMany</span> <span class="nc">List</span><span class="o">&lt;</span><span class="nc">LineItem</span><span class="o">&gt;</span> <span class="n">items</span><span class="o">;</span>
+<span class="o">}</span>
+
+<span class="nd">@Entity</span>
+<span class="kd">class</span> <span class="nc">LineItem</span> <span class="o">{</span>
+  <span class="nd">@ManyToOne</span> <span class="nc">Product</span> <span class="n">product</span><span class="o">.</span>
+<span class="o">}</span>
+
+<span class="nd">@Entity</span>
+<span class="kd">class</span> <span class="nc">Customer</span> <span class="o">{</span>
+  <span class="nd">@EmbeddedId</span> <span class="nc">CustomerId</span> <span class="n">id</span><span class="o">;</span>
+<span class="o">}</span></code></pre></figure>
+
+<p>While this constitutes working code, a lot of the semantics of the model remain implicit.
+In JPA, the most coarse grained concept is an entity.
+It doesn’t know about aggregates.
+It will also automatically use eager loading for to-one relationships.
+For a cross aggregate relationship that is not what we want.</p>
+
+<p>A technology focused reaction would be to switch to lazy loading.
+That however creates a new problems, we’re on a start to dig down a rabbit hole and actually have moved away from domain modeling to modeling technology, something we wanted to avoid in the first place.
+We also might want to resort to rather only map identifiers instead of aggregate types, e.g. replacing <code>Customer</code> with <code>CustomerId</code> in <code>Order</code>.
+While that solves the cascading problem, it’s now even less clear that this property effectively establishes a cross aggregate relationship.</p>
+
+<p>For the <code>LineItem</code>s referenced, a proper default mapping would rather be eager loading (instead of lazy) and cascading all operations as the aggregate usually governs the life cycle of its internals.</p>
+
+<p><a name="idea"></a></p>
+<h2 id="the-idea">The idea</h2>
+
+<p>To improve the situation described above, we could start introducing types that allow us to explicitly assign roles to model artifacts and constrain the composition of them by using generics.
+Let’s start with those (most of them originally described in John Sullivan’s <a href="http://scabl.blogspot.com/2015/04/aeddd-9.html">Advancing Enterprise DDD - Reinstating the Aggregate</a> but slightly renamed alongside the attempt to turn this into a library).</p>
+
+<figure class="highlight"><pre><code class="language-java" data-lang="java"><span class="kd">interface</span> <span class="nc">Identifier</span> <span class="o">{}</span>
+
+<span class="kd">interface</span> <span class="nc">Identifiable</span><span class="o">&lt;</span><span class="no">ID</span> <span class="kd">extends</span> <span class="nc">Identifier</span><span class="o">&gt;</span> <span class="o">{</span>
+  <span class="no">ID</span> <span class="nf">getId</span><span class="o">();</span>
+<span class="o">}</span>
+
+<span class="kd">interface</span> <span class="nc">Entity</span><span class="o">&lt;</span><span class="no">T</span> <span class="kd">extends</span> <span class="nc">AggregateRoot</span><span class="o">&lt;</span><span class="no">T</span><span class="o">,</span> <span class="o">?&gt;,</span> <span class="no">ID</span> <span class="kd">extends</span> <span class="nc">Identifier</span><span class="o">&gt;</span>
+  <span class="kd">extends</span> <span class="nc">Identifiable</span><span class="o">&lt;</span><span class="no">ID</span><span class="o">&gt;</span> <span class="o">{}</span>
+
+<span class="kd">interface</span> <span class="nc">AggregateRoot</span><span class="o">&lt;</span><span class="no">T</span> <span class="kd">extends</span> <span class="nc">AggregateRoot</span><span class="o">&lt;</span><span class="no">T</span><span class="o">,</span> <span class="no">ID</span><span class="o">&gt;,</span> <span class="no">ID</span> <span class="kd">extends</span> <span class="nc">Identifier</span><span class="o">&gt;</span>
+  <span class="kd">extends</span> <span class="nc">Entity</span><span class="o">&lt;</span><span class="no">T</span><span class="o">,</span> <span class="no">ID</span><span class="o">&gt;</span> <span class="o">{}</span>
+
+<span class="kd">interface</span> <span class="nc">Association</span><span class="o">&lt;</span><span class="no">T</span> <span class="kd">extends</span> <span class="nc">AggregateRoot</span><span class="o">&lt;</span><span class="no">T</span><span class="o">,</span> <span class="no">ID</span><span class="o">&gt;,</span> <span class="no">ID</span> <span class="kd">extends</span> <span class="nc">Identifier</span><span class="o">&gt;</span>
+  <span class="kd">extends</span> <span class="nc">Identifiable</span><span class="o">&lt;</span><span class="no">ID</span><span class="o">&gt;</span> <span class="o">{}</span></code></pre></figure>
+
+<p><code>Identifier</code> is just a marker interface to equip identifier types with. That encourages dedicated types to describe identifiers.
+Primary intent of that is to avoid every entity to be identified by a common type (such as <code>Long</code> or <code>UUID</code>).
+While that might seem like a good idea from a persistence point of view it’s easy to mix up a <code>Customer</code>’s identifier with an <code>Order</code>’s one.
+Explicit identifier types avoid that problem.</p>
+
+<p>A DDD <code>Entity</code> is an identifiable concept which means it needs to expose its identifier. It is also bound to an <code>AggregateRoot</code>.
+That might seem counter intuitive at first but it allows to verify that an <code>Entity</code> such as <code>LineItem</code> is not accidentally referred to from a different aggregate.
+Using those interfaces we can set up static code analysis tooling to verify our model structure.</p>
+
+<p><code>Association</code> is basically an indirection towards a related aggregate’s identifier that purely serves expressiveness within the model.</p>
+
+<p>These interfaces and all subsequently mentioned code are available through a library called <em>jDDD</em>, living in <a href="https://github.com/odrotbohm/jddd">this GitHub repository</a>.</p>
+
+<p><a name="explicit-building-blocks"></a></p>
+<h3 id="explicit-building-blocks-in-our-sample">Explicit building blocks in our sample</h3>
+
+<p>What would our model look like with these concepts applied (JPA annotations not declared for clarity, code to be found <a href="https://github.com/odrotbohm/jddd/tree/master/jddd-examples/jddd-spring-data-jpa">here</a>)?</p>
+
+<figure class="highlight"><pre><code class="language-java" data-lang="java"><span class="kd">class</span> <span class="nc">OrderId</span> <span class="kd">implements</span> <span class="nc">Identifier</span> <span class="o">{}</span> <span class="c1">// same for other ID types</span>
+
+<span class="kd">class</span> <span class="nc">Order</span> <span class="kd">implements</span> <span class="nc">AggregateRoot</span><span class="o">&lt;</span><span class="nc">Order</span><span class="o">,</span> <span class="nc">OrderId</span><span class="o">&gt;</span> <span class="o">{</span>
+  <span class="nc">OrderId</span> <span class="n">id</span><span class="o">;</span>
+  <span class="nc">CustomerAssociation</span> <span class="n">customer</span><span class="o">;</span>
+  <span class="nc">List</span><span class="o">&lt;</span><span class="nc">LineItem</span><span class="o">&gt;</span> <span class="n">items</span><span class="o">;</span>
+<span class="o">}</span>
+
+<span class="kd">class</span> <span class="nc">LineItem</span> <span class="kd">implements</span> <span class="nc">Entity</span><span class="o">&lt;</span><span class="nc">Order</span><span class="o">,</span> <span class="nc">LineItemId</span><span class="o">&gt;</span> <span class="o">{</span> <span class="err">…</span> <span class="o">}</span>
+
+<span class="kd">class</span> <span class="nc">CustomerAssociation</span> <span class="kd">implements</span> <span class="nc">Association</span><span class="o">&lt;</span><span class="nc">Customer</span><span class="o">,</span> <span class="nc">CustomerId</span><span class="o">&gt;</span> <span class="o">{</span> <span class="err">…</span> <span class="o">}</span>
+
+<span class="kd">class</span> <span class="nc">Customer</span> <span class="kd">implements</span> <span class="nc">AggregateRoot</span><span class="o">&lt;</span><span class="nc">Customer</span><span class="o">,</span> <span class="nc">CustomerId</span><span class="o">&gt;</span> <span class="o">{</span> <span class="err">…</span> <span class="o">}</span></code></pre></figure>
+
+<p>With that we can extract a lot of additional information from looking at
+the types and the fields alone:</p>
+
+<ul>
+  <li>The identifier type for <code>Order</code> is <code>OrderId</code>, something we could’ve derived before but only involving JPA annotation interpretation.</li>
+  <li><code>LineItem</code> is an entity belonging to the <code>Order</code> aggregate.</li>
+  <li>The <code>customer</code> property clearly indicates it’s represents an association towards the <code>Customer</code> aggregate.</li>
+</ul>
+
+<p>It’s a pretty straight forward task to implement a verification of e.g. entities only being held in their owning aggregates using tools like <a href="https://jqassistant.org/">jQAssistant</a> or <a href="https://www.archunit.org/">ArchUnit</a>.
+Also the information can be extracted, used for documentation etc.</p>
+
+<p><a name="persistence-technology"></a></p>
+<h3 id="adapting-fundamental-persistence-technology">Adapting fundamental persistence technology</h3>
+
+<p>While all of this is nice, we still face the challenge of having to map this to a data store eventually, in this case assuming JPA.
+As identified before there are some default mapping rules we’d need to apply that result in boilerplate annotating of the model.
+Some examples of such steps:</p>
+
+<ul>
+  <li>All entities will need to be annotated with <code>@javax.persistence.Entity</code>.</li>
+  <li>Identifier types will need to become <code>@Embeddable</code>, the identifier (read: an entity’s property with a type assignable to <code>Identifier</code>) mapped as <code>@EmbeddedId</code>.
+In e.g. Hibernate embedded identifiers also need to implement <code>Serializable</code> (for potential usability in a second-level cache).</li>
+  <li><code>Entity</code> properties within an aggregate could get relationship mappings defaulted to</li>
+  <li>Implementations of <code>Association</code> will have to be embeddables as well.</li>
+</ul>
+
+<p>How do we actually massage these defaults into the types from the outside? I have a <a href="https://github.com/odrotbohm/jddd/tree/master/jddd-jpa">prototypical implementation based on ByteBuddy</a> available. It ships a <a href="https://github.com/odrotbohm/jddd/blob/1ca9d08a23b17454c4b2c5b3e09ab3cfcb1e907b/jddd-jpa/src/main/java/org/jddd/jpa/JDddJpaPlugin.java"><code>JpaPlugin</code></a> implementing ByteBuddy’s <code>Plugin</code> interface for usage from its build plugins like this:</p>
+
+<p><em>Using the ByteBuddy JPA plugin to default JPA annotations based on DDD
+concepts.</em></p>
+
+<figure class="highlight"><pre><code class="language-xml" data-lang="xml"><span class="nt">&lt;plugin&gt;</span>
+  <span class="nt">&lt;groupId&gt;</span>net.bytebuddy<span class="nt">&lt;/groupId&gt;</span>
+  <span class="nt">&lt;artifactId&gt;</span>byte-buddy-maven-plugin<span class="nt">&lt;/artifactId&gt;</span>
+  <span class="nt">&lt;version&gt;</span>${bytebuddy.version}<span class="nt">&lt;/version&gt;</span>
+  <span class="nt">&lt;executions&gt;</span>
+    <span class="nt">&lt;execution&gt;</span>
+      <span class="nt">&lt;goals&gt;</span>
+        <span class="nt">&lt;goal&gt;</span>transform<span class="nt">&lt;/goal&gt;</span>
+      <span class="nt">&lt;/goals&gt;</span>
+    <span class="nt">&lt;/execution&gt;</span>
+  <span class="nt">&lt;/executions&gt;</span>
+  <span class="nt">&lt;configuration&gt;</span>
+    <span class="nt">&lt;transformations&gt;</span>
+      <span class="nt">&lt;transformation&gt;</span>
+        <span class="nt">&lt;plugin&gt;</span>….JDddJpaPlugin<span class="nt">&lt;/plugin&gt;</span>
+      <span class="nt">&lt;/transformation&gt;</span>
+    <span class="nt">&lt;/transformations&gt;</span>
+  <span class="nt">&lt;/configuration&gt;</span>
+<span class="nt">&lt;/plugin&gt;</span></code></pre></figure>
+
+<p>The plugin would essentially work as follows:</p>
+
+<ol>
+  <li>Identify the DDD concept by checking whether the type handed to the <code>Plugin</code> implements any of the interfaces of interest.</li>
+  <li>For each concept inspect type and fields for existing annotations and — if not present — add the default appropriate for the relationship at hand.</li>
+</ol>
+
+<p><a name="spring-data"></a></p>
+<h3 id="integration-with-spring-data">Integration with Spring Data</h3>
+
+<p>A final step we can take in terms of letting persistence technology adapt to the information available in the type system is the question how to resolve <code>Associations</code> easily.
+Our aforementioned sample contains these interfaces which at some point could actually make it int Spring Data:</p>
+
+<figure class="highlight"><pre><code class="language-java" data-lang="java"><span class="kd">interface</span> <span class="nc">AggregateLookup</span><span class="o">&lt;</span><span class="no">T</span> <span class="kd">extends</span> <span class="nc">AggregateRoot</span><span class="o">&lt;</span><span class="no">T</span><span class="o">,</span> <span class="no">ID</span><span class="o">&gt;,</span> <span class="no">ID</span> <span class="kd">extends</span> <span class="nc">Identifier</span><span class="o">&gt;</span> <span class="o">{</span>
+  <span class="nc">Optional</span><span class="o">&lt;</span><span class="no">T</span><span class="o">&gt;</span> <span class="nf">findById</span><span class="o">(</span><span class="no">ID</span> <span class="n">id</span><span class="o">);</span>
+<span class="o">}</span>
+
+<span class="kd">interface</span> <span class="nc">AssociationResolver</span><span class="o">&lt;</span><span class="no">T</span> <span class="kd">extends</span> <span class="nc">AggregateRoot</span><span class="o">&lt;</span><span class="no">T</span><span class="o">,</span> <span class="no">ID</span><span class="o">&gt;,</span> <span class="no">ID</span> <span class="kd">extends</span> <span class="nc">Identifier</span><span class="o">&gt;</span>
+  <span class="kd">extends</span> <span class="nc">AggregateLookup</span><span class="o">&lt;</span><span class="no">T</span><span class="o">,</span> <span class="no">ID</span><span class="o">&gt;</span> <span class="o">{</span>
+
+  <span class="k">default</span> <span class="nc">Optional</span><span class="o">&lt;</span><span class="no">T</span><span class="o">&gt;</span> <span class="nf">resolve</span><span class="o">(</span><span class="nc">Association</span><span class="o">&lt;</span><span class="no">T</span><span class="o">,</span> <span class="no">ID</span><span class="o">&gt;</span> <span class="n">association</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">return</span> <span class="nf">findById</span><span class="o">(</span><span class="n">association</span><span class="o">.</span><span class="na">getId</span><span class="o">());</span>
+  <span class="o">}</span>
+
+  <span class="k">default</span> <span class="no">T</span> <span class="nf">resolveRequired</span><span class="o">(</span><span class="nc">Association</span><span class="o">&lt;</span><span class="no">T</span><span class="o">,</span> <span class="no">ID</span><span class="o">&gt;</span> <span class="n">association</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">return</span> <span class="nf">resolve</span><span class="o">(</span><span class="n">association</span><span class="o">).</span><span class="na">orElseThrow</span><span class="o">(</span>
+      <span class="o">()</span> <span class="o">-&gt;</span> <span class="k">new</span> <span class="nc">IllegalArgumentException</span><span class="o">(</span>
+        <span class="nc">String</span><span class="o">.</span><span class="na">format</span><span class="o">(</span><span class="s">"Could not resolve association %s!"</span><span class="o">,</span> <span class="n">association</span><span class="o">)));</span>
+  <span class="o">}</span>
+<span class="o">}</span></code></pre></figure>
+
+<p><code>AggregateLookup.findById(…)</code> is essentially equivalent to <code>CrudRepository.findById(…)</code> which is not a coincidence.
+<code>AssociationResolver</code> exposes methods that resolve the <code>Association</code> via the <code>findById(…)</code> method using the association’s exposed identifier.
+This allows a <code>CustomerRepository</code> to look like this and work out of the box without any further changes.</p>
+
+<figure class="highlight"><pre><code class="language-java" data-lang="java"><span class="kd">interface</span> <span class="nc">Customers</span> <span class="kd">extends</span>
+  <span class="n">o</span><span class="o">.</span><span class="na">s</span><span class="o">.</span><span class="na">d</span><span class="o">.</span><span class="na">r</span><span class="o">.</span><span class="na">Repository</span><span class="o">&lt;</span><span class="nc">Customer</span><span class="o">,</span> <span class="nc">CustomerId</span><span class="o">&gt;,</span>
+  <span class="nc">AssociationResolver</span><span class="o">&lt;</span><span class="nc">Customer</span><span class="o">,</span> <span class="nc">CustomerId</span><span class="o">&gt;</span> <span class="o">{</span> <span class="err">…</span> <span class="o">}</span>
+
+<span class="nc">Order</span> <span class="n">order</span> <span class="o">=</span> <span class="err">…</span> <span class="c1">// obtain order</span>
+<span class="nc">Customers</span> <span class="n">customers</span> <span class="o">=</span> <span class="err">…</span> <span class="c1">// obtain repository</span>
+
+<span class="nc">Optional</span><span class="o">&lt;</span><span class="nc">Customer</span><span class="o">&gt;</span> <span class="n">customer</span> <span class="o">=</span> <span class="n">customers</span><span class="o">.</span><span class="na">resolve</span><span class="o">(</span><span class="n">order</span><span class="o">.</span><span class="na">getCustomer</span><span class="o">());</span></code></pre></figure>
+
+<p>Note, how <code>Customers</code> is a standard Spring Data repository and we can easily, explicitly resolve associations to other aggregates via their repositories.</p>
+
+<p><a name="open-questions"></a></p>
+<h3 id="open-questions-and-outlook">Open questions and outlook</h3>
+
+<p><strong>Would the interfaces something you’d be willing to let your domain code depend on?</strong> – I know this is an extremely controversial topic.
+There’s a group of people that doesn’t bother at all and that would’ve happily depended on such interfaces if they were part of e.g. Spring Data.
+Others are rightfully concerned about keeping their domain model as independent of technology aspects as possible.
+However, there is a middle ground.
+If you think about it: implementing your domain model in a programming language is technical coupling as well.
+Using date abstractions in your model is, using e.g. the money APIs is.
+I think that one can argue that it’s okay to depend on some technology if the library depended on is <em>focussed</em> and the effort to remove it is small.
+What we have here is a set of interfaces that allows us to make DDD concepts explicit that previously had been implicit.
+That’s just in line with the spirit of DDD in the first place.</p>
+
+<p><strong>Is requiring <code>Identifier</code> to restrictive?</strong> — The generics bounds to <code>ID extends Identifier</code> eliminate the possibility to use simple types (<code>Long</code>, <code>UUID</code>) as identifiers.
+While this is intentional to some degree it might also be considered too invasive.</p>
+
+<p><strong>Is the persistence setup too confusing?</strong> — while the concept specific defaulting is nice, it also might create some confusion, especially to developers that are used to seeing JPA annotations.
+“How is this working at all?” is a question likely to come up easily.
+What do the new defaults look like?</p>
+
+<p><strong>Further persistence technology integration</strong> — It might make sense for other persistence integrations to also provide mapping defaults based on rules applicable to DDD building blocks.
+This could mean both other ByteBuddy plugins but also the optional inspection of the building block interfaces to reason about the model.</p>
+
+<p><strong>Build integration</strong> — While integrating the defaulting via ByteBuddy works well, it feels bit awkward to see nothing happen if everything goes well, which might just be something to get used to.
+Errors result in failing builds on the command line, which is fine.
+The integration with Eclipse however has some issues: first, the ByteBuddy Maven plugin is currently not running by default because apparently it’s lacking the metadata necessary for m2e to know what to do.
+You can get this to work by tweaking the m2e lifecycle mappings file adding the following configuration block:</p>
+
+<p><em>Declaring the ByteBuddy Maven plugin</em></p>
+
+<figure class="highlight"><pre><code class="language-xml" data-lang="xml"><span class="nt">&lt;pluginExecution&gt;</span>
+  <span class="nt">&lt;pluginExecutionFilter&gt;</span>
+    <span class="nt">&lt;groupId&gt;</span>net.bytebuddy<span class="nt">&lt;/groupId&gt;</span>
+    <span class="nt">&lt;artifactId&gt;</span>byte-buddy-maven-plugin<span class="nt">&lt;/artifactId&gt;</span>
+    <span class="nt">&lt;versionRange&gt;</span>[0.0.1,)<span class="nt">&lt;/versionRange&gt;</span>
+    <span class="nt">&lt;goals&gt;</span>
+      <span class="nt">&lt;goal&gt;</span>transform<span class="nt">&lt;/goal&gt;</span>
+    <span class="nt">&lt;/goals&gt;</span>
+  <span class="nt">&lt;/pluginExecutionFilter&gt;</span>
+  <span class="nt">&lt;action&gt;</span>
+    <span class="nt">&lt;execute&gt;</span>
+      <span class="nt">&lt;runOnIncremental&gt;</span>true<span class="nt">&lt;/runOnIncremental&gt;</span>
+    <span class="nt">&lt;/execute&gt;</span>
+  <span class="nt">&lt;/action&gt;</span>
+<span class="nt">&lt;/pluginExecution&gt;</span></code></pre></figure>
+
+<p>That said, errors in the plugin execution are signaled via a marker on the <code>pom.xml</code> and the <code>&lt;execution /&gt;</code> element of the plugin declaration.
+The hover then contains the stack trace of the exception produced by the plugin. While this is fine, it’s not very convenient.
+I’ve filed <a href="https://github.com/raphw/byte-buddy/issues/820">a ticket</a> to ask for improvement.</p>
+
+<p><a name="summary"></a></p>
+<h2 id="summarytldr">Summary — tl;dr</h2>
+
+<p>The article described common problems expressing DDD building blocks while designing domain models and directly mapping them onto persistence technology like JPA.
+A set of interfaces describing the building blocks as well as their relationships was suggested potentially shipped as a library.
+Improved JPA default mappings based on those building blocks were implemented using a ByteBuddy <code>Plugin</code>.
+Additional Spring Data integration was suggested to make it easy to resolve associations between aggregates explicitly.</p>
+
+<p>Looking forward to your feedback, questions and comments!</p>
+
+</div>
+
+<div id="related">
+  <h2>Related Posts</h2>
+  <ul class="posts">
+    
+      <li><span>09 Oct 2016</span> &raquo; <a href="/2016/10/evolving-distributed-systems/">Evolving Distributed Systems</a></li>
+    
+      <li><span>29 Apr 2016</span> &raquo; <a href="/2016/04/benefits-of-hypermedia/">The Benefits of Hypermedia APIs</a></li>
+    
+      <li><span>22 Nov 2013</span> &raquo; <a href="/2013/11/why-field-injection-is-evil/">Why field injection is evil</a></li>
+    
+  </ul>
+</div>
+
+
+
+
+  <div id="disqus_thread"></div>
+<script type="text/javascript">
+    var disqus_developer = 1;
+    var disqus_shortname = 'olivergierke'; // required: replace example with your forum shortname
+    
+    /* * * DON'T EDIT BELOW THIS LINE * * */
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+
+
+
+
+
+
+    <div class="footer">
+      <div class="contact">
+        <p>
+          Oliver Drotbohm<br />
+          Soul Power!<br />
+        </p>
+      </div>
+      <div class="contact">
+        <p>
+          <a href="http://github.com/odrotbohm/">github.com/odrotbohm</a><br />
+          <a href="http://twitter.com/odrotbohm/">twitter.com/odrotbohm</a><br />
+          <a href='mailto:info@olivergierke.de'>info@olivergierke.de</a>
+        </p>
+      </div>
+      <div class="rss">
+        <a href="/atom.xml">
+          <img src="/assets/themes/tom/images/rss.png" alt="Subscribe to Atom Feed" />
+        </a>
+      </div>
+    </div>
+  </div>
+  <a href="http://github.com/odrotbohm"><img style="position: absolute; top: 0; right: 0; border: 0;" src="http://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png" alt="Fork me on GitHub" /></a>
+
+  
+</body>
+</html>
+

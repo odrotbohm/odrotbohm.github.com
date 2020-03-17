@@ -6,7 +6,9 @@ http://www.olivergierke.de/
 http://www.olivergierke.de/pages/
 http://www.olivergierke.de/sitemap.txt
 http://www.olivergierke.de/tags/
+http://www.olivergierke.de/robots.txt
 
+http://www.olivergierke.de/2020/03/Implementing-DDD-Building-Blocks-in-Java/
 http://www.olivergierke.de/2016/10/evolving-distributed-systems/
 http://www.olivergierke.de/2016/04/benefits-of-hypermedia/
 http://www.olivergierke.de/2013/11/why-field-injection-is-evil/

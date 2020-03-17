@@ -1,16 +1,299 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
  
- <title>Oliver Gierke</title>
+ <title>Oliver Drotbohm</title>
  <link href="http://www.olivergierke.de/atom.xml" rel="self"/>
  <link href="http://www.olivergierke.de"/>
- <updated>2016-10-11T12:19:45+02:00</updated>
+ <updated>2020-03-17T17:52:00+01:00</updated>
  <id>http://www.olivergierke.de</id>
  <author>
-   <name>Oliver Gierke</name>
+   <name>Oliver Drotbohm</name>
    <email>info@olivergierke.de</email>
  </author>
 
+ 
+ <entry>
+   <title>Implementing DDD Building Blocks in Java</title>
+   <link href="http://www.olivergierke.de/2020/03/Implementing-DDD-Building-Blocks-in-Java/"/>
+   <updated>2020-03-17T16:25:00+01:00</updated>
+   <id>http://www.olivergierke.de/2020/03/Implementing-DDD-Building-Blocks-in-Java</id>
+   <content type="html">
+&lt;p&gt;When it comes to implementing building blocks of DDD, developers often struggle to find a good balance between conceptual purity and technical pragmatism.
+In this article I’m going to discuss an experimental idea to express some of tactical design concepts of DDD in Java code and derive the metadata to e.g. implement persistence without polluting the domain model with annotations on the one hand and an additional mapping layer on the other.&lt;/p&gt;
+
+&lt;h2 id=&quot;context&quot;&gt;Context&lt;/h2&gt;
+
+&lt;p&gt;In Java applications the building blocks of Domain-Driven Design can be implemented in a variety of ways.
+Those ways usually make different trade-offs in decoupling the actual domain model from technology specific aspects.
+A lot of Java projects err on the side of still annotating their model classes with e.g. JPA annotations for easy persistence that not requires maintaining a separate persistence model.
+Whether that’s a good idea is out of scope for this article.
+The primary focus of it is to see how we make the model more focused on DDD even in that case.&lt;/p&gt;
+
+&lt;p&gt;Another aspect we’re going to touch on is how to make DDD building blocks visible within the code.
+Often a lot of them can be indirectly identified, e.g. by analyzing that the domain type managed by a Spring Data repository having to be an aggregate by definition.
+However, in that particular case we’re relying on a particular persistence technology to be in use to derive exactly that information.
+Also, it would be nice if we could reason about the role of a type by looking at it without any other context.&lt;/p&gt;
+
+&lt;p&gt;&lt;a name=&quot;sample&quot;&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;h2 id=&quot;sample&quot;&gt;Sample&lt;/h2&gt;
+
+&lt;p&gt;Let’s start with a quick example that allows us to highlight the challenges.
+Note, that the model is not the only way you could design it.
+I am just describing what could be the result of a design in a particular context.
+It’s about how an aggregate, entity or value object can be represented in code and the effect of one particular way of doing that.
+We model &lt;code&gt;Customer&lt;/code&gt;s that consist of &lt;code&gt;Address&lt;/code&gt;es, &lt;code&gt;Order&lt;/code&gt;s that consist of &lt;code&gt;LineItem&lt;/code&gt;s which in turn point to &lt;code&gt;Product&lt;/code&gt;s and point to the &lt;code&gt;Customer&lt;/code&gt; that placed the order.
+Both &lt;code&gt;Customer&lt;/code&gt; and &lt;code&gt;Order&lt;/code&gt; are aggregates conceptually.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;A sample excerpt domain model&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p style=&quot;text-align: center;&quot;&gt;&lt;img src=&quot;/assets/images/sample.svg&quot; alt=&quot;Sample UML&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Let’s start with the &lt;code&gt;Order&lt;/code&gt;’s relationship to the &lt;code&gt;Customer&lt;/code&gt;
+aggregate. A very naive representation in code that uses JPA annotations
+directly would probably look something like this:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-java&quot; data-lang=&quot;java&quot;&gt;&lt;span class=&quot;nd&quot;&gt;@Entity&lt;/span&gt;
+&lt;span class=&quot;kd&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Order&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+  &lt;span class=&quot;nd&quot;&gt;@EmbeddedId&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;OrderId&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;id&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+  &lt;span class=&quot;nd&quot;&gt;@ManyToOne&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Customer&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;customer&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+  &lt;span class=&quot;nd&quot;&gt;@OneToMany&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;List&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;LineItem&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;items&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+
+&lt;span class=&quot;nd&quot;&gt;@Entity&lt;/span&gt;
+&lt;span class=&quot;kd&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;LineItem&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+  &lt;span class=&quot;nd&quot;&gt;@ManyToOne&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Product&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;product&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+
+&lt;span class=&quot;nd&quot;&gt;@Entity&lt;/span&gt;
+&lt;span class=&quot;kd&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Customer&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+  &lt;span class=&quot;nd&quot;&gt;@EmbeddedId&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;CustomerId&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;id&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;While this constitutes working code, a lot of the semantics of the model remain implicit.
+In JPA, the most coarse grained concept is an entity.
+It doesn’t know about aggregates.
+It will also automatically use eager loading for to-one relationships.
+For a cross aggregate relationship that is not what we want.&lt;/p&gt;
+
+&lt;p&gt;A technology focused reaction would be to switch to lazy loading.
+That however creates a new problems, we’re on a start to dig down a rabbit hole and actually have moved away from domain modeling to modeling technology, something we wanted to avoid in the first place.
+We also might want to resort to rather only map identifiers instead of aggregate types, e.g. replacing &lt;code&gt;Customer&lt;/code&gt; with &lt;code&gt;CustomerId&lt;/code&gt; in &lt;code&gt;Order&lt;/code&gt;.
+While that solves the cascading problem, it’s now even less clear that this property effectively establishes a cross aggregate relationship.&lt;/p&gt;
+
+&lt;p&gt;For the &lt;code&gt;LineItem&lt;/code&gt;s referenced, a proper default mapping would rather be eager loading (instead of lazy) and cascading all operations as the aggregate usually governs the life cycle of its internals.&lt;/p&gt;
+
+&lt;p&gt;&lt;a name=&quot;idea&quot;&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;h2 id=&quot;the-idea&quot;&gt;The idea&lt;/h2&gt;
+
+&lt;p&gt;To improve the situation described above, we could start introducing types that allow us to explicitly assign roles to model artifacts and constrain the composition of them by using generics.
+Let’s start with those (most of them originally described in John Sullivan’s &lt;a href=&quot;http://scabl.blogspot.com/2015/04/aeddd-9.html&quot;&gt;Advancing Enterprise DDD - Reinstating the Aggregate&lt;/a&gt; but slightly renamed alongside the attempt to turn this into a library).&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-java&quot; data-lang=&quot;java&quot;&gt;&lt;span class=&quot;kd&quot;&gt;interface&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Identifier&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{}&lt;/span&gt;
+
+&lt;span class=&quot;kd&quot;&gt;interface&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Identifiable&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;ID&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;extends&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Identifier&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+  &lt;span class=&quot;no&quot;&gt;ID&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;getId&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+
+&lt;span class=&quot;kd&quot;&gt;interface&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Entity&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;T&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;extends&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;AggregateRoot&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;T&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;?&amp;gt;,&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;ID&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;extends&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Identifier&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt;
+  &lt;span class=&quot;kd&quot;&gt;extends&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Identifiable&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;ID&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{}&lt;/span&gt;
+
+&lt;span class=&quot;kd&quot;&gt;interface&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;AggregateRoot&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;T&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;extends&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;AggregateRoot&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;T&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;ID&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;,&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;ID&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;extends&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Identifier&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt;
+  &lt;span class=&quot;kd&quot;&gt;extends&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Entity&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;T&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;ID&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{}&lt;/span&gt;
+
+&lt;span class=&quot;kd&quot;&gt;interface&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Association&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;T&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;extends&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;AggregateRoot&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;T&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;ID&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;,&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;ID&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;extends&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Identifier&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt;
+  &lt;span class=&quot;kd&quot;&gt;extends&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Identifiable&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;ID&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;&lt;code&gt;Identifier&lt;/code&gt; is just a marker interface to equip identifier types with. That encourages dedicated types to describe identifiers.
+Primary intent of that is to avoid every entity to be identified by a common type (such as &lt;code&gt;Long&lt;/code&gt; or &lt;code&gt;UUID&lt;/code&gt;).
+While that might seem like a good idea from a persistence point of view it’s easy to mix up a &lt;code&gt;Customer&lt;/code&gt;’s identifier with an &lt;code&gt;Order&lt;/code&gt;’s one.
+Explicit identifier types avoid that problem.&lt;/p&gt;
+
+&lt;p&gt;A DDD &lt;code&gt;Entity&lt;/code&gt; is an identifiable concept which means it needs to expose its identifier. It is also bound to an &lt;code&gt;AggregateRoot&lt;/code&gt;.
+That might seem counter intuitive at first but it allows to verify that an &lt;code&gt;Entity&lt;/code&gt; such as &lt;code&gt;LineItem&lt;/code&gt; is not accidentally referred to from a different aggregate.
+Using those interfaces we can set up static code analysis tooling to verify our model structure.&lt;/p&gt;
+
+&lt;p&gt;&lt;code&gt;Association&lt;/code&gt; is basically an indirection towards a related aggregate’s identifier that purely serves expressiveness within the model.&lt;/p&gt;
+
+&lt;p&gt;These interfaces and all subsequently mentioned code are available through a library called &lt;em&gt;jDDD&lt;/em&gt;, living in &lt;a href=&quot;https://github.com/odrotbohm/jddd&quot;&gt;this GitHub repository&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;&lt;a name=&quot;explicit-building-blocks&quot;&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;h3 id=&quot;explicit-building-blocks-in-our-sample&quot;&gt;Explicit building blocks in our sample&lt;/h3&gt;
+
+&lt;p&gt;What would our model look like with these concepts applied (JPA annotations not declared for clarity, code to be found &lt;a href=&quot;https://github.com/odrotbohm/jddd/tree/master/jddd-examples/jddd-spring-data-jpa&quot;&gt;here&lt;/a&gt;)?&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-java&quot; data-lang=&quot;java&quot;&gt;&lt;span class=&quot;kd&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;OrderId&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;implements&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Identifier&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{}&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// same for other ID types&lt;/span&gt;
+
+&lt;span class=&quot;kd&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Order&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;implements&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;AggregateRoot&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;Order&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;OrderId&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+  &lt;span class=&quot;nc&quot;&gt;OrderId&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;id&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+  &lt;span class=&quot;nc&quot;&gt;CustomerAssociation&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;customer&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+  &lt;span class=&quot;nc&quot;&gt;List&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;LineItem&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;items&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+
+&lt;span class=&quot;kd&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;LineItem&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;implements&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Entity&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;Order&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;LineItemId&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt; &lt;span class=&quot;err&quot;&gt;…&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+
+&lt;span class=&quot;kd&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;CustomerAssociation&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;implements&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Association&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;Customer&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;CustomerId&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt; &lt;span class=&quot;err&quot;&gt;…&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+
+&lt;span class=&quot;kd&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Customer&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;implements&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;AggregateRoot&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;Customer&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;CustomerId&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt; &lt;span class=&quot;err&quot;&gt;…&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;With that we can extract a lot of additional information from looking at
+the types and the fields alone:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;The identifier type for &lt;code&gt;Order&lt;/code&gt; is &lt;code&gt;OrderId&lt;/code&gt;, something we could’ve derived before but only involving JPA annotation interpretation.&lt;/li&gt;
+  &lt;li&gt;&lt;code&gt;LineItem&lt;/code&gt; is an entity belonging to the &lt;code&gt;Order&lt;/code&gt; aggregate.&lt;/li&gt;
+  &lt;li&gt;The &lt;code&gt;customer&lt;/code&gt; property clearly indicates it’s represents an association towards the &lt;code&gt;Customer&lt;/code&gt; aggregate.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;It’s a pretty straight forward task to implement a verification of e.g. entities only being held in their owning aggregates using tools like &lt;a href=&quot;https://jqassistant.org/&quot;&gt;jQAssistant&lt;/a&gt; or &lt;a href=&quot;https://www.archunit.org/&quot;&gt;ArchUnit&lt;/a&gt;.
+Also the information can be extracted, used for documentation etc.&lt;/p&gt;
+
+&lt;p&gt;&lt;a name=&quot;persistence-technology&quot;&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;h3 id=&quot;adapting-fundamental-persistence-technology&quot;&gt;Adapting fundamental persistence technology&lt;/h3&gt;
+
+&lt;p&gt;While all of this is nice, we still face the challenge of having to map this to a data store eventually, in this case assuming JPA.
+As identified before there are some default mapping rules we’d need to apply that result in boilerplate annotating of the model.
+Some examples of such steps:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;All entities will need to be annotated with &lt;code&gt;@javax.persistence.Entity&lt;/code&gt;.&lt;/li&gt;
+  &lt;li&gt;Identifier types will need to become &lt;code&gt;@Embeddable&lt;/code&gt;, the identifier (read: an entity’s property with a type assignable to &lt;code&gt;Identifier&lt;/code&gt;) mapped as &lt;code&gt;@EmbeddedId&lt;/code&gt;.
+In e.g. Hibernate embedded identifiers also need to implement &lt;code&gt;Serializable&lt;/code&gt; (for potential usability in a second-level cache).&lt;/li&gt;
+  &lt;li&gt;&lt;code&gt;Entity&lt;/code&gt; properties within an aggregate could get relationship mappings defaulted to&lt;/li&gt;
+  &lt;li&gt;Implementations of &lt;code&gt;Association&lt;/code&gt; will have to be embeddables as well.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;How do we actually massage these defaults into the types from the outside? I have a &lt;a href=&quot;https://github.com/odrotbohm/jddd/tree/master/jddd-jpa&quot;&gt;prototypical implementation based on ByteBuddy&lt;/a&gt; available. It ships a &lt;a href=&quot;https://github.com/odrotbohm/jddd/blob/1ca9d08a23b17454c4b2c5b3e09ab3cfcb1e907b/jddd-jpa/src/main/java/org/jddd/jpa/JDddJpaPlugin.java&quot;&gt;&lt;code&gt;JpaPlugin&lt;/code&gt;&lt;/a&gt; implementing ByteBuddy’s &lt;code&gt;Plugin&lt;/code&gt; interface for usage from its build plugins like this:&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;Using the ByteBuddy JPA plugin to default JPA annotations based on DDD
+concepts.&lt;/em&gt;&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-xml&quot; data-lang=&quot;xml&quot;&gt;&lt;span class=&quot;nt&quot;&gt;&amp;lt;plugin&amp;gt;&lt;/span&gt;
+  &lt;span class=&quot;nt&quot;&gt;&amp;lt;groupId&amp;gt;&lt;/span&gt;net.bytebuddy&lt;span class=&quot;nt&quot;&gt;&amp;lt;/groupId&amp;gt;&lt;/span&gt;
+  &lt;span class=&quot;nt&quot;&gt;&amp;lt;artifactId&amp;gt;&lt;/span&gt;byte-buddy-maven-plugin&lt;span class=&quot;nt&quot;&gt;&amp;lt;/artifactId&amp;gt;&lt;/span&gt;
+  &lt;span class=&quot;nt&quot;&gt;&amp;lt;version&amp;gt;&lt;/span&gt;${bytebuddy.version}&lt;span class=&quot;nt&quot;&gt;&amp;lt;/version&amp;gt;&lt;/span&gt;
+  &lt;span class=&quot;nt&quot;&gt;&amp;lt;executions&amp;gt;&lt;/span&gt;
+    &lt;span class=&quot;nt&quot;&gt;&amp;lt;execution&amp;gt;&lt;/span&gt;
+      &lt;span class=&quot;nt&quot;&gt;&amp;lt;goals&amp;gt;&lt;/span&gt;
+        &lt;span class=&quot;nt&quot;&gt;&amp;lt;goal&amp;gt;&lt;/span&gt;transform&lt;span class=&quot;nt&quot;&gt;&amp;lt;/goal&amp;gt;&lt;/span&gt;
+      &lt;span class=&quot;nt&quot;&gt;&amp;lt;/goals&amp;gt;&lt;/span&gt;
+    &lt;span class=&quot;nt&quot;&gt;&amp;lt;/execution&amp;gt;&lt;/span&gt;
+  &lt;span class=&quot;nt&quot;&gt;&amp;lt;/executions&amp;gt;&lt;/span&gt;
+  &lt;span class=&quot;nt&quot;&gt;&amp;lt;configuration&amp;gt;&lt;/span&gt;
+    &lt;span class=&quot;nt&quot;&gt;&amp;lt;transformations&amp;gt;&lt;/span&gt;
+      &lt;span class=&quot;nt&quot;&gt;&amp;lt;transformation&amp;gt;&lt;/span&gt;
+        &lt;span class=&quot;nt&quot;&gt;&amp;lt;plugin&amp;gt;&lt;/span&gt;….JDddJpaPlugin&lt;span class=&quot;nt&quot;&gt;&amp;lt;/plugin&amp;gt;&lt;/span&gt;
+      &lt;span class=&quot;nt&quot;&gt;&amp;lt;/transformation&amp;gt;&lt;/span&gt;
+    &lt;span class=&quot;nt&quot;&gt;&amp;lt;/transformations&amp;gt;&lt;/span&gt;
+  &lt;span class=&quot;nt&quot;&gt;&amp;lt;/configuration&amp;gt;&lt;/span&gt;
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;/plugin&amp;gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;The plugin would essentially work as follows:&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;Identify the DDD concept by checking whether the type handed to the &lt;code&gt;Plugin&lt;/code&gt; implements any of the interfaces of interest.&lt;/li&gt;
+  &lt;li&gt;For each concept inspect type and fields for existing annotations and — if not present — add the default appropriate for the relationship at hand.&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;&lt;a name=&quot;spring-data&quot;&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;h3 id=&quot;integration-with-spring-data&quot;&gt;Integration with Spring Data&lt;/h3&gt;
+
+&lt;p&gt;A final step we can take in terms of letting persistence technology adapt to the information available in the type system is the question how to resolve &lt;code&gt;Associations&lt;/code&gt; easily.
+Our aforementioned sample contains these interfaces which at some point could actually make it int Spring Data:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-java&quot; data-lang=&quot;java&quot;&gt;&lt;span class=&quot;kd&quot;&gt;interface&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;AggregateLookup&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;T&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;extends&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;AggregateRoot&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;T&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;ID&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;,&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;ID&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;extends&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Identifier&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+  &lt;span class=&quot;nc&quot;&gt;Optional&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;T&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;findById&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;ID&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;id&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+
+&lt;span class=&quot;kd&quot;&gt;interface&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;AssociationResolver&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;T&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;extends&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;AggregateRoot&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;T&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;ID&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;,&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;ID&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;extends&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Identifier&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt;
+  &lt;span class=&quot;kd&quot;&gt;extends&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;AggregateLookup&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;T&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;ID&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+
+  &lt;span class=&quot;k&quot;&gt;default&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Optional&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;T&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;resolve&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;Association&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;T&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;ID&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;association&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;findById&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;association&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;getId&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;());&lt;/span&gt;
+  &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+
+  &lt;span class=&quot;k&quot;&gt;default&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;T&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;resolveRequired&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;Association&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;T&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;ID&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;association&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;resolve&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;association&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;).&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;orElseThrow&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;
+      &lt;span class=&quot;o&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&amp;gt;&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;IllegalArgumentException&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;
+        &lt;span class=&quot;nc&quot;&gt;String&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;format&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;Could not resolve association %s!&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;association&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)));&lt;/span&gt;
+  &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;&lt;code&gt;AggregateLookup.findById(…)&lt;/code&gt; is essentially equivalent to &lt;code&gt;CrudRepository.findById(…)&lt;/code&gt; which is not a coincidence.
+&lt;code&gt;AssociationResolver&lt;/code&gt; exposes methods that resolve the &lt;code&gt;Association&lt;/code&gt; via the &lt;code&gt;findById(…)&lt;/code&gt; method using the association’s exposed identifier.
+This allows a &lt;code&gt;CustomerRepository&lt;/code&gt; to look like this and work out of the box without any further changes.&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-java&quot; data-lang=&quot;java&quot;&gt;&lt;span class=&quot;kd&quot;&gt;interface&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Customers&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;extends&lt;/span&gt;
+  &lt;span class=&quot;n&quot;&gt;o&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;s&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;d&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;r&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;Repository&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;Customer&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;CustomerId&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;,&lt;/span&gt;
+  &lt;span class=&quot;nc&quot;&gt;AssociationResolver&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;Customer&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;CustomerId&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt; &lt;span class=&quot;err&quot;&gt;…&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+
+&lt;span class=&quot;nc&quot;&gt;Order&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;order&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;err&quot;&gt;…&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// obtain order&lt;/span&gt;
+&lt;span class=&quot;nc&quot;&gt;Customers&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;customers&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;err&quot;&gt;…&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// obtain repository&lt;/span&gt;
+
+&lt;span class=&quot;nc&quot;&gt;Optional&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;Customer&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;customer&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;customers&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;resolve&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;order&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;getCustomer&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;());&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;Note, how &lt;code&gt;Customers&lt;/code&gt; is a standard Spring Data repository and we can easily, explicitly resolve associations to other aggregates via their repositories.&lt;/p&gt;
+
+&lt;p&gt;&lt;a name=&quot;open-questions&quot;&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;h3 id=&quot;open-questions-and-outlook&quot;&gt;Open questions and outlook&lt;/h3&gt;
+
+&lt;p&gt;&lt;strong&gt;Would the interfaces something you’d be willing to let your domain code depend on?&lt;/strong&gt; – I know this is an extremely controversial topic.
+There’s a group of people that doesn’t bother at all and that would’ve happily depended on such interfaces if they were part of e.g. Spring Data.
+Others are rightfully concerned about keeping their domain model as independent of technology aspects as possible.
+However, there is a middle ground.
+If you think about it: implementing your domain model in a programming language is technical coupling as well.
+Using date abstractions in your model is, using e.g. the money APIs is.
+I think that one can argue that it’s okay to depend on some technology if the library depended on is &lt;em&gt;focussed&lt;/em&gt; and the effort to remove it is small.
+What we have here is a set of interfaces that allows us to make DDD concepts explicit that previously had been implicit.
+That’s just in line with the spirit of DDD in the first place.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Is requiring &lt;code&gt;Identifier&lt;/code&gt; to restrictive?&lt;/strong&gt; — The generics bounds to &lt;code&gt;ID extends Identifier&lt;/code&gt; eliminate the possibility to use simple types (&lt;code&gt;Long&lt;/code&gt;, &lt;code&gt;UUID&lt;/code&gt;) as identifiers.
+While this is intentional to some degree it might also be considered too invasive.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Is the persistence setup too confusing?&lt;/strong&gt; — while the concept specific defaulting is nice, it also might create some confusion, especially to developers that are used to seeing JPA annotations.
+“How is this working at all?” is a question likely to come up easily.
+What do the new defaults look like?&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Further persistence technology integration&lt;/strong&gt; — It might make sense for other persistence integrations to also provide mapping defaults based on rules applicable to DDD building blocks.
+This could mean both other ByteBuddy plugins but also the optional inspection of the building block interfaces to reason about the model.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Build integration&lt;/strong&gt; — While integrating the defaulting via ByteBuddy works well, it feels bit awkward to see nothing happen if everything goes well, which might just be something to get used to.
+Errors result in failing builds on the command line, which is fine.
+The integration with Eclipse however has some issues: first, the ByteBuddy Maven plugin is currently not running by default because apparently it’s lacking the metadata necessary for m2e to know what to do.
+You can get this to work by tweaking the m2e lifecycle mappings file adding the following configuration block:&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;Declaring the ByteBuddy Maven plugin&lt;/em&gt;&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-xml&quot; data-lang=&quot;xml&quot;&gt;&lt;span class=&quot;nt&quot;&gt;&amp;lt;pluginExecution&amp;gt;&lt;/span&gt;
+  &lt;span class=&quot;nt&quot;&gt;&amp;lt;pluginExecutionFilter&amp;gt;&lt;/span&gt;
+    &lt;span class=&quot;nt&quot;&gt;&amp;lt;groupId&amp;gt;&lt;/span&gt;net.bytebuddy&lt;span class=&quot;nt&quot;&gt;&amp;lt;/groupId&amp;gt;&lt;/span&gt;
+    &lt;span class=&quot;nt&quot;&gt;&amp;lt;artifactId&amp;gt;&lt;/span&gt;byte-buddy-maven-plugin&lt;span class=&quot;nt&quot;&gt;&amp;lt;/artifactId&amp;gt;&lt;/span&gt;
+    &lt;span class=&quot;nt&quot;&gt;&amp;lt;versionRange&amp;gt;&lt;/span&gt;[0.0.1,)&lt;span class=&quot;nt&quot;&gt;&amp;lt;/versionRange&amp;gt;&lt;/span&gt;
+    &lt;span class=&quot;nt&quot;&gt;&amp;lt;goals&amp;gt;&lt;/span&gt;
+      &lt;span class=&quot;nt&quot;&gt;&amp;lt;goal&amp;gt;&lt;/span&gt;transform&lt;span class=&quot;nt&quot;&gt;&amp;lt;/goal&amp;gt;&lt;/span&gt;
+    &lt;span class=&quot;nt&quot;&gt;&amp;lt;/goals&amp;gt;&lt;/span&gt;
+  &lt;span class=&quot;nt&quot;&gt;&amp;lt;/pluginExecutionFilter&amp;gt;&lt;/span&gt;
+  &lt;span class=&quot;nt&quot;&gt;&amp;lt;action&amp;gt;&lt;/span&gt;
+    &lt;span class=&quot;nt&quot;&gt;&amp;lt;execute&amp;gt;&lt;/span&gt;
+      &lt;span class=&quot;nt&quot;&gt;&amp;lt;runOnIncremental&amp;gt;&lt;/span&gt;true&lt;span class=&quot;nt&quot;&gt;&amp;lt;/runOnIncremental&amp;gt;&lt;/span&gt;
+    &lt;span class=&quot;nt&quot;&gt;&amp;lt;/execute&amp;gt;&lt;/span&gt;
+  &lt;span class=&quot;nt&quot;&gt;&amp;lt;/action&amp;gt;&lt;/span&gt;
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;/pluginExecution&amp;gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;That said, errors in the plugin execution are signaled via a marker on the &lt;code&gt;pom.xml&lt;/code&gt; and the &lt;code&gt;&amp;lt;execution /&amp;gt;&lt;/code&gt; element of the plugin declaration.
+The hover then contains the stack trace of the exception produced by the plugin. While this is fine, it’s not very convenient.
+I’ve filed &lt;a href=&quot;https://github.com/raphw/byte-buddy/issues/820&quot;&gt;a ticket&lt;/a&gt; to ask for improvement.&lt;/p&gt;
+
+&lt;p&gt;&lt;a name=&quot;summary&quot;&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;h2 id=&quot;summarytldr&quot;&gt;Summary — tl;dr&lt;/h2&gt;
+
+&lt;p&gt;The article described common problems expressing DDD building blocks while designing domain models and directly mapping them onto persistence technology like JPA.
+A set of interfaces describing the building blocks as well as their relationships was suggested potentially shipped as a library.
+Improved JPA default mappings based on those building blocks were implemented using a ByteBuddy &lt;code&gt;Plugin&lt;/code&gt;.
+Additional Spring Data integration was suggested to make it easy to resolve associations between aggregates explicitly.&lt;/p&gt;
+
+&lt;p&gt;Looking forward to your feedback, questions and comments!&lt;/p&gt;
+</content>
+ </entry>
  
  <entry>
    <title>Evolving Distributed Systems</title>
@@ -396,7 +679,7 @@ That’s a great trade-off as the protocol semantics are much less likely to cha
 }
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;p&gt;So what’s wrong with this code? &lt;/p&gt;
+&lt;p&gt;So what’s wrong with this code?&lt;/p&gt;
 
 &lt;h2 id=&quot;its-nullpointerexceptions-begging-to-happen&quot;&gt;It’s NullpointerExceptions begging to happen&lt;/h2&gt;
 
@@ -508,7 +791,7 @@ class MyComponent {
 
 &lt;p&gt;Quite an intro, right? Rest assured, the tone doesn’t get any less aggressive throughout the post. Having that said, what’s more important to me here is that it would’ve been tremendously helpful to what this ORM-style strictness is, that we impose onto users. Just to give you an impression, here’s what it looks like to persist a raw &lt;code&gt;String&lt;/code&gt; or MongoDB &lt;code&gt;DBObject&lt;/code&gt; using our &lt;code&gt;MongoTemplate&lt;/code&gt;:&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;String document = &quot;{&#39;firstname&#39; : &#39;Dave&#39;, &#39;lastname&#39; : &#39;Matthews&#39;}&quot;;
+&lt;pre&gt;&lt;code&gt;String document = &quot;{'firstname' : 'Dave', 'lastname' : 'Matthews'}&quot;;
 template.save(document, &quot;myCollection&quot;);
 
 DBObject document = new BasicDBObject();
@@ -547,7 +830,7 @@ template.find(query, Person.class);
 
 &lt;h2 id=&quot;no-dbref-lazy-loading&quot;&gt;No DBRef lazy loading&lt;/h2&gt;
 &lt;blockquote&gt;
-  &lt;p&gt;This one is pure insane. &lt;/p&gt;
+  &lt;p&gt;This one is pure insane.&lt;/p&gt;
 &lt;/blockquote&gt;
 
 &lt;p&gt;At this point I got used to the cursing :).&lt;/p&gt;
@@ -706,7 +989,7 @@ This means if you are starting out with Spring Data, your very first experience 
 
 &lt;h4 id=&quot;for-the-govdata-team-the-website-is-something-different-than-the-api&quot;&gt;For the GovData team the website is something different than the API&lt;/h4&gt;
 
-&lt;p&gt;Why is that the case? If it’s on the web, embrace the web, period. Why would you choose the web as the platform of choice if the first thing you do right after that is starting to ignore it’s core traits? Hypermedia is essential to way the web works, thus so should it be to your web site &lt;em&gt;and&lt;/em&gt; APIs you expose to the web. &lt;/p&gt;
+&lt;p&gt;Why is that the case? If it’s on the web, embrace the web, period. Why would you choose the web as the platform of choice if the first thing you do right after that is starting to ignore it’s core traits? Hypermedia is essential to way the web works, thus so should it be to your web site &lt;em&gt;and&lt;/em&gt; APIs you expose to the web.&lt;/p&gt;
 
 &lt;p&gt;To me it feels like implementation aspects leaking through at this point. According to some leaked stack traces, the portal is built with JBoss, Liferay and JSF (&lt;em&gt;sigh&lt;/em&gt;), the API with &lt;a href=&quot;http://ckan.org/&quot;&gt;CKAN&lt;/a&gt;. Totally different technology stacks, but does that impose a real conceptual difference to a web site and a web API?&lt;/p&gt;
 
@@ -742,7 +1025,7 @@ This means if you are starting out with Spring Data, your very first experience 
 
 &lt;h2 id=&quot;divide-and-conquer&quot;&gt;Divide and conquer&lt;/h2&gt;
 
-&lt;p&gt;A core principle of complex problem solving is “divide and conquer”. We split up a complex problem into smaller ones and approach those smaller ones individually. In Java software this is usually done in several artifact levels: deployment units (WARs, JARs), packages and classes eventually. As a side effect of that we create dependencies between these artifacts and we need some means to manage them. &lt;/p&gt;
+&lt;p&gt;A core principle of complex problem solving is “divide and conquer”. We split up a complex problem into smaller ones and approach those smaller ones individually. In Java software this is usually done in several artifact levels: deployment units (WARs, JARs), packages and classes eventually. As a side effect of that we create dependencies between these artifacts and we need some means to manage them.&lt;/p&gt;
 
 &lt;p&gt;As a consequence of that we create artifacts with different (in)stability metrics (see &lt;a href=&quot;http://en.wikipedia.org/wiki/Software_package_metrics&quot;&gt;Wikipedia&lt;/a&gt; for details). This metric essentially expresses the &lt;em&gt;risk of a change&lt;/em&gt; made to an artifact. Assume we have two artifacts A and B, A depending on B. A change in A will never affect B, whereas a change in B potentially breaks A. Thus, there’s value in potentially splitting up a big artifact into two smaller ones with a defined dependency direction as it reduces the risk of a change in (in my just given case) A. If a dependency from B to A is introduced, both artifacts essentially become a single one from an “the effect of change” point of view as we cannot touch one without potentially affecting the other.&lt;/p&gt;
 
@@ -764,9 +1047,9 @@ This means if you are starting out with Spring Data, your very first experience 
 
 &lt;h2 id=&quot;architecture-vs-codebase&quot;&gt;Architecture VS. Codebase&lt;/h2&gt;
 
-&lt;p&gt;So let’s assume we defined both slices and layers as architectural concepts, how do we make sure these architecture concepts are embodied in our Java codebase? What we usually do is creating naming conventions and map our layers and slices into package and class names. There are some great tools like &lt;a href=&quot;http://www.hello2morrow.com/products/sonargraph&quot;&gt;Sonargraph&lt;/a&gt; and &lt;a href=&quot;http://structure101.com/products/&quot;&gt;Structure 101&lt;/a&gt; available out there that help you at doing exactly that. Being a happy day-to-day user of Sonargraph I still asked myself: “How far could we actually get with plain Java (language, compiler runtime) means only?”. &lt;/p&gt;
+&lt;p&gt;So let’s assume we defined both slices and layers as architectural concepts, how do we make sure these architecture concepts are embodied in our Java codebase? What we usually do is creating naming conventions and map our layers and slices into package and class names. There are some great tools like &lt;a href=&quot;http://www.hello2morrow.com/products/sonargraph&quot;&gt;Sonargraph&lt;/a&gt; and &lt;a href=&quot;http://structure101.com/products/&quot;&gt;Structure 101&lt;/a&gt; available out there that help you at doing exactly that. Being a happy day-to-day user of Sonargraph I still asked myself: “How far could we actually get with plain Java (language, compiler runtime) means only?”.&lt;/p&gt;
 
-&lt;p&gt;We already identified that controlling dependencies between code artifacts is key to reduce the risk of change effectively. Let’s have a look how this is approached in general. A key aspect to dependency control is that an artifact is able to explicitly express a dependency. Interestingly we have solutions to do exactly that for two of the three artifact levels (JARs, packages, classes) mentioned above. &lt;/p&gt;
+&lt;p&gt;We already identified that controlling dependencies between code artifacts is key to reduce the risk of change effectively. Let’s have a look how this is approached in general. A key aspect to dependency control is that an artifact is able to explicitly express a dependency. Interestingly we have solutions to do exactly that for two of the three artifact levels (JARs, packages, classes) mentioned above.&lt;/p&gt;
 
 &lt;p&gt;Deployment units are usually managed through either Gradle, Maven or Ivy. At the class level dependency injection comes into play as a core aspect of it is to expose dependencies through either constructor arguments or setters (an interesting &lt;a href=&quot;http://blog.schauderhaft.de/2012/01/01/the-one-correct-way-to-do-dependency-injection&quot;&gt;post&lt;/a&gt; on this at Jens Schauders blog again). Still this is not entirely sufficient cause at runtime the type space in the JVM is flat and a class can potentially “ask” for a dependency it shouldn’t be able to and get it injected. This is where the aforementioned tools would step in again and veto at build time. But yeah, we wanted to see how far we can get without them.&lt;/p&gt;
 
@@ -795,7 +1078,7 @@ This means if you are starting out with Spring Data, your very first experience 
 ….customer.repository
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;p&gt;This is not bad in general but there are a few things to consider here. First, having the slice first is a good idea as you can easily separate or externalice and entire chunk of functionality. Remember that in our example, the &lt;code&gt;account&lt;/code&gt; slice was not depended on by anything else so we should be able to remove this package and all of it’s sub folders to ditch the features implemented in the slice and the app should still work with the customer features only. &lt;/p&gt;
+&lt;p&gt;This is not bad in general but there are a few things to consider here. First, having the slice first is a good idea as you can easily separate or externalice and entire chunk of functionality. Remember that in our example, the &lt;code&gt;account&lt;/code&gt; slice was not depended on by anything else so we should be able to remove this package and all of it’s sub folders to ditch the features implemented in the slice and the app should still work with the customer features only.&lt;/p&gt;
 
 &lt;p&gt;Second, you see that the core slice does not have code in any of the actual layers, but a &lt;code&gt;domain&lt;/code&gt; package only. This essentially shows that we expose something that can be considered an implementation detail to the public: the layering. That might be considered not too important but it has a consequence that completely subverts our idea of reducing the number of types to manage. Let’s have a more detailed look at that:&lt;/p&gt;
 
@@ -1242,15 +1525,15 @@ public void checkDoesNotCascadeIfNotConfigured() {
    <content type="html">
 &lt;p&gt;As you might not be aware of, besides injecting dependencies into beans Spring is able to inject dependencies into objects that are not instantiated by Spring. This becomes especially handy if you’re stuck to Domain Driven Design leveraging a rich domain model over an anemic one. As there’s been some &lt;a href=&quot;http://twitter.com/springrod/status/1905699064&quot;&gt;buzz&lt;/a&gt; around that functionality on twitter, I just put some small quickstart project together that has rather stripped down character but shows all the necessary steps nevertheless. The links to the sources as well as the binaries are attached below. Here is what you essentially have to do.&lt;/p&gt;
 
-&lt;h2 id=&quot;equip-your-domain-class-with-configurable&quot;&gt;1. Equip your domain class with &lt;code&gt;@Configurable&lt;/code&gt;&lt;/h2&gt;
+&lt;h2 id=&quot;1-equip-your-domain-class-with-configurable&quot;&gt;1. Equip your domain class with &lt;code&gt;@Configurable&lt;/code&gt;&lt;/h2&gt;
 
 &lt;p&gt;The &lt;a href=&quot;http://svn.synyx.org/synyx/opensource/misc/org.synyx.samples.spring.atconfigurable/tags/org.synyx.samples.spring.atconfigurable-0.0.1/src/main/java/org/synyx/samples/spring/atconfigurable/domain/User.java&quot;&gt;domain class&lt;/a&gt; in the sample is &lt;code&gt;org.synyx.samples.spring.atconfigurable.domain.User&lt;/code&gt;. Note that we can inject the referenced service by just stating an &lt;code&gt;@Autowired&lt;/code&gt; property. No setter needed, no pollution of the domain class’ interface.&lt;/p&gt;
 
-&lt;h2 id=&quot;enable-injecting-capabilities-in-your-configuration-file&quot;&gt;2. Enable injecting capabilities in your configuration file&lt;/h2&gt;
+&lt;h2 id=&quot;2-enable-injecting-capabilities-in-your-configuration-file&quot;&gt;2. Enable injecting capabilities in your configuration file&lt;/h2&gt;
 
 &lt;p&gt;The maven project I have created states a dependency to spring-context that allows two critical declarations: &lt;code&gt;&amp;lt;context:spring-configured /&amp;gt;&lt;/code&gt; activates injection into domain classes not managed by Spring. Note that I use &lt;code&gt;&amp;lt;context:component-scan /&amp;gt;&lt;/code&gt; in the &lt;a href=&quot;http://svn.synyx.org/synyx/opensource/misc/org.synyx.samples.spring.atconfigurable/tags/org.synyx.samples.spring.atconfigurable-0.0.1/src/main/resources/application-context.xml&quot;&gt;&lt;code&gt;application-context.xml&lt;/code&gt;&lt;/a&gt; to pick up the &lt;code&gt;User&lt;/code&gt; class as well as &lt;code&gt;GreetingServiceImpl&lt;/code&gt; from the service package.&lt;/p&gt;
 
-&lt;h2 id=&quot;enable-load-time-weaving&quot;&gt;3. Enable load-time weaving&lt;/h2&gt;
+&lt;h2 id=&quot;3-enable-load-time-weaving&quot;&gt;3. Enable load-time weaving&lt;/h2&gt;
 
 &lt;p&gt;To actually get the injection working you need to weave some Spring aspects in your domain class. While you could do this by compile time weaving, i chose load time weaving as it is much simpler to set up in development environment. To get it up and running you declare &lt;code&gt;&amp;lt;context:load-time-weaver aspectj-weaving=&quot;autodetect&quot;/&amp;gt;&lt;/code&gt; that pretty much tells Spring to look around for some available load time weaver an use it. The cruicial part now is to activate a Java agent for your runtime that now weaves the aspects into the domain class during class loading. In my case this is done by activating the agent via a &lt;a href=&quot;http://svn.synyx.org/synyx/opensource/misc/org.synyx.samples.spring.atconfigurable/tags/org.synyx.samples.spring.atconfigurable-0.0.1/pom.xml&quot;&gt;command line argument&lt;/a&gt; for Maven’s Surefire plugin.&lt;/p&gt;
 
@@ -1541,23 +1824,23 @@ public class MyController {
    <id>http://www.olivergierke.de/2009/01/clean-code-review-part-i</id>
    <content type="html">&lt;p&gt;As I have twittered already, I am reading “Clean Code” by Robert C. Martin right now. I expected the book to be a very fundamental one. Although there are a few parts I do not entirely agree with, I just rummaged throught chapter 11 “Systems” on my way home and was surprised how condensed Robert summarizes principles constructing software systems that I usually promote discussing such topics with colleagues.&lt;/p&gt;
 
-&lt;h2 id=&quot;separate-constructing-a-system-frum-using-it&quot;&gt;1. Separate constructing a system frum using it&lt;/h2&gt;
+&lt;h2 id=&quot;1-separate-constructing-a-system-frum-using-it&quot;&gt;1. Separate constructing a system frum using it&lt;/h2&gt;
 
 &lt;p&gt;Detractors of the Spring framework very often claim, configuring a system construction using XML sucks because of lacking type safety et cetera. I don’t want to get into discussion do detailed, but Spring’s way of describing system construction is not tied to XML at all (see &lt;a href=&quot;http://www.springsource.org/javaconfig&quot;&gt;Spring JavaConfig&lt;/a&gt;). For Robert the startup process of an application actually a &lt;strong&gt;concern&lt;/strong&gt;. A view I kinda like as such, as you then can easily argument in terms of Separation of Concerns as well as the Single Responsibility Principle.&lt;/p&gt;
 
-&lt;h2 id=&quot;dependency-injection&quot;&gt;2. Dependency Injection&lt;/h2&gt;
+&lt;h2 id=&quot;2-dependency-injection&quot;&gt;2. Dependency Injection&lt;/h2&gt;
 
 &lt;p&gt;DI is widely accepted these days, besides the myth that you always need a fully fledged container to use DI in your application. Robert shows some nice examples and points out that the conceptual idea is much more important that the tool you use.&lt;/p&gt;
 
-&lt;h2 id=&quot;cross-cutting-concerns--aop&quot;&gt;3. Cross cutting concerns / AOP&lt;/h2&gt;
+&lt;h2 id=&quot;3-cross-cutting-concerns--aop&quot;&gt;3. Cross cutting concerns / AOP&lt;/h2&gt;
 
 &lt;p&gt;Systems usually face logic that - coded in plain OO - is tangled though all the codebase. Adressing these issues with AOP leads to much more concise and extendable systems. Robert presents the concept from a very high level point of view and briefly introduces various AOP implementations, advising simple proxy based solutions like Spring AOP or JBoss AOP as suffient for most cases.&lt;/p&gt;
 
-&lt;h2 id=&quot;incremental-design&quot;&gt;4. Incremental design&lt;/h2&gt;
+&lt;h2 id=&quot;4-incremental-design&quot;&gt;4. Incremental design&lt;/h2&gt;
 
 &lt;p&gt;Robert emphasizes the importance of natural growth of designs. Big upfront designs often appear to be overengineered and too technical that does not abstract business domain on an appropriate level. Which leads us to…&lt;/p&gt;
 
-&lt;h2 id=&quot;domain-specific-languages&quot;&gt;5. Domain specific languages&lt;/h2&gt;
+&lt;h2 id=&quot;5-domain-specific-languages&quot;&gt;5. Domain specific languages&lt;/h2&gt;
 
 &lt;p&gt;I also don’t want to open this pandora’s box but clearly second the opinion that you have to find abstractions that are clean, simple and thightly wrapped around the domain to deal with, whether is a technical domain.&lt;/p&gt;
 
@@ -1797,7 +2080,7 @@ PluginRegistry&amp;lt;Plugin&amp;lt;String&amp;gt;, String&amp;gt; registry =
 &lt;ul&gt;
   &lt;li&gt;no closures (jihaa! let’s simply talk another 3 years about it)&amp;lt;/li&amp;gt;&lt;/li&gt;
   &lt;li&gt;no Properties&lt;/li&gt;
-  &lt;li&gt;no reimplemented Generics	&lt;/li&gt;
+  &lt;li&gt;no reimplemented Generics&lt;/li&gt;
   &lt;li&gt;small language changes:
 ** multiple exceptions in catchclause: &lt;code&gt;catch (Foo, Bar e)&lt;/code&gt;
 ** null-safe object traversal: &lt;code&gt;a?.foo()?.bar()?&lt;/code&gt; -&amp;gt; returns &lt;code&gt;null&lt;/code&gt; if one of the values in between is &lt;code&gt;null&lt;/code&gt;
@@ -1863,10 +2146,12 @@ PluginRegistry&amp;lt;Plugin&amp;lt;String&amp;gt;, String&amp;gt; registry =
    <link href="http://www.olivergierke.de/2008/11/hades-on-tour/"/>
    <updated>2008-11-18T10:33:17+01:00</updated>
    <id>http://www.olivergierke.de/2008/11/hades-on-tour</id>
-   <content type="html">&lt;p&gt;There some upcoming talks on Hades I will give on a variety of locations and events. As I don’t want to deprive the dates from you, here we go:
-* Dec, 9th 2008 - &lt;a href=&quot;http://www.devoxx.com/display/JV08/Easing+JPA+DAO+development+with+Hades&quot;&gt;Devoxx Conference, Antwerpen&lt;/a&gt;
-* Dec, 17th 2008 - &lt;a href=&quot;http://groups.google.com/groups/jug-karlsruhe&quot;&gt;Java User Group, Karlsruhe&lt;/a&gt;
-* Jan, 15th, 2008 - &lt;a href=&quot;http://www.devdusk.de&quot;&gt;DevDusk, Frankfurt&lt;/a&gt;&lt;/p&gt;
+   <content type="html">&lt;p&gt;There some upcoming talks on Hades I will give on a variety of locations and events. As I don’t want to deprive the dates from you, here we go:&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;Dec, 9th 2008 - &lt;a href=&quot;http://www.devoxx.com/display/JV08/Easing+JPA+DAO+development+with+Hades&quot;&gt;Devoxx Conference, Antwerpen&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;Dec, 17th 2008 - &lt;a href=&quot;http://groups.google.com/groups/jug-karlsruhe&quot;&gt;Java User Group, Karlsruhe&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;Jan, 15th, 2008 - &lt;a href=&quot;http://www.devdusk.de&quot;&gt;DevDusk, Frankfurt&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
 
 &lt;p&gt;Perhaps some of you will attend one of these events. Don’t hesitate to contact me, get in touch and come by to share thought.&lt;/p&gt;
 </content>
@@ -1933,10 +2218,12 @@ PluginRegistry&amp;lt;Plugin&amp;lt;String&amp;gt;, String&amp;gt; registry =
    <id>http://www.olivergierke.de/2008/10/the-smallest-plugin-system-ever</id>
    <content type="html">&lt;p&gt;I blogged about &lt;a href=&quot;http://www.olivergierke.de/wordpress/2008/09/26/hades-02-is-out/&quot;&gt;Hades&lt;/a&gt;, an OpenSource project I lead a while ago. Today I want to launch another neat library. Much smaller than Hades but IMHO useful nevertheless.&lt;/p&gt;
 
-&lt;p&gt;Developing Spring applications you often come to the point of having a component that should get a list of collaborateurs injected. The component in turn does select one or many of these collaborateurs based on a defined criteria and works with them. This raises a few requirements:
-* The component should have the easiest possible access to collaborateurs.
-* Plugins (hey, we got a name for it!) should be addable by just dropping in a JAR file with an implementation of the collaborateurs interface.
-* I would be nice if we could integrate this with Spring&lt;/p&gt;
+&lt;p&gt;Developing Spring applications you often come to the point of having a component that should get a list of collaborateurs injected. The component in turn does select one or many of these collaborateurs based on a defined criteria and works with them. This raises a few requirements:&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;The component should have the easiest possible access to collaborateurs.&lt;/li&gt;
+  &lt;li&gt;Plugins (hey, we got a name for it!) should be addable by just dropping in a JAR file with an implementation of the collaborateurs interface.&lt;/li&gt;
+  &lt;li&gt;I would be nice if we could integrate this with Spring&lt;/li&gt;
+&lt;/ul&gt;
 
 &lt;p&gt;Here’s the solution I came up with…&lt;/p&gt;
 
@@ -2107,9 +2394,9 @@ PluginRegistry&amp;lt;Plugin&amp;lt;String&amp;gt;, String&amp;gt; registry =
 &lt;p&gt;Nevertheless, the quote, that pinged my mind, was this one:&lt;/p&gt;
 
 &lt;blockquote&gt;
-  &lt;p&gt;The user said, “This thing doesn’t work.” You’re gonna test something that potentially doesn’t work. And so, once you have that test, it’s very easy, because you have that verifiable bug.
-&amp;lt;p style=&quot;text-align: right;&quot;&amp;gt;(Hani Suleiman on testing and bugs)&amp;lt;/p&amp;gt;&lt;/p&gt;
+  &lt;p&gt;The user said, “This thing doesn’t work.” You’re gonna test something that potentially doesn’t work. And so, once you have that test, it’s very easy, because you have that verifiable bug.&lt;/p&gt;
 &lt;/blockquote&gt;
+&lt;p style=&quot;text-align: right;&quot;&gt;(Hani Suleiman on testing and bugs)&lt;/p&gt;
 
 &lt;p&gt;Let me elaborate on that a little bit. Hani’s observations largely correspond to the way I usually get started swinging my swat. So suppose you have system in state A in your version control system and a bug report claiming that there is something wrong in this state. Starting to find the cause for the bug you typically accept the ticket, indicating that you are currently working on it. Assume you can reproduce the issue with a test case you fix the according code snippets, make sure you get that green bar and commit everything to the VCS again. Finally you mark the ticket as fixed and add “fixed with revision XYZ” as comment to guarantee tracability, that’s it.&lt;/p&gt;
 
@@ -2118,7 +2405,7 @@ PluginRegistry&amp;lt;Plugin&amp;lt;String&amp;gt;, String&amp;gt; registry =
 &lt;p&gt;Comparing the original state of the VCS (revision XYZ - 1) and the fixed state of the VCS (revision XYZ) you only see one more test case and some modified. Who really tells you that the test case did not work before? As you have committed the already working test case along with the changes, you don’t have a possibility to check, whether the test case is really tight enough to reproduce the problem correctly. So wouldn’t it be better to add the following step to the bug fixing heuristic described above:&lt;/p&gt;
 
 &lt;ul&gt;
-  &lt;li&gt;After you have completed the test case reproducing the issue you check that one in into the VCS (although this is not buildable, due to the failing testcase!)	&lt;/li&gt;
+  &lt;li&gt;After you have completed the test case reproducing the issue you check that one in into the VCS (although this is not buildable, due to the failing testcase!)&lt;/li&gt;
   &lt;li&gt;You add a comment to the ticket that the current revision lets you reproduce the bug&lt;/li&gt;
   &lt;li&gt;Continue, like described above&lt;/li&gt;
 &lt;/ul&gt;
@@ -2253,7 +2540,7 @@ PluginRegistry&amp;lt;Plugin&amp;lt;String&amp;gt;, String&amp;gt; registry =
 &lt;ul&gt;
 	&lt;li&gt;[Domain Driven Design @ Amazon](http://www.amazon.com/Domain-Driven-Design-Tackling-Complexity-Software/dp/0321125215/ref=pd_bbs_sr_1?ie=UTF8&amp;amp;s=books&amp;amp;qid=1212925819&amp;amp;sr=8-1)&lt;/li&gt;
 &lt;/ul&gt;
-&lt;p&gt;## Martin Fowler - Refactoring&lt;/p&gt;
+&lt;h2 id=&quot;martin-fowler---refactoring&quot;&gt;Martin Fowler - Refactoring&lt;/h2&gt;
 
 &lt;p&gt;Recently I discovered a &lt;a href=&quot;http://www.infoq.com/news/2008/06/soa-without-esb&quot;&gt;presentation of Martin Fowler on SOA&lt;/a&gt; where he accidentally gave the key rational to refactoring: accept change as intrinsic trait of software development and be prepared to adapt to it. Now refactoring is the key concept that enables you treating your code not to be carved in stone but rather allows you to adopt emerging changes.&lt;/p&gt;
 
@@ -2261,13 +2548,13 @@ PluginRegistry&amp;lt;Plugin&amp;lt;String&amp;gt;, String&amp;gt; registry =
 &lt;ul&gt;
 	&lt;li&gt;[Refactoring @ Amazon](http://http://www.amazon.com/Refactoring-Improving-Existing-Addison-Wesley-Technology/dp/0201485672/ref=pd_bbs_sr_1?ie=UTF8&amp;amp;s=books&amp;amp;qid=1212925933&amp;amp;sr=1-1)&lt;/li&gt;
 &lt;/ul&gt;
-&lt;p&gt;## Johannes Link - Softwaretests mit JUnit&lt;/p&gt;
+&lt;h2 id=&quot;johannes-link---softwaretests-mit-junit&quot;&gt;Johannes Link - Softwaretests mit JUnit&lt;/h2&gt;
 
 &lt;p&gt;Agile software development builds on various heuristics and methodologies like continuos integration and first of all unit testing or even &lt;strong&gt;Test Driven Development&lt;/strong&gt; (TDD). Trying to become agile without adopting these techniques you will find your self in a mess very fastly. Softwaretests mit JUnit introduces core testing principles and methodologies. Although there are much more sophisticated testing frameworks like TestNG available today the book reads well because of the its very basic starting point. It was published in times when unit testing was not that of a prominent idea. Thus  it really gives an introduction from the very first steps.&lt;/p&gt;
 &lt;ul&gt;
 	&lt;li&gt;[Softwaretest mit JUnit @ Amazon](http://www.amazon.com/Softwaretests-mit-JUnit-Johannes-Link/dp/3898643255/ref=sr_1_1?ie=UTF8&amp;amp;s=books&amp;amp;qid=1212925974&amp;amp;sr=1-1)&lt;/li&gt;
 &lt;/ul&gt;
-&lt;p&gt;## Steve McConnell - Code Complete&lt;/p&gt;
+&lt;h2 id=&quot;steve-mcconnell---code-complete&quot;&gt;Steve McConnell - Code Complete&lt;/h2&gt;
 
 &lt;p&gt;That’s a really huge one. And all on coding? This &lt;strong&gt;has&lt;/strong&gt; to be boring! Well, it isn’t. Code complete is on a much more technical level of abstraction that DDD but it takes a look on code from the same point of view: communication. Steve discusses everyday quests developers fight: method naming, method’s lengths.&lt;/p&gt;
 
@@ -2293,7 +2580,7 @@ PluginRegistry&amp;lt;Plugin&amp;lt;String&amp;gt;, String&amp;gt; registry =
    <updated>2008-06-06T14:56:51+02:00</updated>
    <id>http://www.olivergierke.de/2008/06/reading-domain-driven-design-again</id>
    <content type="html">&lt;p&gt;Currently I read Eric Evans’ “&lt;a href=&quot;http://www.amazon.com/Domain-Driven-Design-Tackling-Complexity-Software/dp/0321125215/ref=sr_1_1?ie=UTF8&amp;amp;s=books-intl-de&amp;amp;qid=1212756929&amp;amp;sr=8-1&quot;&gt;Domain Driven Design&lt;/a&gt;” once again. Having done so 3 times already, I discovered a paragraph that reminded me of a &lt;a href=&quot;http://dlinsin.blogspot.com/2008/05/do-you-care-about-your-code.html&quot;&gt;blog post&lt;/a&gt; written by David Linsin a while ago. Eric writes as follows:&lt;/p&gt;
-&lt;blockquote&gt;&quot;Well-written code ca be very communicative, but the message it communicates isnot guaranteed to be accurate. Oh, the reality of the **behaviour** caused by a section of code is inescapeable. but a method name can be ambiguous, misleading, or out of date compared to the internals of the method. The assertions in a test are rigorous, but the story told byvariable names and the organization of the code is not. Good programming style keeps this connection as direct as possible, but it is still an exercise in self-discipline. It takes fastidiousness to write code that doesn&#39;t just **do** the right thing but also **says** the right thing&quot;&lt;/blockquote&gt;
+&lt;blockquote&gt;&quot;Well-written code ca be very communicative, but the message it communicates isnot guaranteed to be accurate. Oh, the reality of the **behaviour** caused by a section of code is inescapeable. but a method name can be ambiguous, misleading, or out of date compared to the internals of the method. The assertions in a test are rigorous, but the story told byvariable names and the organization of the code is not. Good programming style keeps this connection as direct as possible, but it is still an exercise in self-discipline. It takes fastidiousness to write code that doesn't just **do** the right thing but also **says** the right thing&quot;&lt;/blockquote&gt;
 &lt;p&gt;This states that well written code is not about just to look nice in your IDE - it’s about communicating. I e.g. favour an EmailAddress class over a simple String property in a User type cause this simple change distills so much more semantics.&lt;/p&gt;
 
 &lt;p&gt;“Domain Driven Design” is a book you can actually start reading from the front if you have reached the end. From time to time I reiterate over the book just to find new influences or judge new knowledge I gained in projects. I can only recommend to take a glance at it. For those of you that shy digging through over 500 pages there is a distilled version at infoq.com that nicely wraps up the book.&lt;/p&gt;
@@ -2672,7 +2959,7 @@ Insgesamt bot der erste Teil für mich nicht wahnsinnig viel neues, hier und da 
 &lt;ul&gt;
 	&lt;li&gt;[Springwebsite](http://www.springframework.org)&lt;/li&gt;
 	&lt;li&gt;[Springbuch](http://www.amazon.de/Spring-Frameworks-f%fcr-die-Java-Entwicklung/dp/3898643654/sr=8-1/qid=1161463255/ref=pd_bbs_sr_1/028-5102242-3789349?ie=UTF8) von Eberhard Wolff&lt;/li&gt;
-	&lt;li&gt;[What&#39;s new in Spring 2.0](http://static.springframework.org/spring/docs/2.0.x/reference/new-in-2.html)&lt;/li&gt;
+	&lt;li&gt;[What's new in Spring 2.0](http://static.springframework.org/spring/docs/2.0.x/reference/new-in-2.html)&lt;/li&gt;
 &lt;/ul&gt;
 </content>
  </entry>
