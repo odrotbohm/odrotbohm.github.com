@@ -51,7 +51,7 @@ In this article I’m going to discuss an experimental idea to express some of t
 
 <p>In Java applications the building blocks of Domain-Driven Design can be implemented in a variety of ways.
 Those ways usually make different trade-offs in decoupling the actual domain model from technology specific aspects.
-A lot of Java projects err on the side of still annotating their model classes with e.g. JPA annotations for easy persistence that not requires maintaining a separate persistence model.
+A lot of Java projects err on the side of still annotating their model classes with e.g. JPA annotations for easy persistence so that they don’t have to maintain  a separate persistence model.
 Whether that’s a good idea is out of scope for this article.
 The primary focus of it is to see how we make the model more focused on DDD even in that case.</p>
 
@@ -184,7 +184,7 @@ Some examples of such steps:</p>
   <li>All entities will need to be annotated with <code>@javax.persistence.Entity</code>.</li>
   <li>Identifier types will need to become <code>@Embeddable</code>, the identifier (read: an entity’s property with a type assignable to <code>Identifier</code>) mapped as <code>@EmbeddedId</code>.
 In e.g. Hibernate embedded identifiers also need to implement <code>Serializable</code> (for potential usability in a second-level cache).</li>
-  <li><code>Entity</code> properties within an aggregate could get relationship mappings defaulted to</li>
+  <li><code>Entity</code> properties within an aggregate could get relationship mappings defaulted to <code>@OneToOne</code> or <code>@OneToMany</code> with eager fetching as it’s reasonable to assume the aggregate controls their lifecycle.</li>
   <li>Implementations of <code>Association</code> will have to be embeddables as well.</li>
 </ul>
 

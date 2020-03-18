@@ -4,7 +4,7 @@
  <title>Oliver Drotbohm</title>
  <link href="http://www.olivergierke.de/atom.xml" rel="self"/>
  <link href="http://www.olivergierke.de"/>
- <updated>2020-03-17T18:06:12+01:00</updated>
+ <updated>2020-03-18T14:23:54+01:00</updated>
  <id>http://www.olivergierke.de</id>
  <author>
    <name>Oliver Drotbohm</name>
@@ -25,7 +25,7 @@ In this article I’m going to discuss an experimental idea to express some of t
 
 &lt;p&gt;In Java applications the building blocks of Domain-Driven Design can be implemented in a variety of ways.
 Those ways usually make different trade-offs in decoupling the actual domain model from technology specific aspects.
-A lot of Java projects err on the side of still annotating their model classes with e.g. JPA annotations for easy persistence that not requires maintaining a separate persistence model.
+A lot of Java projects err on the side of still annotating their model classes with e.g. JPA annotations for easy persistence so that they don’t have to maintain  a separate persistence model.
 Whether that’s a good idea is out of scope for this article.
 The primary focus of it is to see how we make the model more focused on DDD even in that case.&lt;/p&gt;
 
@@ -158,7 +158,7 @@ Some examples of such steps:&lt;/p&gt;
   &lt;li&gt;All entities will need to be annotated with &lt;code&gt;@javax.persistence.Entity&lt;/code&gt;.&lt;/li&gt;
   &lt;li&gt;Identifier types will need to become &lt;code&gt;@Embeddable&lt;/code&gt;, the identifier (read: an entity’s property with a type assignable to &lt;code&gt;Identifier&lt;/code&gt;) mapped as &lt;code&gt;@EmbeddedId&lt;/code&gt;.
 In e.g. Hibernate embedded identifiers also need to implement &lt;code&gt;Serializable&lt;/code&gt; (for potential usability in a second-level cache).&lt;/li&gt;
-  &lt;li&gt;&lt;code&gt;Entity&lt;/code&gt; properties within an aggregate could get relationship mappings defaulted to&lt;/li&gt;
+  &lt;li&gt;&lt;code&gt;Entity&lt;/code&gt; properties within an aggregate could get relationship mappings defaulted to &lt;code&gt;@OneToOne&lt;/code&gt; or &lt;code&gt;@OneToMany&lt;/code&gt; with eager fetching as it’s reasonable to assume the aggregate controls their lifecycle.&lt;/li&gt;
   &lt;li&gt;Implementations of &lt;code&gt;Association&lt;/code&gt; will have to be embeddables as well.&lt;/li&gt;
 &lt;/ul&gt;
 
