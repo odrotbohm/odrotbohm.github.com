@@ -14,11 +14,10 @@
    <!-- Homepage CSS -->
    <link rel="stylesheet" href="/assets/themes/tom/css/screen.css" type="text/css" media="screen, projection" />
 
-   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fira+Sans:wght@300;700&display=swap" type="text/css" />
+   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fira+Sans:wght@300700&display=swap" type="text/css" />
+   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;700&display=swap" type="text/css" />
 
-   <!-- Typekit -->
-   <script type="text/javascript" src="http://use.typekit.com/jpd0pfm.js"></script>
-   <script type="text/javascript">try{Typekit.load();}catch(e){}</script>
+
 </head>
 <body>
 
@@ -50,17 +49,17 @@
 
 <p>The first question that might arise is why this release is 1.5 whereas it’s predecessor was 1.1.2. Originally the release was planned as 1.2 but as it introduces some long-ranging features and changes we thought it might be worth indicating that in a larger step of version numbers. As 2.0 is already taken for our JPA 2 upgrade, 1.5 was the choice to go. So what do I mean with “long-ranging”?</p>
 
-<p>Since it’s beginning Hades relied on two major interfaces: <code>GenericDao</code> and <code>Persistable</code> where as especially the latter raised some discussions <a href="http://redmine.synyx.org/boards/2/topics/8">here</a> and there. Although it is not that of a big deal to implement a 3rd party interface with an entity class it was indeed a hurdle for adoption. So why was it introduced in the first place. <code>GenericDao</code> had the aim to abstract between creation and updates of objects. Although there slight semantic differences this maps to the difference between using <code>EntityManager</code> methods <code>persist(…)</code> and <code>merge(…)</code>. To know what to call when <code>save(…)</code> is being called on <code>GenericDao</code> we have to be able to differentiate between a new and an existing entity. As this algorithm might vary from entity to entity, we chose to leave the burdon to decide that to the entity developer by implementing the interface.</p>
+<p>Since it’s beginning Hades relied on two major interfaces: <code class="language-plaintext highlighter-rouge">GenericDao</code> and <code class="language-plaintext highlighter-rouge">Persistable</code> where as especially the latter raised some discussions <a href="http://redmine.synyx.org/boards/2/topics/8">here</a> and there. Although it is not that of a big deal to implement a 3rd party interface with an entity class it was indeed a hurdle for adoption. So why was it introduced in the first place. <code class="language-plaintext highlighter-rouge">GenericDao</code> had the aim to abstract between creation and updates of objects. Although there slight semantic differences this maps to the difference between using <code class="language-plaintext highlighter-rouge">EntityManager</code> methods <code class="language-plaintext highlighter-rouge">persist(…)</code> and <code class="language-plaintext highlighter-rouge">merge(…)</code>. To know what to call when <code class="language-plaintext highlighter-rouge">save(…)</code> is being called on <code class="language-plaintext highlighter-rouge">GenericDao</code> we have to be able to differentiate between a new and an existing entity. As this algorithm might vary from entity to entity, we chose to leave the burdon to decide that to the entity developer by implementing the interface.</p>
 
-<p>Although implementing this interface should not be a big deal actually, we (and the developer community) were not really satisfied with that solutions as the technical infrastructure slightly leaks into the domain abstraction which is somewhat suboptimal kindly speaking. The good news is: as of Hades 1.5 there is no need to implement Persistable anymore. The DAO implementation now uses a reflective approach to lookup the id property of the entity and inspects its value. If it is <code>null</code>, the entity is regarded as new or as already existing otherwise. So that’s the default. If you need to tweak the semantics of new, simply implement Persistable as the algorithm will be simply calling <code>isNew()</code> on you instance then. So in effect, the interface comes into play if explicitly needed and not in any other case.</p>
+<p>Although implementing this interface should not be a big deal actually, we (and the developer community) were not really satisfied with that solutions as the technical infrastructure slightly leaks into the domain abstraction which is somewhat suboptimal kindly speaking. The good news is: as of Hades 1.5 there is no need to implement Persistable anymore. The DAO implementation now uses a reflective approach to lookup the id property of the entity and inspects its value. If it is <code class="language-plaintext highlighter-rouge">null</code>, the entity is regarded as new or as already existing otherwise. So that’s the default. If you need to tweak the semantics of new, simply implement Persistable as the algorithm will be simply calling <code class="language-plaintext highlighter-rouge">isNew()</code> on you instance then. So in effect, the interface comes into play if explicitly needed and not in any other case.</p>
 
-<p>That’s the big news. Behind that we have a few new features regarding the XML namespace to be used in Spring applications. In case you have multiple <code>EntityManagerFactory</code> beans declared (e.g. in case you work with more than one JPA persistence unit), you can now point the dao-config and dao elements to a specific EMF bean by using entity-manager-factory-ref attribute. Furthermore using <code>exclude-filter</code> and <code>include-filter</code> (probably known from Spring’s context namespace) can be used to tune DAO auto configuration in a more fine grained way. Besides that we have done a general overhaul to the query creation subsystem and now also allow keywords like <code>Between</code>, <code>LessThan</code> and <code>GreaterThan</code> in method names. To round things up we’ve fixed a few minor bugs here and there. For more details read the <a href="http://redmine.synyx.org/versions/show/34">changelog</a> or the updated <a href="http://redmine.synyx.org/attachments/download/96">reference documentation</a>.</p>
+<p>That’s the big news. Behind that we have a few new features regarding the XML namespace to be used in Spring applications. In case you have multiple <code class="language-plaintext highlighter-rouge">EntityManagerFactory</code> beans declared (e.g. in case you work with more than one JPA persistence unit), you can now point the dao-config and dao elements to a specific EMF bean by using entity-manager-factory-ref attribute. Furthermore using <code class="language-plaintext highlighter-rouge">exclude-filter</code> and <code class="language-plaintext highlighter-rouge">include-filter</code> (probably known from Spring’s context namespace) can be used to tune DAO auto configuration in a more fine grained way. Besides that we have done a general overhaul to the query creation subsystem and now also allow keywords like <code class="language-plaintext highlighter-rouge">Between</code>, <code class="language-plaintext highlighter-rouge">LessThan</code> and <code class="language-plaintext highlighter-rouge">GreaterThan</code> in method names. To round things up we’ve fixed a few minor bugs here and there. For more details read the <a href="http://redmine.synyx.org/versions/show/34">changelog</a> or the updated <a href="http://redmine.synyx.org/attachments/download/96">reference documentation</a>.</p>
 
 <h2 id="hades-20">Hades 2.0</h2>
 
 <p>Alongside this important step we make another one. JPA 2.0 specification was released a while ago and most existing JPA 1 application wil definately benefit from an upgrade as the new spec version really fills gaps the old one left to workaround for the developers. So what is our approach to the new spec. From a Hades point of view the most intresting part of the new spec is the criteria API as user’s probably will base their custom DAO implementations on it. Furthermore upgrading (Spring) applications demands applications to upgrade to Spring 3.0 and a new major version of the persistence provider of choice we choose to dedicate a 2.0 version of Hades to it.</p>
 
-<p>So the first release candidate builds on top of Spring 3.0.2 as well as Hibernate 3.5, EclipseLink 2.0 as well as OpenJPA 2.0 Beta 3. We will probably wait for our final release until OpenJPA is final, too, but as the majority of users are split between Hibernate and EclipseLink we think that rolling out a release candidate is a good way to get feedback and battle proof the new version. The major change inside Hades 2.0 is that we dropped support of the read-by-example way to access entities. This had to be implemented in a provider specific way so that we could even simplify the codebase in that regard. Furthermore the DAO abstraction is now clearly centered around <code>GenericDao</code> and not blurred with additional interfaces.</p>
+<p>So the first release candidate builds on top of Spring 3.0.2 as well as Hibernate 3.5, EclipseLink 2.0 as well as OpenJPA 2.0 Beta 3. We will probably wait for our final release until OpenJPA is final, too, but as the majority of users are split between Hibernate and EclipseLink we think that rolling out a release candidate is a good way to get feedback and battle proof the new version. The major change inside Hades 2.0 is that we dropped support of the read-by-example way to access entities. This had to be implemented in a provider specific way so that we could even simplify the codebase in that regard. Furthermore the DAO abstraction is now clearly centered around <code class="language-plaintext highlighter-rouge">GenericDao</code> and not blurred with additional interfaces.</p>
 
 <p>So if you can upgrade to Spring 3.0.x and the JPA 2 ready persistence provider already, give Hades 2.0 a try. It should be a drop in replacement in this case. Having that said, it’s probably worth mentioning that even Hades 1.5 can be used with JPA 2.0 but requires more extensive pom configuration on the developer side (as Spring 2.5.6 does not support JPA 2). As you’d end up with a dependency setup similar to the one decalred in 2.0 you’re probably better of just upgrading to Hades 2.0.</p>
 
@@ -70,11 +69,11 @@
   <h2>Related Posts</h2>
   <ul class="posts">
     
+      <li><span>22 Feb 2021</span> &raquo; <a href="/2021/02/Architecturally-evident-code-with-jMolecules/">Architecturally evident code with jMolecules</a></li>
+    
       <li><span>17 Mar 2020</span> &raquo; <a href="/2020/03/Implementing-DDD-Building-Blocks-in-Java/">Implementing DDD Building Blocks in Java</a></li>
     
       <li><span>09 Oct 2016</span> &raquo; <a href="/2016/10/evolving-distributed-systems/">Evolving Distributed Systems</a></li>
-    
-      <li><span>29 Apr 2016</span> &raquo; <a href="/2016/04/benefits-of-hypermedia/">The Benefits of Hypermedia APIs</a></li>
     
   </ul>
 </div>
@@ -113,7 +112,7 @@
         <p>
           <a href="http://github.com/odrotbohm/">github.com/odrotbohm</a><br />
           <a href="http://twitter.com/odrotbohm/">twitter.com/odrotbohm</a><br />
-          <a href='mailto:info@olivergierke.de'>info@olivergierke.de</a>
+          <a href='mailto:info@odrotbohm.de'>info@odrotbohm.de</a>
         </p>
       </div>
       <div class="rss">
@@ -123,7 +122,6 @@
       </div>
     </div>
   </div>
-  <a href="http://github.com/odrotbohm"><img style="position: absolute; top: 0; right: 0; border: 0;" src="http://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png" alt="Fork me on GitHub" /></a>
 
   
 </body>

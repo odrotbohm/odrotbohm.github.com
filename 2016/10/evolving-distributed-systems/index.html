@@ -14,11 +14,10 @@
    <!-- Homepage CSS -->
    <link rel="stylesheet" href="/assets/themes/tom/css/screen.css" type="text/css" media="screen, projection" />
 
-   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fira+Sans:wght@300;700&display=swap" type="text/css" />
+   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fira+Sans:wght@300700&display=swap" type="text/css" />
+   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;700&display=swap" type="text/css" />
 
-   <!-- Typekit -->
-   <script type="text/javascript" src="http://use.typekit.com/jpd0pfm.js"></script>
-   <script type="text/javascript">try{Typekit.load();}catch(e){}</script>
+
 </head>
 <body>
 
@@ -160,7 +159,7 @@ The effect of that is that the documentation and specification of those APIs is 
 </blockquote>
 
 <p>The motivation for that usually is that this generic approach allows easy client implementations “as they can all just behave the same way” or “it’s the easiest way to talk to a server”.
-Also, a lot of the specifics of the data — e.g. the field <code>status</code> in a representation of an order only being able to contain three different values — are easy to create, generate by inspecting server side code, a service description language etc.
+Also, a lot of the specifics of the data — e.g. the field <code class="language-plaintext highlighter-rouge">status</code> in a representation of an order only being able to contain three different values — are easy to create, generate by inspecting server side code, a service description language etc.
 So what is the downside of that?</p>
 
 <ol>
@@ -269,7 +268,7 @@ Focus more on the media type(s) served and the semantics of link relations:</p>
 </ul>
 
 <p>We effectively start to document resource <em>types</em>, not individual resources.
-In my opinion the very first question is the most important one to answer, as that’s gonna be the answer a client will build its state detection around: instead of inspecting a payload field for a certain value (e.g. <code>status : "payment expected"</code>), it can inspect the links available to decide whether to offer functionality in the UI (e.g. is the <code>payment</code> link present?).
+In my opinion the very first question is the most important one to answer, as that’s gonna be the answer a client will build its state detection around: instead of inspecting a payload field for a certain value (e.g. <code class="language-plaintext highlighter-rouge">status : "payment expected"</code>), it can inspect the links available to decide whether to offer functionality in the UI (e.g. is the <code class="language-plaintext highlighter-rouge">payment</code> link present?).
 That approach shines especially in the area of security: instead of having to teach the client whether it is or is not allowed to do something to the system via a separate chain of requests to the server (did I hear you scream: <em>“INEFFICIENT!”</em>?), you can rather let the server decide whether to advertise that functionality in the first place.
 The client just picks up the link if present.
 You basically try to reduce as many decisions of the client to a plain “Yes or no?”.</p>
@@ -300,11 +299,11 @@ You want to avoid the need for communication, not create incentives to increase 
   <h2>Related Posts</h2>
   <ul class="posts">
     
+      <li><span>22 Feb 2021</span> &raquo; <a href="/2021/02/Architecturally-evident-code-with-jMolecules/">Architecturally evident code with jMolecules</a></li>
+    
       <li><span>17 Mar 2020</span> &raquo; <a href="/2020/03/Implementing-DDD-Building-Blocks-in-Java/">Implementing DDD Building Blocks in Java</a></li>
     
       <li><span>29 Apr 2016</span> &raquo; <a href="/2016/04/benefits-of-hypermedia/">The Benefits of Hypermedia APIs</a></li>
-    
-      <li><span>22 Nov 2013</span> &raquo; <a href="/2013/11/why-field-injection-is-evil/">Why field injection is evil</a></li>
     
   </ul>
 </div>
@@ -343,7 +342,7 @@ You want to avoid the need for communication, not create incentives to increase 
         <p>
           <a href="http://github.com/odrotbohm/">github.com/odrotbohm</a><br />
           <a href="http://twitter.com/odrotbohm/">twitter.com/odrotbohm</a><br />
-          <a href='mailto:info@olivergierke.de'>info@olivergierke.de</a>
+          <a href='mailto:info@odrotbohm.de'>info@odrotbohm.de</a>
         </p>
       </div>
       <div class="rss">
@@ -353,7 +352,6 @@ You want to avoid the need for communication, not create incentives to increase 
       </div>
     </div>
   </div>
-  <a href="http://github.com/odrotbohm"><img style="position: absolute; top: 0; right: 0; border: 0;" src="http://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png" alt="Fork me on GitHub" /></a>
 
   
 </body>

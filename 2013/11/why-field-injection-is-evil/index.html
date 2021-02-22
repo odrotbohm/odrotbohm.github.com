@@ -14,11 +14,10 @@
    <!-- Homepage CSS -->
    <link rel="stylesheet" href="/assets/themes/tom/css/screen.css" type="text/css" media="screen, projection" />
 
-   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fira+Sans:wght@300;700&display=swap" type="text/css" />
+   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fira+Sans:wght@300700&display=swap" type="text/css" />
+   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;700&display=swap" type="text/css" />
 
-   <!-- Typekit -->
-   <script type="text/javascript" src="http://use.typekit.com/jpd0pfm.js"></script>
-   <script type="text/javascript">try{Typekit.load();}catch(e){}</script>
+
 </head>
 <body>
 
@@ -48,7 +47,7 @@
 
 <p>Let’s discuss this stuff with a bit of (quite generic) context: we want to code a component that has a collaborator. As we know, Dependency Injection is the means to connect the two the apparently easiest way to achieve this is the following:</p>
 
-<pre><code>class MyComponent {
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>class MyComponent {
  
   @Inject MyCollaborator collaborator;
   
@@ -56,7 +55,7 @@
     collaborator.doSomething();
   }
 }
-</code></pre>
+</code></pre></div></div>
 
 <p>So what’s wrong with this code?</p>
 
@@ -64,15 +63,15 @@
 
 <p>Well, first of all it’s broken by default. What’s the API you get to create instances of this class which you will need in your unit test?</p>
 
-<pre><code>MyComponent component = new MyComponent();
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>MyComponent component = new MyComponent();
 component.myBusinessMethod(); // -&gt; NullPointerException
-</code></pre>
+</code></pre></div></div>
 
-<p>The core of the problem here is that code you’ve written allows clients to create instances of the class in an invalid state. The whole purpose of a type is clients being able to rely on the invariants it enforces. It’s one of the reasons you use an <code>EmailAddress</code> type over a plain <code>String</code> to represent email adresses in your code: clients can be sure the instance they get is a valid email address as the value object enforces this constraint during construction. A <code>String</code> can potentially be anything, validated or not - how do you know?</p>
+<p>The core of the problem here is that code you’ve written allows clients to create instances of the class in an invalid state. The whole purpose of a type is clients being able to rely on the invariants it enforces. It’s one of the reasons you use an <code class="language-plaintext highlighter-rouge">EmailAddress</code> type over a plain <code class="language-plaintext highlighter-rouge">String</code> to represent email adresses in your code: clients can be sure the instance they get is a valid email address as the value object enforces this constraint during construction. A <code class="language-plaintext highlighter-rouge">String</code> can potentially be anything, validated or not - how do you know?</p>
 
 <p>So you can probably guess what this is heading to: constructor injection. Let’s rewrite the code shown before in a way it actually enforces the traits I just outlined:</p>
 
-<pre><code>class MyComponent {
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>class MyComponent {
  
   private final MyCollaborator collaborator;
   
@@ -86,14 +85,14 @@ component.myBusinessMethod(); // -&gt; NullPointerException
     collaborator.doSomething();
   }
 }
-</code></pre>
+</code></pre></div></div>
 
 <p>“Ohh boy!”, I can hear you say, “So much boilerplate code!”. Let me get back to this argument in a bit and just recap, what we’ve achieved:</p>
 
 <ol>
-  <li><em>You can only create instances of <code>MyComponent</code> by providing a <code>MyCollaborator</code></em>. You <em>force</em> clients to provide mandatory dependencies, making sure every object created is in a valid state after construction.</li>
+  <li><em>You can only create instances of <code class="language-plaintext highlighter-rouge">MyComponent</code> by providing a <code class="language-plaintext highlighter-rouge">MyCollaborator</code></em>. You <em>force</em> clients to provide mandatory dependencies, making sure every object created is in a valid state after construction.</li>
   <li><em>You communicate mandatory dependencies publicly.</em> Remember when we bashed service locators for hiding dependencies in the implementations? Field injections is just lipstick on the pig in that regard. You still don’t know about the dependencies just looking at the public interface of the type (e.g. while skimming the JavaDoc). Especially if you share code amongst projects field injection based types become a “run-and-wait-for-the-NPE-to-happen,-declare-missing-beans-and-repeat” kind of approach.</li>
-  <li><em>Final fields also add to the immutable nature application components get.</em> You can clearly distinguish between mandatory dependencies (<code>final</code>) and optional ones (non-<code>final</code>) usually injected through setter injection.</li>
+  <li><em>Final fields also add to the immutable nature application components get.</em> You can clearly distinguish between mandatory dependencies (<code class="language-plaintext highlighter-rouge">final</code>) and optional ones (non-<code class="language-plaintext highlighter-rouge">final</code>) usually injected through setter injection.</li>
 </ol>
 
 <p>An often faced argument I get is: “Constructors just get too verbose if I have 6 or 7 dependencies. With fields only, this is fine”. Awesome, you’ve effectively worked around a clear indicator that the code you write is doing way too much. An increase in the number of dependencies a type has <em>should</em>  hurt, as it makes you think about whether you should split up the component into multiple ones. You want to really cure the pain, not blindly apply pain killers to it, don’t you?</p>
@@ -102,18 +101,18 @@ component.myBusinessMethod(); // -&gt; NullPointerException
 
 <p>Coming back to the amount of code to be written for the constructor injection based variant. Assuming we sticked to the field injection variant, we would have much less code to write, right? Well, I guess you’re writing tests for your code, right? So how do you actually inject a dependency into your component while testing?</p>
 
-<pre><code>MyCollaborator collaborator = … // mock dependency
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>MyCollaborator collaborator = … // mock dependency
 MyComponent component = new MyComponent();
 // Inject dependency by some reflection magic
 component.myBusinessMethod();
-</code></pre>
+</code></pre></div></div>
 
 <p>Reflection is the answer here, fine. No matter how comfortable you make this by using a helper method or the like, it’s still a messy workaround isn’t it? Especially if the alternative to that is a simple:</p>
 
-<pre><code>MyCollaborator collaborator = … // mock dependency
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>MyCollaborator collaborator = … // mock dependency
 MyComponent component = new MyComponent(collaborator);
 component.myBusinessMethod();
-</code></pre>
+</code></pre></div></div>
 
 <p>You get code completion on the constructor call and when you add a dependency to the type under test, refactoring applies, no unset dependencies etc.</p>
 
@@ -123,7 +122,7 @@ component.myBusinessMethod();
 
 <p>However, <a href="http://projectlombok.org/">Project Lombok</a> is a really awesome helper to reduce the amount of boilerplate you have to write to do “the right things” (™). There’s a ton of helpful features in Lombok but I want to concentrate on the one related to the discussion here. With Lombok the constructor DI based variant of my component up there would look something like this:</p>
 
-<pre><code>@RequiredArgsConstructor(onConstructor = @__(@Inject))
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>@RequiredArgsConstructor(onConstructor = @__(@Inject))
 class MyComponent {
     
   private final @NonNull MyCollaborator collaborator;
@@ -132,25 +131,25 @@ class MyComponent {
     collaborator.doSomething();
   }
 }
-</code></pre>
+</code></pre></div></div>
 
-<p>The <code>@RequiredArgsAnnotation</code> will cause a constructor being added during the compilation process taking all final fields as parameters. The additional <code>@NonNull</code> annotation will cause the parameter be checked for <code>null</code> as well. The weird looking <code>onConstructor</code> is Lombok’s way of letting you add annotations to the constructor generated. So with an additional annotation you effectively get the API we’re looking for.</p>
+<p>The <code class="language-plaintext highlighter-rouge">@RequiredArgsAnnotation</code> will cause a constructor being added during the compilation process taking all final fields as parameters. The additional <code class="language-plaintext highlighter-rouge">@NonNull</code> annotation will cause the parameter be checked for <code class="language-plaintext highlighter-rouge">null</code> as well. The weird looking <code class="language-plaintext highlighter-rouge">onConstructor</code> is Lombok’s way of letting you add annotations to the constructor generated. So with an additional annotation you effectively get the API we’re looking for.</p>
 
 <p>To summarize, here are the results of the comparison that I get to:</p>
 
 <h3 id="field-injection">Field injection:</h3>
 
-<pre><code>++ less code to write
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>++ less code to write
 -- unsafe code
  - more complicated to test
-</code></pre>
+</code></pre></div></div>
 
 <h3 id="constructor-injection">Constructor injection:</h3>
 
-<pre><code>++ safe code
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>++ safe code
  - more code to write (see the hint to Lombok)
  + easy to test
-</code></pre>
+</code></pre></div></div>
 
 </div>
 
@@ -158,11 +157,11 @@ class MyComponent {
   <h2>Related Posts</h2>
   <ul class="posts">
     
+      <li><span>22 Feb 2021</span> &raquo; <a href="/2021/02/Architecturally-evident-code-with-jMolecules/">Architecturally evident code with jMolecules</a></li>
+    
       <li><span>17 Mar 2020</span> &raquo; <a href="/2020/03/Implementing-DDD-Building-Blocks-in-Java/">Implementing DDD Building Blocks in Java</a></li>
     
       <li><span>09 Oct 2016</span> &raquo; <a href="/2016/10/evolving-distributed-systems/">Evolving Distributed Systems</a></li>
-    
-      <li><span>29 Apr 2016</span> &raquo; <a href="/2016/04/benefits-of-hypermedia/">The Benefits of Hypermedia APIs</a></li>
     
   </ul>
 </div>
@@ -201,7 +200,7 @@ class MyComponent {
         <p>
           <a href="http://github.com/odrotbohm/">github.com/odrotbohm</a><br />
           <a href="http://twitter.com/odrotbohm/">twitter.com/odrotbohm</a><br />
-          <a href='mailto:info@olivergierke.de'>info@olivergierke.de</a>
+          <a href='mailto:info@odrotbohm.de'>info@odrotbohm.de</a>
         </p>
       </div>
       <div class="rss">
@@ -211,7 +210,6 @@ class MyComponent {
       </div>
     </div>
   </div>
-  <a href="http://github.com/odrotbohm"><img style="position: absolute; top: 0; right: 0; border: 0;" src="http://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png" alt="Fork me on GitHub" /></a>
 
   
 </body>

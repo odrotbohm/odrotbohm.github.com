@@ -14,11 +14,10 @@
    <!-- Homepage CSS -->
    <link rel="stylesheet" href="/assets/themes/tom/css/screen.css" type="text/css" media="screen, projection" />
 
-   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fira+Sans:wght@300;700&display=swap" type="text/css" />
+   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fira+Sans:wght@300700&display=swap" type="text/css" />
+   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;700&display=swap" type="text/css" />
 
-   <!-- Typekit -->
-   <script type="text/javascript" src="http://use.typekit.com/jpd0pfm.js"></script>
-   <script type="text/javascript">try{Typekit.load();}catch(e){}</script>
+
 </head>
 <body>
 
@@ -46,7 +45,7 @@
   
 <p>Java web application developers often face the need to inject a regular Spring bean into a non-Spring-managed artifact like a Servlet or a JSP tag.. If you browse the web for you find various quite outdated solutions to it. No offense, by the time being these were quite appropriate solutions. One of them you’ll probably will find is the following:</p>
 
-<pre><code>public class MyServlet extends HttpServlet {
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>public class MyServlet extends HttpServlet {
 
   private MyService service;
 
@@ -63,13 +62,13 @@
     service = ctx.getBean(MyService.class);
   }
 }
-</code></pre>
+</code></pre></div></div>
 
-<p>Let’s recap what we just have done. First we need to get access to the <code>ServletContext</code> of the web application. A Spring <code>WebApplicationContext</code> that was registered by a <code>ContextLoaderListener</code> will be registered in the <code>ServletContext</code> under a special name the framework knows, so that <code>WebApplicationContextUtils</code> can then look it up and hand it out to you to manually retrieve Spring beans from it.</p>
+<p>Let’s recap what we just have done. First we need to get access to the <code class="language-plaintext highlighter-rouge">ServletContext</code> of the web application. A Spring <code class="language-plaintext highlighter-rouge">WebApplicationContext</code> that was registered by a <code class="language-plaintext highlighter-rouge">ContextLoaderListener</code> will be registered in the <code class="language-plaintext highlighter-rouge">ServletContext</code> under a special name the framework knows, so that <code class="language-plaintext highlighter-rouge">WebApplicationContextUtils</code> can then look it up and hand it out to you to manually retrieve Spring beans from it.</p>
 
-<p>Okay, that get’s the job done. But we can reduce the effort and go a much nicer way, that reduces the amount of boilerplate even more. Spring 2.5.1 introduced a tiny helperclass <code>SpringBeanAutowiringSupport</code> which is residing in <code>org.springframework.web.context.support</code> spending a rather unregarded life. It offers a method <code>processInjectionBasedOnCurrentContext(Object target)</code> that automatically injects Spring beans to properties of the given target using the usual annotation driven suspects (<code>@Autowired</code>, <code>@Resource</code>, <code>@Inject</code>). So our sample code turns into something like this:</p>
+<p>Okay, that get’s the job done. But we can reduce the effort and go a much nicer way, that reduces the amount of boilerplate even more. Spring 2.5.1 introduced a tiny helperclass <code class="language-plaintext highlighter-rouge">SpringBeanAutowiringSupport</code> which is residing in <code class="language-plaintext highlighter-rouge">org.springframework.web.context.support</code> spending a rather unregarded life. It offers a method <code class="language-plaintext highlighter-rouge">processInjectionBasedOnCurrentContext(Object target)</code> that automatically injects Spring beans to properties of the given target using the usual annotation driven suspects (<code class="language-plaintext highlighter-rouge">@Autowired</code>, <code class="language-plaintext highlighter-rouge">@Resource</code>, <code class="language-plaintext highlighter-rouge">@Inject</code>). So our sample code turns into something like this:</p>
 
-<pre><code>public class MyServlet extends HttpServlet {
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>public class MyServlet extends HttpServlet {
 
   @Inject
   private MyService service;
@@ -80,9 +79,9 @@
       processInjectionBasedOnCurrentContext(this);
   }
 }
-</code></pre>
+</code></pre></div></div>
 
-<p>Done. Note, that we override the init method without the <code>ServletConfig</code> parameter as the called method looks up the actual <code>ApplicationContext</code> from a static map held in <code>ContextLoader</code> which inherits from. If you need to lookup beans from an <code>ApplicationContext</code> tied to a particular <code>ServletContext</code> you can use <code>processInjectionBasedOnServletContext(Object target, ServletContext servletContext)</code> and hand it the appropriate instances.</p>
+<p>Done. Note, that we override the init method without the <code class="language-plaintext highlighter-rouge">ServletConfig</code> parameter as the called method looks up the actual <code class="language-plaintext highlighter-rouge">ApplicationContext</code> from a static map held in <code class="language-plaintext highlighter-rouge">ContextLoader</code> which inherits from. If you need to lookup beans from an <code class="language-plaintext highlighter-rouge">ApplicationContext</code> tied to a particular <code class="language-plaintext highlighter-rouge">ServletContext</code> you can use <code class="language-plaintext highlighter-rouge">processInjectionBasedOnServletContext(Object target, ServletContext servletContext)</code> and hand it the appropriate instances.</p>
 
 <p>P.S.: Thanks to <a href="http://jandiandme.blogspot.com/">Eberhard Wolff</a> for pointing me at this.</p>
 
@@ -92,11 +91,11 @@
   <h2>Related Posts</h2>
   <ul class="posts">
     
+      <li><span>22 Feb 2021</span> &raquo; <a href="/2021/02/Architecturally-evident-code-with-jMolecules/">Architecturally evident code with jMolecules</a></li>
+    
       <li><span>17 Mar 2020</span> &raquo; <a href="/2020/03/Implementing-DDD-Building-Blocks-in-Java/">Implementing DDD Building Blocks in Java</a></li>
     
       <li><span>09 Oct 2016</span> &raquo; <a href="/2016/10/evolving-distributed-systems/">Evolving Distributed Systems</a></li>
-    
-      <li><span>29 Apr 2016</span> &raquo; <a href="/2016/04/benefits-of-hypermedia/">The Benefits of Hypermedia APIs</a></li>
     
   </ul>
 </div>
@@ -135,7 +134,7 @@
         <p>
           <a href="http://github.com/odrotbohm/">github.com/odrotbohm</a><br />
           <a href="http://twitter.com/odrotbohm/">twitter.com/odrotbohm</a><br />
-          <a href='mailto:info@olivergierke.de'>info@olivergierke.de</a>
+          <a href='mailto:info@odrotbohm.de'>info@odrotbohm.de</a>
         </p>
       </div>
       <div class="rss">
@@ -145,7 +144,6 @@
       </div>
     </div>
   </div>
-  <a href="http://github.com/odrotbohm"><img style="position: absolute; top: 0; right: 0; border: 0;" src="http://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png" alt="Fork me on GitHub" /></a>
 
   
 </body>

@@ -14,11 +14,10 @@
    <!-- Homepage CSS -->
    <link rel="stylesheet" href="/assets/themes/tom/css/screen.css" type="text/css" media="screen, projection" />
 
-   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fira+Sans:wght@300;700&display=swap" type="text/css" />
+   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fira+Sans:wght@300700&display=swap" type="text/css" />
+   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;700&display=swap" type="text/css" />
 
-   <!-- Typekit -->
-   <script type="text/javascript" src="http://use.typekit.com/jpd0pfm.js"></script>
-   <script type="text/javascript">try{Typekit.load();}catch(e){}</script>
+
 </head>
 <body>
 
@@ -57,31 +56,31 @@
 
 <h2 id="aligning-object-creation-to-the-classpath-configuration">Aligning object creation to the classpath configuration</h2>
 
-<p>Besides the availability of types, organizing the object web an application consists of is the second part of the challenge. Spring serves this purpose quite well and supports a variety of configuration formats and options. A first step to real application modularity is aligning <code>ApplicationContext</code> creation to the before mentioned usage of the classpath to assemble modules.</p>
+<p>Besides the availability of types, organizing the object web an application consists of is the second part of the challenge. Spring serves this purpose quite well and supports a variety of configuration formats and options. A first step to real application modularity is aligning <code class="language-plaintext highlighter-rouge">ApplicationContext</code> creation to the before mentioned usage of the classpath to assemble modules.</p>
 
 <p><a href="http://www.springframework.org">Springs</a> XML configuration is widely regarded as very static as typically changing something in the bean wiring means editing some of the config files. But using</p>
 
-<p><code>&lt;import resource="classpath*:com/acme/**/my-context.xml" /&gt;</code></p>
+<p><code class="language-plaintext highlighter-rouge">&lt;import resource="classpath*:com/acme/**/my-context.xml" /&gt;</code></p>
 
-<p>in config files of a core application allows to transparently add beans from configuration files named <code>my-context.xml</code> under a package <code>com.acme</code> to an <code>ApplicationContext</code>. This way determining the application classpath leads to the creation of certain Spring beans without actually touching any configuration files as long as module JARs declare their beans in <code>my-context.xml</code> and thus aligns availability of beans in the <code>ApplicationContext</code> to the classpath configuration.</p>
+<p>in config files of a core application allows to transparently add beans from configuration files named <code class="language-plaintext highlighter-rouge">my-context.xml</code> under a package <code class="language-plaintext highlighter-rouge">com.acme</code> to an <code class="language-plaintext highlighter-rouge">ApplicationContext</code>. This way determining the application classpath leads to the creation of certain Spring beans without actually touching any configuration files as long as module JARs declare their beans in <code class="language-plaintext highlighter-rouge">my-context.xml</code> and thus aligns availability of beans in the <code class="language-plaintext highlighter-rouge">ApplicationContext</code> to the classpath configuration.</p>
 
 <h2 id="client-side-binding">Client side binding</h2>
 
-<p>This leads us to the question how an extensible object gets access to the instance that is created from an module JAR’s <code>my-context.xml</code>. Referencing by bean id does not seem to be a good idea as this would imply to much on the module author and entirely break if there is more than one bean to be referenced. This is where <a href="http://hera.synyx.org">Hera</a> comes into play. It provides a Spring namespace to dynamically lookup beans from an <code>ApplicationContext</code> and let them be bound to a collecting bean. Thus by defining</p>
+<p>This leads us to the question how an extensible object gets access to the instance that is created from an module JAR’s <code class="language-plaintext highlighter-rouge">my-context.xml</code>. Referencing by bean id does not seem to be a good idea as this would imply to much on the module author and entirely break if there is more than one bean to be referenced. This is where <a href="http://hera.synyx.org">Hera</a> comes into play. It provides a Spring namespace to dynamically lookup beans from an <code class="language-plaintext highlighter-rouge">ApplicationContext</code> and let them be bound to a collecting bean. Thus by defining</p>
 
-<p><code>&lt;hera:list id="foo" class="my.plugin.Interface" /&gt;</code></p>
+<p><code class="language-plaintext highlighter-rouge">&lt;hera:list id="foo" class="my.plugin.Interface" /&gt;</code></p>
 
-<p>all beans implementing <code>my.plugin.Interface</code> would be collected into a <code>ListFactoryBean</code> and could be referenced by other beans. In effect this will allow you to dynamically inject dependency in your beans just by configuring your classpath. For our customer sample you would create two modules with classes implementing <code>Interface</code> and use your build system to package one into the one assembly the other one into the other. No Spring reconfiguration needed - configure your app by stating it’s dependencies.</p>
+<p>all beans implementing <code class="language-plaintext highlighter-rouge">my.plugin.Interface</code> would be collected into a <code class="language-plaintext highlighter-rouge">ListFactoryBean</code> and could be referenced by other beans. In effect this will allow you to dynamically inject dependency in your beans just by configuring your classpath. For our customer sample you would create two modules with classes implementing <code class="language-plaintext highlighter-rouge">Interface</code> and use your build system to package one into the one assembly the other one into the other. No Spring reconfiguration needed - configure your app by stating it’s dependencies.</p>
 
 <h2 id="binding-at-runtime">Binding at runtime</h2>
 
-<p>As this serves fine for our customer code example what about the taxes example. To find a suitable answer for this problem you actually would have to add all the JARs for the different states and decide at runtime which one to use dependeing on the state the user originates from. Here’s how you’d approach this using Hera. The first step is to let your <code>TaxCalculator</code> extend Hera’s <code>Plugin&lt;T&gt;</code> interface, that adds a <code>supports(T delimiter)</code> method to allow determining if the plugin is suitable in a given context. The delimiter type in our example could be a <code>State</code> enum or the <code>User</code> type itself. Thus the plugin itself can decide which states it provides tax calculation for.</p>
+<p>As this serves fine for our customer code example what about the taxes example. To find a suitable answer for this problem you actually would have to add all the JARs for the different states and decide at runtime which one to use dependeing on the state the user originates from. Here’s how you’d approach this using Hera. The first step is to let your <code class="language-plaintext highlighter-rouge">TaxCalculator</code> extend Hera’s <code class="language-plaintext highlighter-rouge">Plugin&lt;T&gt;</code> interface, that adds a <code class="language-plaintext highlighter-rouge">supports(T delimiter)</code> method to allow determining if the plugin is suitable in a given context. The delimiter type in our example could be a <code class="language-plaintext highlighter-rouge">State</code> enum or the <code class="language-plaintext highlighter-rouge">User</code> type itself. Thus the plugin itself can decide which states it provides tax calculation for.</p>
 
-<p>At the client side aquiring a simple list of all the <code>TaxCalculator</code> instances is not sufficient anymore. You probably want to gain a little more detailed access to certain instances. Thus instead of the list element you now use a</p>
+<p>At the client side aquiring a simple list of all the <code class="language-plaintext highlighter-rouge">TaxCalculator</code> instances is not sufficient anymore. You probably want to gain a little more detailed access to certain instances. Thus instead of the list element you now use a</p>
 
-<p><code>&lt;hera:registry id="foo" class="my.plugin.TaxCalcuator" /&gt;</code></p>
+<p><code class="language-plaintext highlighter-rouge">&lt;hera:registry id="foo" class="my.plugin.TaxCalcuator" /&gt;</code></p>
 
-<p>to obtain an instance of <code>PluginRegistry&lt;TaxCalculator, User&gt;</code> that allows you to access the plugin instance in various way, returning defaults if no plugin found for given delimiter and so on. See the <a href="http://trac.synyx.org/hera/chrome/site/mvn/hera-core/apidocs/index.html">JavaDoc</a> for details.</p>
+<p>to obtain an instance of <code class="language-plaintext highlighter-rouge">PluginRegistry&lt;TaxCalculator, User&gt;</code> that allows you to access the plugin instance in various way, returning defaults if no plugin found for given delimiter and so on. See the <a href="http://trac.synyx.org/hera/chrome/site/mvn/hera-core/apidocs/index.html">JavaDoc</a> for details.</p>
 
 <h2 id="bringin-the-parts-together">Bringin the parts together</h2>
 
@@ -97,11 +96,11 @@
   <h2>Related Posts</h2>
   <ul class="posts">
     
+      <li><span>22 Feb 2021</span> &raquo; <a href="/2021/02/Architecturally-evident-code-with-jMolecules/">Architecturally evident code with jMolecules</a></li>
+    
       <li><span>17 Mar 2020</span> &raquo; <a href="/2020/03/Implementing-DDD-Building-Blocks-in-Java/">Implementing DDD Building Blocks in Java</a></li>
     
       <li><span>09 Oct 2016</span> &raquo; <a href="/2016/10/evolving-distributed-systems/">Evolving Distributed Systems</a></li>
-    
-      <li><span>29 Apr 2016</span> &raquo; <a href="/2016/04/benefits-of-hypermedia/">The Benefits of Hypermedia APIs</a></li>
     
   </ul>
 </div>
@@ -140,7 +139,7 @@
         <p>
           <a href="http://github.com/odrotbohm/">github.com/odrotbohm</a><br />
           <a href="http://twitter.com/odrotbohm/">twitter.com/odrotbohm</a><br />
-          <a href='mailto:info@olivergierke.de'>info@olivergierke.de</a>
+          <a href='mailto:info@odrotbohm.de'>info@odrotbohm.de</a>
         </p>
       </div>
       <div class="rss">
@@ -150,7 +149,6 @@
       </div>
     </div>
   </div>
-  <a href="http://github.com/odrotbohm"><img style="position: absolute; top: 0; right: 0; border: 0;" src="http://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png" alt="Fork me on GitHub" /></a>
 
   
 </body>

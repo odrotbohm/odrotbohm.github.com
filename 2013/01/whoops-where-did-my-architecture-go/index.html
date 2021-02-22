@@ -14,11 +14,10 @@
    <!-- Homepage CSS -->
    <link rel="stylesheet" href="/assets/themes/tom/css/screen.css" type="text/css" media="screen, projection" />
 
-   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fira+Sans:wght@300;700&display=swap" type="text/css" />
+   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fira+Sans:wght@300700&display=swap" type="text/css" />
+   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;700&display=swap" type="text/css" />
 
-   <!-- Typekit -->
-   <script type="text/javascript" src="http://use.typekit.com/jpd0pfm.js"></script>
-   <script type="text/javascript">try{Typekit.load();}catch(e){}</script>
+
 </head>
 <body>
 
@@ -88,11 +87,11 @@
 
 <h2 id="packages">Packages</h2>
 
-<p>The reason packages are usually not used as dependency managment mean is that designing packages is not a trivial task, even you use an architecture tool like Sonargraph to help you. An aspect of that is that there are hardly any guidelines on how to do it and thus various kinds of crazy patterns have evolved over the years. Arbitrarily restricting the number of classes in a package is just - arbitrary (actually one of the few points I disagree with Jens Schauder’s blog post). Simply grouping all exception types into a <code>exceptions</code> package is not really reasonable either as it groups types by technical commonalities which usually doesn’t provide any architectural benefit.</p>
+<p>The reason packages are usually not used as dependency managment mean is that designing packages is not a trivial task, even you use an architecture tool like Sonargraph to help you. An aspect of that is that there are hardly any guidelines on how to do it and thus various kinds of crazy patterns have evolved over the years. Arbitrarily restricting the number of classes in a package is just - arbitrary (actually one of the few points I disagree with Jens Schauder’s blog post). Simply grouping all exception types into a <code class="language-plaintext highlighter-rouge">exceptions</code> package is not really reasonable either as it groups types by technical commonalities which usually doesn’t provide any architectural benefit.</p>
 
 <p>Assuming we’d like to map our previously defined architecture onto Java packages, here’s what you’ll probably see something like this. You find actual code backing this approach in the <a href="https://github.com/olivergierke/Whoops-Architecture/tree/master/packages-before">packages-before project</a> of this GitHub repo:</p>
 
-<pre><code>….account.domain
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>….account.domain
 ….account.presentation
 ….account.repository
 ….account.service
@@ -101,13 +100,13 @@
 ….customer.presentation
 ….customer.service
 ….customer.repository
-</code></pre>
+</code></pre></div></div>
 
-<p>This is not bad in general but there are a few things to consider here. First, having the slice first is a good idea as you can easily separate or externalice and entire chunk of functionality. Remember that in our example, the <code>account</code> slice was not depended on by anything else so we should be able to remove this package and all of it’s sub folders to ditch the features implemented in the slice and the app should still work with the customer features only.</p>
+<p>This is not bad in general but there are a few things to consider here. First, having the slice first is a good idea as you can easily separate or externalice and entire chunk of functionality. Remember that in our example, the <code class="language-plaintext highlighter-rouge">account</code> slice was not depended on by anything else so we should be able to remove this package and all of it’s sub folders to ditch the features implemented in the slice and the app should still work with the customer features only.</p>
 
-<p>Second, you see that the core slice does not have code in any of the actual layers, but a <code>domain</code> package only. This essentially shows that we expose something that can be considered an implementation detail to the public: the layering. That might be considered not too important but it has a consequence that completely subverts our idea of reducing the number of types to manage. Let’s have a more detailed look at that:</p>
+<p>Second, you see that the core slice does not have code in any of the actual layers, but a <code class="language-plaintext highlighter-rouge">domain</code> package only. This essentially shows that we expose something that can be considered an implementation detail to the public: the layering. That might be considered not too important but it has a consequence that completely subverts our idea of reducing the number of types to manage. Let’s have a more detailed look at that:</p>
 
-<pre><code>….customer.domain
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>….customer.domain
   + Customer
 ….customer.service
   + CustomerManagement
@@ -115,19 +114,19 @@
   + CustomerNumberGenerator
 ….customer.repository
   + CustomerRepository
-</code></pre>
+</code></pre></div></div>
 
-<p>Assume the following: <code>CustomerRepository</code> is simply persisting <code>Customer</code> instances. The core part of the service implementation is generating customer numbers when a new <code>Customer</code> is created. This creates the need to make sure all customers are created through the service interface to make sure this behavior gets applied. Unfortunately, <code>CustomerRepository</code> needs to be a public type so that it can be referred to from the service implementation. This opens it up to be an injection candidate into virtually any other component of the system, which is exactly what we want to avoid. So what if we ditched the layer packages entirely? (The code can be found <a href="https://github.com/olivergierke/Whoops-Architecture/tree/master/packages-after">here</a>.)</p>
+<p>Assume the following: <code class="language-plaintext highlighter-rouge">CustomerRepository</code> is simply persisting <code class="language-plaintext highlighter-rouge">Customer</code> instances. The core part of the service implementation is generating customer numbers when a new <code class="language-plaintext highlighter-rouge">Customer</code> is created. This creates the need to make sure all customers are created through the service interface to make sure this behavior gets applied. Unfortunately, <code class="language-plaintext highlighter-rouge">CustomerRepository</code> needs to be a public type so that it can be referred to from the service implementation. This opens it up to be an injection candidate into virtually any other component of the system, which is exactly what we want to avoid. So what if we ditched the layer packages entirely? (The code can be found <a href="https://github.com/olivergierke/Whoops-Architecture/tree/master/packages-after">here</a>.)</p>
 
-<pre><code>….customer
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>….customer
   + Customer
   + CustomerManagement
   o CustomerManagementImpl
   o CustomerNumberGenerator
   o CustomerRepository
-</code></pre>
+</code></pre></div></div>
 
-<p>We end up with less then a half of public types to manage. <code>CustomerRepository</code> cannot be used from anywhere else as the Java compiler prevents us from doing so. <code>CustomerNumberGenerator</code> and the layering in general becomes an implementation detail. Architecturally this creates stronger gates between the slices (the packages actually) and thinner ones between the layers (simple class-to-class dependencies) as illustrated in <a href="https://speakerdeck.com/olivergierke/whoops-where-did-my-architecture-go-2?slide=35">this slide</a> (compare to the slide before to see the difference).</p>
+<p>We end up with less then a half of public types to manage. <code class="language-plaintext highlighter-rouge">CustomerRepository</code> cannot be used from anywhere else as the Java compiler prevents us from doing so. <code class="language-plaintext highlighter-rouge">CustomerNumberGenerator</code> and the layering in general becomes an implementation detail. Architecturally this creates stronger gates between the slices (the packages actually) and thinner ones between the layers (simple class-to-class dependencies) as illustrated in <a href="https://speakerdeck.com/olivergierke/whoops-where-did-my-architecture-go-2?slide=35">this slide</a> (compare to the slide before to see the difference).</p>
 
 <h2 id="summary">Summary</h2>
 
@@ -139,11 +138,11 @@
   <h2>Related Posts</h2>
   <ul class="posts">
     
+      <li><span>22 Feb 2021</span> &raquo; <a href="/2021/02/Architecturally-evident-code-with-jMolecules/">Architecturally evident code with jMolecules</a></li>
+    
       <li><span>17 Mar 2020</span> &raquo; <a href="/2020/03/Implementing-DDD-Building-Blocks-in-Java/">Implementing DDD Building Blocks in Java</a></li>
     
       <li><span>09 Oct 2016</span> &raquo; <a href="/2016/10/evolving-distributed-systems/">Evolving Distributed Systems</a></li>
-    
-      <li><span>29 Apr 2016</span> &raquo; <a href="/2016/04/benefits-of-hypermedia/">The Benefits of Hypermedia APIs</a></li>
     
   </ul>
 </div>
@@ -182,7 +181,7 @@
         <p>
           <a href="http://github.com/odrotbohm/">github.com/odrotbohm</a><br />
           <a href="http://twitter.com/odrotbohm/">twitter.com/odrotbohm</a><br />
-          <a href='mailto:info@olivergierke.de'>info@olivergierke.de</a>
+          <a href='mailto:info@odrotbohm.de'>info@odrotbohm.de</a>
         </p>
       </div>
       <div class="rss">
@@ -192,7 +191,6 @@
       </div>
     </div>
   </div>
-  <a href="http://github.com/odrotbohm"><img style="position: absolute; top: 0; right: 0; border: 0;" src="http://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png" alt="Fork me on GitHub" /></a>
 
   
 </body>

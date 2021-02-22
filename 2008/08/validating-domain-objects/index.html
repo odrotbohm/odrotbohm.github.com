@@ -14,11 +14,10 @@
    <!-- Homepage CSS -->
    <link rel="stylesheet" href="/assets/themes/tom/css/screen.css" type="text/css" media="screen, projection" />
 
-   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fira+Sans:wght@300;700&display=swap" type="text/css" />
+   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fira+Sans:wght@300700&display=swap" type="text/css" />
+   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;700&display=swap" type="text/css" />
 
-   <!-- Typekit -->
-   <script type="text/javascript" src="http://use.typekit.com/jpd0pfm.js"></script>
-   <script type="text/javascript">try{Typekit.load();}catch(e){}</script>
+
 </head>
 <body>
 
@@ -53,9 +52,9 @@
 
 <p>In consequence this means that my DTOs are “userfriendly” taking user form input as it is given. They are validated by external validation classes (maybe nicely separated into a hierarchy to avoid implementing common validation logic twice but allowing client specific validation logic where necessary). These also ensure the identity of both given passwords e.g. or the uniqueness of the user’s email address.</p>
 
-<p>My domain objects are much more restrictive then. I tend to reject as much invalid input as possible. An email class definately would reject an invalid email string with an <code>IllegalArgumentException</code>. Doing so in a DTO would make clean error messaging almost impossible.</p>
+<p>My domain objects are much more restrictive then. I tend to reject as much invalid input as possible. An email class definately would reject an invalid email string with an <code class="language-plaintext highlighter-rouge">IllegalArgumentException</code>. Doing so in a DTO would make clean error messaging almost impossible.</p>
 
-<p>As the validation subsystem or layer is allowed to depend on the domain layer I try to use eventually exposable validation logic from the domain layer. The regular expression to reject invalid email addresses in the email domain class could be used to nicely capture and reject the email field on the <code>UserDTO</code> in an Spring MVC validator implementation.</p>
+<p>As the validation subsystem or layer is allowed to depend on the domain layer I try to use eventually exposable validation logic from the domain layer. The regular expression to reject invalid email addresses in the email domain class could be used to nicely capture and reject the email field on the <code class="language-plaintext highlighter-rouge">UserDTO</code> in an Spring MVC validator implementation.</p>
 
 </div>
 
@@ -63,11 +62,11 @@
   <h2>Related Posts</h2>
   <ul class="posts">
     
+      <li><span>22 Feb 2021</span> &raquo; <a href="/2021/02/Architecturally-evident-code-with-jMolecules/">Architecturally evident code with jMolecules</a></li>
+    
       <li><span>17 Mar 2020</span> &raquo; <a href="/2020/03/Implementing-DDD-Building-Blocks-in-Java/">Implementing DDD Building Blocks in Java</a></li>
     
       <li><span>09 Oct 2016</span> &raquo; <a href="/2016/10/evolving-distributed-systems/">Evolving Distributed Systems</a></li>
-    
-      <li><span>29 Apr 2016</span> &raquo; <a href="/2016/04/benefits-of-hypermedia/">The Benefits of Hypermedia APIs</a></li>
     
   </ul>
 </div>
@@ -106,7 +105,7 @@
         <p>
           <a href="http://github.com/odrotbohm/">github.com/odrotbohm</a><br />
           <a href="http://twitter.com/odrotbohm/">twitter.com/odrotbohm</a><br />
-          <a href='mailto:info@olivergierke.de'>info@olivergierke.de</a>
+          <a href='mailto:info@odrotbohm.de'>info@odrotbohm.de</a>
         </p>
       </div>
       <div class="rss">
@@ -116,7 +115,6 @@
       </div>
     </div>
   </div>
-  <a href="http://github.com/odrotbohm"><img style="position: absolute; top: 0; right: 0; border: 0;" src="http://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png" alt="Fork me on GitHub" /></a>
 
   
 </body>

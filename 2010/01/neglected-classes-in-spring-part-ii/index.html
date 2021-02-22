@@ -14,11 +14,10 @@
    <!-- Homepage CSS -->
    <link rel="stylesheet" href="/assets/themes/tom/css/screen.css" type="text/css" media="screen, projection" />
 
-   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fira+Sans:wght@300;700&display=swap" type="text/css" />
+   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fira+Sans:wght@300700&display=swap" type="text/css" />
+   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;700&display=swap" type="text/css" />
 
-   <!-- Typekit -->
-   <script type="text/javascript" src="http://use.typekit.com/jpd0pfm.js"></script>
-   <script type="text/javascript">try{Typekit.load();}catch(e){}</script>
+
 </head>
 <body>
 
@@ -46,23 +45,23 @@
   
 <p>If you have worked with Spring 2.5 annotation based web MVC framework you know that it allows you to freely design you controller method signatures:</p>
 
-<pre><code>@RequestMapping(value = "users", method = GET)
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>@RequestMapping(value = "users", method = GET)
 public String showUsers(Model model) {
   model.addAttribute("users",
     userManagement.getUsers());
   return "users";
 }
-</code></pre>
+</code></pre></div></div>
 
-<p>As you can see we use a parameter of type <code>Model</code> that will we automatically get an instance handed by Spring. For a complete list of supported parameter and return types see <a href="http://web.archive.org/web/20100207151300/http://static.springsource.org/spring/docs/3.0.x/spring-framework-reference/html/mvc.html#mvc-ann-requestmapping-arguments">Spring reference documentation</a> on that topic.</p>
+<p>As you can see we use a parameter of type <code class="language-plaintext highlighter-rouge">Model</code> that will we automatically get an instance handed by Spring. For a complete list of supported parameter and return types see <a href="http://web.archive.org/web/20100207151300/http://static.springsource.org/spring/docs/3.0.x/spring-framework-reference/html/mvc.html#mvc-ann-requestmapping-arguments">Spring reference documentation</a> on that topic.</p>
 
 <p>But why do I mention that? The title says “neglected classes”, not “things I also could have read up in the reference docs”. The crucial thing here is to know that the list of supported types is not fixed and there is an SPI to write your class allowing to get a parameter injected automatically.</p>
 
 <h2 id="pagination">Pagination</h2>
 
-<p>The first example I want to come up with is pagination. The OpenSource framework Hades provides dedicated support to allow paginated access to databases via JPA. The core abstractions achieving this is the Pageable interface in combination with the <code>PageRequest</code> implementation class. But there is still the question on how to create instances of <code>PageRequest</code> from an incoming request. A naive might be the following:</p>
+<p>The first example I want to come up with is pagination. The OpenSource framework Hades provides dedicated support to allow paginated access to databases via JPA. The core abstractions achieving this is the Pageable interface in combination with the <code class="language-plaintext highlighter-rouge">PageRequest</code> implementation class. But there is still the question on how to create instances of <code class="language-plaintext highlighter-rouge">PageRequest</code> from an incoming request. A naive might be the following:</p>
 
-<pre><code>@RequestMapping(value = "/users", method = GET)
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>@RequestMapping(value = "/users", method = GET)
 public String showUsers(Model model, WebRequest request) {
 
   Integer size = // extract size from request
@@ -76,13 +75,13 @@ public String showUsers(Model model, WebRequest request) {
     userManagement.getUsers(pageable));
   return "users";
 }
-</code></pre>
+</code></pre></div></div>
 
-<p>What’s wrong with this? First, it shouldn’t be the controllers task to extract pagination information from the request. Second, even if we’d move this code into a utility class, we’d be forced to get <code>WebRequest</code> injected into every controller method that wants to use pagination, which breaks the abstraction level gained.</p>
+<p>What’s wrong with this? First, it shouldn’t be the controllers task to extract pagination information from the request. Second, even if we’d move this code into a utility class, we’d be forced to get <code class="language-plaintext highlighter-rouge">WebRequest</code> injected into every controller method that wants to use pagination, which breaks the abstraction level gained.</p>
 
 <p>So what about rather something like this:</p>
 
-<pre><code>@RequestMapping(value = "/users", method = GET)
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>@RequestMapping(value = "/users", method = GET)
 public String showUsers(Model model,
   Pageable pageable) {
   model.addAttribute("users",
@@ -100,28 +99,28 @@ public class PageableArgumentResolver implements WebArgumentResolver {
     // implement extraction logic here
   }
 }
-</code></pre>
+</code></pre></div></div>
 
-<p>Inside the implementation your first task is to determine, whether you can return the given <code>MethodParameter</code> or return a <code>WebArgumentResolver.UNRESOLVED</code>. Our resolver would have to check if the target type is a <code>Pageable</code> and extract the request parameters then.</p>
+<p>Inside the implementation your first task is to determine, whether you can return the given <code class="language-plaintext highlighter-rouge">MethodParameter</code> or return a <code class="language-plaintext highlighter-rouge">WebArgumentResolver.UNRESOLVED</code>. Our resolver would have to check if the target type is a <code class="language-plaintext highlighter-rouge">Pageable</code> and extract the request parameters then.</p>
 
 <h2 id="accessing-the-current-user">Accessing the current user</h2>
 
 <p>A very often faced problem in web controllers is that one actually has to know which user has triggered the request. This could be of course done programatically inside the controller method similar to the naive approach shown above. What about this approach:</p>
 
-<pre><code>@RequestMapping(value = "/myaccount", method = GET)
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>@RequestMapping(value = "/myaccount", method = GET)
 public String showUsers(Model model,
   @CurrentUser UserDetails userDetails) {
   model.addAttribute("user",
     userManagement.getUser(userDetails.getId());
   return "user";
 }
-</code></pre>
+</code></pre></div></div>
 
-<p>Similar to the plain type based <code>WebArgumentResolver</code> implementation for <code>Pageable</code> the implementation here would check for the custom <code>CurrentUser</code> annotation and then access e.g. Spring Security API to access the currently logged in user. The additional annotation is “necessary” in this case, as one could also have a <code>UserDetails</code> used as <code>ModelAttribute</code>, but that depends on the detailed requirements of your application.</p>
+<p>Similar to the plain type based <code class="language-plaintext highlighter-rouge">WebArgumentResolver</code> implementation for <code class="language-plaintext highlighter-rouge">Pageable</code> the implementation here would check for the custom <code class="language-plaintext highlighter-rouge">CurrentUser</code> annotation and then access e.g. Spring Security API to access the currently logged in user. The additional annotation is “necessary” in this case, as one could also have a <code class="language-plaintext highlighter-rouge">UserDetails</code> used as <code class="language-plaintext highlighter-rouge">ModelAttribute</code>, but that depends on the detailed requirements of your application.</p>
 
 <h2 id="summary">Summary</h2>
 
-<p><code>WebArgumentResolver</code> allows providing your own custom controller method parameters to centralize either lookup or extraction logic, that would otherwise be scattered through your controller code.</p>
+<p><code class="language-plaintext highlighter-rouge">WebArgumentResolver</code> allows providing your own custom controller method parameters to centralize either lookup or extraction logic, that would otherwise be scattered through your controller code.</p>
 
 </div>
 
@@ -129,11 +128,11 @@ public String showUsers(Model model,
   <h2>Related Posts</h2>
   <ul class="posts">
     
+      <li><span>22 Feb 2021</span> &raquo; <a href="/2021/02/Architecturally-evident-code-with-jMolecules/">Architecturally evident code with jMolecules</a></li>
+    
       <li><span>17 Mar 2020</span> &raquo; <a href="/2020/03/Implementing-DDD-Building-Blocks-in-Java/">Implementing DDD Building Blocks in Java</a></li>
     
       <li><span>09 Oct 2016</span> &raquo; <a href="/2016/10/evolving-distributed-systems/">Evolving Distributed Systems</a></li>
-    
-      <li><span>29 Apr 2016</span> &raquo; <a href="/2016/04/benefits-of-hypermedia/">The Benefits of Hypermedia APIs</a></li>
     
   </ul>
 </div>
@@ -172,7 +171,7 @@ public String showUsers(Model model,
         <p>
           <a href="http://github.com/odrotbohm/">github.com/odrotbohm</a><br />
           <a href="http://twitter.com/odrotbohm/">twitter.com/odrotbohm</a><br />
-          <a href='mailto:info@olivergierke.de'>info@olivergierke.de</a>
+          <a href='mailto:info@odrotbohm.de'>info@odrotbohm.de</a>
         </p>
       </div>
       <div class="rss">
@@ -182,7 +181,6 @@ public String showUsers(Model model,
       </div>
     </div>
   </div>
-  <a href="http://github.com/odrotbohm"><img style="position: absolute; top: 0; right: 0; border: 0;" src="http://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png" alt="Fork me on GitHub" /></a>
 
   
 </body>

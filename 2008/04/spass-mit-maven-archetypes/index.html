@@ -14,11 +14,10 @@
    <!-- Homepage CSS -->
    <link rel="stylesheet" href="/assets/themes/tom/css/screen.css" type="text/css" media="screen, projection" />
 
-   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fira+Sans:wght@300;700&display=swap" type="text/css" />
+   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fira+Sans:wght@300700&display=swap" type="text/css" />
+   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;700&display=swap" type="text/css" />
 
-   <!-- Typekit -->
-   <script type="text/javascript" src="http://use.typekit.com/jpd0pfm.js"></script>
-   <script type="text/javascript">try{Typekit.load();}catch(e){}</script>
+
 </head>
 <body>
 
@@ -47,11 +46,11 @@
 
 <p>Archetypes sind Projektvorlagen in Maven mit denen man bei einem Projektstart on the fly eine Ordnerstruktur generieren und Konfigurationsfiles vorerzeugen kann. Dies verringert den Aufwandand die Infrastruktur einzurichten am Anfang eines Projektes erheblich.</p>
 
-<p>Ein Archetype ist selbst wiederum ein Mavenprojekt, in dem die für ein neues Projekt notwendigen Dateien an eine Bestimmte Stelle im Archetypeprojekt gelegt werden und ein Archetypedeskriptor namens <code>archetype.xml</code> im META-INF abgelegt werden muss. Soweit die Dokumentation die <a href="http://maven.apache.org/guides/mini/guide-creating-archetypes.html" title="Dokumentation zu Maven Archetypes" target="_blank">hier</a> zu finden ist.</p>
+<p>Ein Archetype ist selbst wiederum ein Mavenprojekt, in dem die für ein neues Projekt notwendigen Dateien an eine Bestimmte Stelle im Archetypeprojekt gelegt werden und ein Archetypedeskriptor namens <code class="language-plaintext highlighter-rouge">archetype.xml</code> im META-INF abgelegt werden muss. Soweit die Dokumentation die <a href="http://maven.apache.org/guides/mini/guide-creating-archetypes.html" title="Dokumentation zu Maven Archetypes" target="_blank">hier</a> zu finden ist.</p>
 
-<p>Nun will das Archetype Plugin von Maven allerdings in den bereitgestellten Dateien typische Mavenplatzhalter wie <code>${version}</code> durch Parameter ersetzen, die man beim initialisieren des neuen Projektes mitgibt. Es war nun schon nicht einfach herauszufinden, wie ich Maven aber dazu bringe diese Platzhalter einfach Platzhalter sein zu lassen. Nach einer Weile googlen fand ich dann heraus, dass das Dollarzeichen einfach escaped werden muss (<code>\${version}</code>). Dies funktioniert aber nur ab Maven 2.0.8.</p>
+<p>Nun will das Archetype Plugin von Maven allerdings in den bereitgestellten Dateien typische Mavenplatzhalter wie <code class="language-plaintext highlighter-rouge">${version}</code> durch Parameter ersetzen, die man beim initialisieren des neuen Projektes mitgibt. Es war nun schon nicht einfach herauszufinden, wie ich Maven aber dazu bringe diese Platzhalter einfach Platzhalter sein zu lassen. Nach einer Weile googlen fand ich dann heraus, dass das Dollarzeichen einfach escaped werden muss (<code class="language-plaintext highlighter-rouge">\${version}</code>). Dies funktioniert aber nur ab Maven 2.0.8.</p>
 
-<p>Nachdem diese Hürde genommen war musste ich <a href="http://velocity.apache.org/" title="Velocity" target="_blank">Velocity</a> (was Maven benutzt um diese Platzhalter zu ersetzen) nur noch ausreden die TrueType Fontfiles für unsere Hausschrift zu parsen. Das Problem: für den Archetypedeskriptor gibt es weder DTD noch ein XSD. In den <a href="http://www.nabble.com/filtering-of-archetype-resources-td15579593s177.html" title="Nabble Forum zum Them Resourcen filtern in Maven Archetypes" target="_blank">Untiefen des Nabble Forums</a> stieß ich dann auf den Hinweis, das Attribut <code>filtered="true"</code> in den <code>&lt;resource /&gt;</code> Elementen würde genau dies bewerkstelligen.</p>
+<p>Nachdem diese Hürde genommen war musste ich <a href="http://velocity.apache.org/" title="Velocity" target="_blank">Velocity</a> (was Maven benutzt um diese Platzhalter zu ersetzen) nur noch ausreden die TrueType Fontfiles für unsere Hausschrift zu parsen. Das Problem: für den Archetypedeskriptor gibt es weder DTD noch ein XSD. In den <a href="http://www.nabble.com/filtering-of-archetype-resources-td15579593s177.html" title="Nabble Forum zum Them Resourcen filtern in Maven Archetypes" target="_blank">Untiefen des Nabble Forums</a> stieß ich dann auf den Hinweis, das Attribut <code class="language-plaintext highlighter-rouge">filtered="true"</code> in den <code class="language-plaintext highlighter-rouge">&lt;resource /&gt;</code> Elementen würde genau dies bewerkstelligen.</p>
 
 <p>Was ihr jetzt hier in knapp 5 Minuten gelesen habt, hat mich locker 3 Stunden gekostet^^. Jaja, Dokumentation ist manchmal eben doch hilfreich ;).</p>
 
@@ -61,11 +60,11 @@
   <h2>Related Posts</h2>
   <ul class="posts">
     
+      <li><span>22 Feb 2021</span> &raquo; <a href="/2021/02/Architecturally-evident-code-with-jMolecules/">Architecturally evident code with jMolecules</a></li>
+    
       <li><span>17 Mar 2020</span> &raquo; <a href="/2020/03/Implementing-DDD-Building-Blocks-in-Java/">Implementing DDD Building Blocks in Java</a></li>
     
       <li><span>09 Oct 2016</span> &raquo; <a href="/2016/10/evolving-distributed-systems/">Evolving Distributed Systems</a></li>
-    
-      <li><span>29 Apr 2016</span> &raquo; <a href="/2016/04/benefits-of-hypermedia/">The Benefits of Hypermedia APIs</a></li>
     
   </ul>
 </div>
@@ -104,7 +103,7 @@
         <p>
           <a href="http://github.com/odrotbohm/">github.com/odrotbohm</a><br />
           <a href="http://twitter.com/odrotbohm/">twitter.com/odrotbohm</a><br />
-          <a href='mailto:info@olivergierke.de'>info@olivergierke.de</a>
+          <a href='mailto:info@odrotbohm.de'>info@odrotbohm.de</a>
         </p>
       </div>
       <div class="rss">
@@ -114,7 +113,6 @@
       </div>
     </div>
   </div>
-  <a href="http://github.com/odrotbohm"><img style="position: absolute; top: 0; right: 0; border: 0;" src="http://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png" alt="Fork me on GitHub" /></a>
 
   
 </body>

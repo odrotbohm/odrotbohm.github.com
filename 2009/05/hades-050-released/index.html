@@ -14,11 +14,10 @@
    <!-- Homepage CSS -->
    <link rel="stylesheet" href="/assets/themes/tom/css/screen.css" type="text/css" media="screen, projection" />
 
-   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fira+Sans:wght@300;700&display=swap" type="text/css" />
+   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fira+Sans:wght@300700&display=swap" type="text/css" />
+   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;700&display=swap" type="text/css" />
 
-   <!-- Typekit -->
-   <script type="text/javascript" src="http://use.typekit.com/jpd0pfm.js"></script>
-   <script type="text/javascript">try{Typekit.load();}catch(e){}</script>
+
 </head>
 <body>
 
@@ -48,15 +47,15 @@
 
 <h2 id="streamlining-of-the-spring-namespace">Streamlining of the Spring namespace</h2>
 
-<p>Version 0.5.0 one more time simplyfies the XML required to setup Hades DAOs with Spring. The only required attribute at the dao-config element now is <code>base-package</code> which aligns pretty much from the <code>base-package</code> Spring users know from Spring’s context namespace. As with this namespace you can use Ant style wildcards to form package patterns to allow more flexibility. E.g. <code>&lt;hades:dao-config base-package="com.acme.**.dao" /&gt;</code> would scan all packages starting with <code>com.acme</code> and ending on <code>dao</code> for Hades DAO interfaces and create the appropriate instances for them.</p>
+<p>Version 0.5.0 one more time simplyfies the XML required to setup Hades DAOs with Spring. The only required attribute at the dao-config element now is <code class="language-plaintext highlighter-rouge">base-package</code> which aligns pretty much from the <code class="language-plaintext highlighter-rouge">base-package</code> Spring users know from Spring’s context namespace. As with this namespace you can use Ant style wildcards to form package patterns to allow more flexibility. E.g. <code class="language-plaintext highlighter-rouge">&lt;hades:dao-config base-package="com.acme.**.dao" /&gt;</code> would scan all packages starting with <code class="language-plaintext highlighter-rouge">com.acme</code> and ending on <code class="language-plaintext highlighter-rouge">dao</code> for Hades DAO interfaces and create the appropriate instances for them.</p>
 
 <h2 id="osgi-ready">OSGi ready</h2>
 
-<p>There was a bug in 0.4 <code>MANIFEST.MF</code> that trapped a few users from using Hades in an OSGi environment. 0.5.0 is fully OSGi compatible and ships with a sample application that can be dropped into a Spring-DM OSGi platform (e.g. SpringSource DM Server). The sample app gives an overview about Hades functionality and exposes a User DAO as OSGi service. Check out the sample application <a href="http://repo.synyx.org/org/synyx/hades/org.synyx.hades.sample/0.5.0/">here</a>.</p>
+<p>There was a bug in 0.4 <code class="language-plaintext highlighter-rouge">MANIFEST.MF</code> that trapped a few users from using Hades in an OSGi environment. 0.5.0 is fully OSGi compatible and ships with a sample application that can be dropped into a Spring-DM OSGi platform (e.g. SpringSource DM Server). The sample app gives an overview about Hades functionality and exposes a User DAO as OSGi service. Check out the sample application <a href="http://repo.synyx.org/org/synyx/hades/org.synyx.hades.sample/0.5.0/">here</a>.</p>
 
 <h2 id="programatic-api">Programatic API</h2>
 
-<p>Most users will happily use Hades in combination with Spring namespace configuration. Programatic use of Hades was always possible albeit only through a rather untyped <code>GenericDaoFactoryBean</code> that implements Springs <code>FactoryBean</code> interface. With 0.5.0 Hades provides a <code>GenericDaoFactory</code> that provides an interface that suits needs for programatic access. Now you can create DAO instances by simply invoking <code>GenericDaoFactory.create(em).getDao(UserDao.class);</code></p>
+<p>Most users will happily use Hades in combination with Spring namespace configuration. Programatic use of Hades was always possible albeit only through a rather untyped <code class="language-plaintext highlighter-rouge">GenericDaoFactoryBean</code> that implements Springs <code class="language-plaintext highlighter-rouge">FactoryBean</code> interface. With 0.5.0 Hades provides a <code class="language-plaintext highlighter-rouge">GenericDaoFactory</code> that provides an interface that suits needs for programatic access. Now you can create DAO instances by simply invoking <code class="language-plaintext highlighter-rouge">GenericDaoFactory.create(em).getDao(UserDao.class);</code></p>
 
 <h2 id="miscellaneous">Miscellaneous</h2>
 
@@ -77,11 +76,11 @@
   <h2>Related Posts</h2>
   <ul class="posts">
     
+      <li><span>22 Feb 2021</span> &raquo; <a href="/2021/02/Architecturally-evident-code-with-jMolecules/">Architecturally evident code with jMolecules</a></li>
+    
       <li><span>17 Mar 2020</span> &raquo; <a href="/2020/03/Implementing-DDD-Building-Blocks-in-Java/">Implementing DDD Building Blocks in Java</a></li>
     
       <li><span>09 Oct 2016</span> &raquo; <a href="/2016/10/evolving-distributed-systems/">Evolving Distributed Systems</a></li>
-    
-      <li><span>29 Apr 2016</span> &raquo; <a href="/2016/04/benefits-of-hypermedia/">The Benefits of Hypermedia APIs</a></li>
     
   </ul>
 </div>
@@ -120,7 +119,7 @@
         <p>
           <a href="http://github.com/odrotbohm/">github.com/odrotbohm</a><br />
           <a href="http://twitter.com/odrotbohm/">twitter.com/odrotbohm</a><br />
-          <a href='mailto:info@olivergierke.de'>info@olivergierke.de</a>
+          <a href='mailto:info@odrotbohm.de'>info@odrotbohm.de</a>
         </p>
       </div>
       <div class="rss">
@@ -130,7 +129,6 @@
       </div>
     </div>
   </div>
-  <a href="http://github.com/odrotbohm"><img style="position: absolute; top: 0; right: 0; border: 0;" src="http://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png" alt="Fork me on GitHub" /></a>
 
   
 </body>

@@ -14,11 +14,10 @@
    <!-- Homepage CSS -->
    <link rel="stylesheet" href="/assets/themes/tom/css/screen.css" type="text/css" media="screen, projection" />
 
-   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fira+Sans:wght@300;700&display=swap" type="text/css" />
+   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fira+Sans:wght@300700&display=swap" type="text/css" />
+   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;700&display=swap" type="text/css" />
 
-   <!-- Typekit -->
-   <script type="text/javascript" src="http://use.typekit.com/jpd0pfm.js"></script>
-   <script type="text/javascript">try{Typekit.load();}catch(e){}</script>
+
 </head>
 <body>
 
@@ -46,42 +45,42 @@
   
 <p>Our latest Hades <a href="http://redmine.synyx.org/news/18">release</a> of the 2.0 branch is introducing transactionality of DAO instances as main new feature. Of course you can read up the reference documentation for some general guidelines but I want to use the chance to give a more detailed look into why we introduce this and how some details work.</p>
 
-<p>These days, some kind of back-to-the-basics approach regarding architecture layering is widely accepted as best practices. Thus you don’t want to introduce a layer just because of some merely technical needs. A typical candidate layer for being obsolete is the service layer. Especially in web applications where you pretty much store entities that are equipped with rich behavior themselves the service layer is quite an artificial one that only demarcates transactions but then delegates to the underlying data access layer. Using Hades in such an application you had needed the additional transaction demarcation somewhere as it didn’t deal with transactions itself out of the box. So the only option to get rid of a service layer was to use e.g. <code>@Transactional</code> at a Spring MVC controller e.g. which is rather a sub-optimal solution.</p>
+<p>These days, some kind of back-to-the-basics approach regarding architecture layering is widely accepted as best practices. Thus you don’t want to introduce a layer just because of some merely technical needs. A typical candidate layer for being obsolete is the service layer. Especially in web applications where you pretty much store entities that are equipped with rich behavior themselves the service layer is quite an artificial one that only demarcates transactions but then delegates to the underlying data access layer. Using Hades in such an application you had needed the additional transaction demarcation somewhere as it didn’t deal with transactions itself out of the box. So the only option to get rid of a service layer was to use e.g. <code class="language-plaintext highlighter-rouge">@Transactional</code> at a Spring MVC controller e.g. which is rather a sub-optimal solution.</p>
 
 <p>So actually we were quite reluctant to the idea of applying transactions to Hades DAO instances as there were some crucial points to consider:</p>
 
 <ol>
-  <li><em>Actually a DAO layer might not be at the right level of abstraction.</em> Usually you define transactions on a more business related method than a plain <code>save(…)</code> or <code>findByUsername(…)</code>. So if we enable transactions at DAO methods we have to make sure that they seamlessly can be expanded to more coarse grained methods and the DAOs take part in those transactions.</li>
+  <li><em>Actually a DAO layer might not be at the right level of abstraction.</em> Usually you define transactions on a more business related method than a plain <code class="language-plaintext highlighter-rouge">save(…)</code> or <code class="language-plaintext highlighter-rouge">findByUsername(…)</code>. So if we enable transactions at DAO methods we have to make sure that they seamlessly can be expanded to more coarse grained methods and the DAOs take part in those transactions.</li>
   <li><em>If we apply transactions we don’t want to imply our transaction model to the user’s application.</em> As Spring provides various means to define transactions, we don’t want to take that decision from the developer. So in case she wants to decide for a particular model, she has to be able to do so, no matter what we chose.</li>
   <li>Although the transactional behavior that we define for CRUD methods might be okay for 90% of the use cases <em>there has to be a way to override the defaults and replace them by some custom one.</em></li>
-  <li>As Spring 3.0 <em>supports multiple transaction managers</em> via <code>@Transactional</code> we have to make sure we participate in the right transaction depending on in which context the DAO is used.</li>
+  <li>As Spring 3.0 <em>supports multiple transaction managers</em> via <code class="language-plaintext highlighter-rouge">@Transactional</code> we have to make sure we participate in the right transaction depending on in which context the DAO is used.</li>
   <li><em>It has to be easy to define transaction configuration for DAO interfaces</em> containing the finder methods.</li>
 </ol>
 
-<p>We decided to use <code>@Transactional</code> annotations at the <code>GenericJpaDao</code> implementation class and activate annotation based transactions for the proxies explicitly through the <code>GenericDaoFactoryBean</code>. This means that the CRUD operations of the DAO instances will be transactional if called standalone or participate in a transaction in case there’s already one running for the current transaction manager (read up details on multiple transaction managers here). So it doesn’t matter if you declare your transactional boundaries via <code>@Transactional</code>, too, or use e.g. XML configuration or even <code>TransactionTemplate</code>. This gets us solutions for issues 1 and 2.</p>
+<p>We decided to use <code class="language-plaintext highlighter-rouge">@Transactional</code> annotations at the <code class="language-plaintext highlighter-rouge">GenericJpaDao</code> implementation class and activate annotation based transactions for the proxies explicitly through the <code class="language-plaintext highlighter-rouge">GenericDaoFactoryBean</code>. This means that the CRUD operations of the DAO instances will be transactional if called standalone or participate in a transaction in case there’s already one running for the current transaction manager (read up details on multiple transaction managers here). So it doesn’t matter if you declare your transactional boundaries via <code class="language-plaintext highlighter-rouge">@Transactional</code>, too, or use e.g. XML configuration or even <code class="language-plaintext highlighter-rouge">TransactionTemplate</code>. This gets us solutions for issues 1 and 2.</p>
 
-<p>Issue 5 is quite easy to solve as you can simply annotate the finder methods of your DAO interface (or the interface itself) with <code>@Transactional</code> and transactions get applied as you are used to with Spring.</p>
+<p>Issue 5 is quite easy to solve as you can simply annotate the finder methods of your DAO interface (or the interface itself) with <code class="language-plaintext highlighter-rouge">@Transactional</code> and transactions get applied as you are used to with Spring.</p>
 
-<p>The actual tricky part is issue 3. The main idea here is to simply redeclare the CRUD method originally declared in <code>GenericDao</code> inside your concrete DAO interface and reconfigure transactions as you like. So supposed you want to get rid of the <code>readOnly</code> flag at <code>readByPrimaryKey(…)</code> set to true (as we chose to default the transaction configuration to, as this applies some performance optimizations on the persistence provider as well as the JDBC driver), you can do this as follows:</p>
+<p>The actual tricky part is issue 3. The main idea here is to simply redeclare the CRUD method originally declared in <code class="language-plaintext highlighter-rouge">GenericDao</code> inside your concrete DAO interface and reconfigure transactions as you like. So supposed you want to get rid of the <code class="language-plaintext highlighter-rouge">readOnly</code> flag at <code class="language-plaintext highlighter-rouge">readByPrimaryKey(…)</code> set to true (as we chose to default the transaction configuration to, as this applies some performance optimizations on the persistence provider as well as the JDBC driver), you can do this as follows:</p>
 
-<pre><code>public interface UserDao extends GenericDao&lt;User, Long&gt; {
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>public interface UserDao extends GenericDao&lt;User, Long&gt; {
 
   @Override
   @Transactional
   User readByPrimaryKey(Long key);
 }
-</code></pre>
+</code></pre></div></div>
 
-<p>Getting this to work needs some reflection magic as we of course still have to delegate the call to that method to the <code>GenericJpaDao</code> instance but according to the Java Reflection API it of course does only implement <code>GenericDao.readByPrimaryKey(…)</code> and not <code>UserDao</code>. <code>readByPrimaryKey(…)</code>. Long story short, we can find out the method that has to be invoked so we can hand this reconfiguration model to the user and gain much flexibility on this side.</p>
+<p>Getting this to work needs some reflection magic as we of course still have to delegate the call to that method to the <code class="language-plaintext highlighter-rouge">GenericJpaDao</code> instance but according to the Java Reflection API it of course does only implement <code class="language-plaintext highlighter-rouge">GenericDao.readByPrimaryKey(…)</code> and not <code class="language-plaintext highlighter-rouge">UserDao</code>. <code class="language-plaintext highlighter-rouge">readByPrimaryKey(…)</code>. Long story short, we can find out the method that has to be invoked so we can hand this reconfiguration model to the user and gain much flexibility on this side.</p>
 
-<p>Issue 4 is not that interesting as we simply have to configure our internal <code>TransactionInterceptor</code> to lookup the appropriate <code>PlatformTransactionManager</code> instance in a lazy-loading-like fashion but that all happens under the covers and you don’t need to take care of this.</p>
+<p>Issue 4 is not that interesting as we simply have to configure our internal <code class="language-plaintext highlighter-rouge">TransactionInterceptor</code> to lookup the appropriate <code class="language-plaintext highlighter-rouge">PlatformTransactionManager</code> instance in a lazy-loading-like fashion but that all happens under the covers and you don’t need to take care of this.</p>
 
 <p>So let me quickly summarize what 2.0.0.RC2 brings you in regard of transactions:</p>
 
 <ul>
   <li>Transactional CRUD methods (everything declared in `
-GenericDao<code>) with appropriate defaults (</code>readOnly` flag set to true on read-only methods) that automatically take part in more coarse grained transactions if necessary</li>
-  <li>The ability to use <code>@Transactional</code> for your concrete DAO interfaces</li>
+GenericDao<code class="language-plaintext highlighter-rouge">) with appropriate defaults (</code>readOnly` flag set to true on read-only methods) that automatically take part in more coarse grained transactions if necessary</li>
+  <li>The ability to use <code class="language-plaintext highlighter-rouge">@Transactional</code> for your concrete DAO interfaces</li>
   <li>The ability to reconfigure the transactional behavior of the CRUD methods by simply redeclaring a method inside the concrete DAO interface</li>
 </ul>
 
@@ -91,11 +90,11 @@ GenericDao<code>) with appropriate defaults (</code>readOnly` flag set to true o
   <h2>Related Posts</h2>
   <ul class="posts">
     
+      <li><span>22 Feb 2021</span> &raquo; <a href="/2021/02/Architecturally-evident-code-with-jMolecules/">Architecturally evident code with jMolecules</a></li>
+    
       <li><span>17 Mar 2020</span> &raquo; <a href="/2020/03/Implementing-DDD-Building-Blocks-in-Java/">Implementing DDD Building Blocks in Java</a></li>
     
       <li><span>09 Oct 2016</span> &raquo; <a href="/2016/10/evolving-distributed-systems/">Evolving Distributed Systems</a></li>
-    
-      <li><span>29 Apr 2016</span> &raquo; <a href="/2016/04/benefits-of-hypermedia/">The Benefits of Hypermedia APIs</a></li>
     
   </ul>
 </div>
@@ -134,7 +133,7 @@ GenericDao<code>) with appropriate defaults (</code>readOnly` flag set to true o
         <p>
           <a href="http://github.com/odrotbohm/">github.com/odrotbohm</a><br />
           <a href="http://twitter.com/odrotbohm/">twitter.com/odrotbohm</a><br />
-          <a href='mailto:info@olivergierke.de'>info@olivergierke.de</a>
+          <a href='mailto:info@odrotbohm.de'>info@odrotbohm.de</a>
         </p>
       </div>
       <div class="rss">
@@ -144,7 +143,6 @@ GenericDao<code>) with appropriate defaults (</code>readOnly` flag set to true o
       </div>
     </div>
   </div>
-  <a href="http://github.com/odrotbohm"><img style="position: absolute; top: 0; right: 0; border: 0;" src="http://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png" alt="Fork me on GitHub" /></a>
 
   
 </body>

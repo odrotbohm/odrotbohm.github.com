@@ -14,11 +14,10 @@
    <!-- Homepage CSS -->
    <link rel="stylesheet" href="/assets/themes/tom/css/screen.css" type="text/css" media="screen, projection" />
 
-   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fira+Sans:wght@300;700&display=swap" type="text/css" />
+   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fira+Sans:wght@300700&display=swap" type="text/css" />
+   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;700&display=swap" type="text/css" />
 
-   <!-- Typekit -->
-   <script type="text/javascript" src="http://use.typekit.com/jpd0pfm.js"></script>
-   <script type="text/javascript">try{Typekit.load();}catch(e){}</script>
+
 </head>
 <body>
 
@@ -46,17 +45,17 @@
   
 <p>As you might not be aware of, besides injecting dependencies into beans Spring is able to inject dependencies into objects that are not instantiated by Spring. This becomes especially handy if you’re stuck to Domain Driven Design leveraging a rich domain model over an anemic one. As there’s been some <a href="http://twitter.com/springrod/status/1905699064">buzz</a> around that functionality on twitter, I just put some small quickstart project together that has rather stripped down character but shows all the necessary steps nevertheless. The links to the sources as well as the binaries are attached below. Here is what you essentially have to do.</p>
 
-<h2 id="1-equip-your-domain-class-with-configurable">1. Equip your domain class with <code>@Configurable</code></h2>
+<h2 id="1-equip-your-domain-class-with-configurable">1. Equip your domain class with <code class="language-plaintext highlighter-rouge">@Configurable</code></h2>
 
-<p>The <a href="http://svn.synyx.org/synyx/opensource/misc/org.synyx.samples.spring.atconfigurable/tags/org.synyx.samples.spring.atconfigurable-0.0.1/src/main/java/org/synyx/samples/spring/atconfigurable/domain/User.java">domain class</a> in the sample is <code>org.synyx.samples.spring.atconfigurable.domain.User</code>. Note that we can inject the referenced service by just stating an <code>@Autowired</code> property. No setter needed, no pollution of the domain class’ interface.</p>
+<p>The <a href="http://svn.synyx.org/synyx/opensource/misc/org.synyx.samples.spring.atconfigurable/tags/org.synyx.samples.spring.atconfigurable-0.0.1/src/main/java/org/synyx/samples/spring/atconfigurable/domain/User.java">domain class</a> in the sample is <code class="language-plaintext highlighter-rouge">org.synyx.samples.spring.atconfigurable.domain.User</code>. Note that we can inject the referenced service by just stating an <code class="language-plaintext highlighter-rouge">@Autowired</code> property. No setter needed, no pollution of the domain class’ interface.</p>
 
 <h2 id="2-enable-injecting-capabilities-in-your-configuration-file">2. Enable injecting capabilities in your configuration file</h2>
 
-<p>The maven project I have created states a dependency to spring-context that allows two critical declarations: <code>&lt;context:spring-configured /&gt;</code> activates injection into domain classes not managed by Spring. Note that I use <code>&lt;context:component-scan /&gt;</code> in the <a href="http://svn.synyx.org/synyx/opensource/misc/org.synyx.samples.spring.atconfigurable/tags/org.synyx.samples.spring.atconfigurable-0.0.1/src/main/resources/application-context.xml"><code>application-context.xml</code></a> to pick up the <code>User</code> class as well as <code>GreetingServiceImpl</code> from the service package.</p>
+<p>The maven project I have created states a dependency to spring-context that allows two critical declarations: <code class="language-plaintext highlighter-rouge">&lt;context:spring-configured /&gt;</code> activates injection into domain classes not managed by Spring. Note that I use <code class="language-plaintext highlighter-rouge">&lt;context:component-scan /&gt;</code> in the <a href="http://svn.synyx.org/synyx/opensource/misc/org.synyx.samples.spring.atconfigurable/tags/org.synyx.samples.spring.atconfigurable-0.0.1/src/main/resources/application-context.xml"><code class="language-plaintext highlighter-rouge">application-context.xml</code></a> to pick up the <code class="language-plaintext highlighter-rouge">User</code> class as well as <code class="language-plaintext highlighter-rouge">GreetingServiceImpl</code> from the service package.</p>
 
 <h2 id="3-enable-load-time-weaving">3. Enable load-time weaving</h2>
 
-<p>To actually get the injection working you need to weave some Spring aspects in your domain class. While you could do this by compile time weaving, i chose load time weaving as it is much simpler to set up in development environment. To get it up and running you declare <code>&lt;context:load-time-weaver aspectj-weaving="autodetect"/&gt;</code> that pretty much tells Spring to look around for some available load time weaver an use it. The cruicial part now is to activate a Java agent for your runtime that now weaves the aspects into the domain class during class loading. In my case this is done by activating the agent via a <a href="http://svn.synyx.org/synyx/opensource/misc/org.synyx.samples.spring.atconfigurable/tags/org.synyx.samples.spring.atconfigurable-0.0.1/pom.xml">command line argument</a> for Maven’s Surefire plugin.</p>
+<p>To actually get the injection working you need to weave some Spring aspects in your domain class. While you could do this by compile time weaving, i chose load time weaving as it is much simpler to set up in development environment. To get it up and running you declare <code class="language-plaintext highlighter-rouge">&lt;context:load-time-weaver aspectj-weaving="autodetect"/&gt;</code> that pretty much tells Spring to look around for some available load time weaver an use it. The cruicial part now is to activate a Java agent for your runtime that now weaves the aspects into the domain class during class loading. In my case this is done by activating the agent via a <a href="http://svn.synyx.org/synyx/opensource/misc/org.synyx.samples.spring.atconfigurable/tags/org.synyx.samples.spring.atconfigurable-0.0.1/pom.xml">command line argument</a> for Maven’s Surefire plugin.</p>
 
 <p>This way you can easily enrich domain objects maybe persisted by Hibernate with domain services managed by Spring</p>
 
@@ -73,11 +72,11 @@
   <h2>Related Posts</h2>
   <ul class="posts">
     
+      <li><span>22 Feb 2021</span> &raquo; <a href="/2021/02/Architecturally-evident-code-with-jMolecules/">Architecturally evident code with jMolecules</a></li>
+    
       <li><span>17 Mar 2020</span> &raquo; <a href="/2020/03/Implementing-DDD-Building-Blocks-in-Java/">Implementing DDD Building Blocks in Java</a></li>
     
       <li><span>09 Oct 2016</span> &raquo; <a href="/2016/10/evolving-distributed-systems/">Evolving Distributed Systems</a></li>
-    
-      <li><span>29 Apr 2016</span> &raquo; <a href="/2016/04/benefits-of-hypermedia/">The Benefits of Hypermedia APIs</a></li>
     
   </ul>
 </div>
@@ -116,7 +115,7 @@
         <p>
           <a href="http://github.com/odrotbohm/">github.com/odrotbohm</a><br />
           <a href="http://twitter.com/odrotbohm/">twitter.com/odrotbohm</a><br />
-          <a href='mailto:info@olivergierke.de'>info@olivergierke.de</a>
+          <a href='mailto:info@odrotbohm.de'>info@odrotbohm.de</a>
         </p>
       </div>
       <div class="rss">
@@ -126,7 +125,6 @@
       </div>
     </div>
   </div>
-  <a href="http://github.com/odrotbohm"><img style="position: absolute; top: 0; right: 0; border: 0;" src="http://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png" alt="Fork me on GitHub" /></a>
 
   
 </body>

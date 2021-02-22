@@ -1,0 +1,256 @@
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+   <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+   <title>Oliver Drotbohm - Architecturally evident code with jMolecules</title>
+   <meta name="author" content="Oliver Drotbohm" />
+   <meta name="google-site-verification" content="jK1GPyjzTp269nR-GMzfjkdcdR0Y-b3gHHWUIgebv8M" />
+   <link href="/atom.xml" rel="alternate" title="Blog Atom Feed" type="application/atom+xml" />
+
+   <!-- syntax highlighting CSS -->
+   <link rel="stylesheet" href="/assets/themes/tom/css/syntax.css" type="text/css" />
+
+   <!-- Homepage CSS -->
+   <link rel="stylesheet" href="/assets/themes/tom/css/screen.css" type="text/css" media="screen, projection" />
+
+   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fira+Sans:wght@300700&display=swap" type="text/css" />
+   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;700&display=swap" type="text/css" />
+
+
+</head>
+<body>
+
+  <div class="site">
+    <div class="title">
+      <a href="/">Oliver Drotbohm</a>
+
+      <a class="extra" href="/archive">Archive</a>
+      <a class="extra" href="/about">About</a>
+      <a class="extra" href="/tags">Tags</a>
+    </div>
+
+    
+<div id="post">
+  <h1>Architecturally evident code with jMolecules</h1>
+  <p class="meta">
+    <!-- Whitespace added for readability -->
+    
+    February
+    22nd,
+      
+    2021
+    
+  </p>
+  
+<p>Expressing architectural concepts in code often stops at naming conventions and technologies implicitly describing these concepts. <a href="http://jmolecules.org">jMolecules</a> provides annotations and types to describe architectural context and technology specific integration to derive concept specific default mappings and boilerplate code to minimize the gap between architectural idea and the code written to implement those.</p>
+
+<p><em>Note: This is a follow up blog post to <a href="http://odrotbohm.de/2020/03/Implementing-DDD-Building-Blocks-in-Java/">“Implementing DDD Building Blocks in Java”</a> as the libraries discussed in that have evolved significantly.
+While I thought about updating the original article I eventually decided to write a completely new one as the extend of the changes is too great.</em></p>
+
+<h2 id="the-architecture-code-gap">The architecture code gap</h2>
+
+<p>The general journey from architectural idea usually follows the following pattern:
+the team has a rough idea of the fundamental logical structure of the code they want to write.
+That structure can be driven by patterns solely established within the team but is usually influenced by widely adapted architectural approaches like Ports and Adapters or Domain-Driven Design building blocks like entities, aggregates, repositories and services.
+The teams agree on a strategy to actually implement these concepts.
+The means to achieve that commonly range from naming conventions for individual types or packages and package structures.
+Then, the final step towards running code is mapping the logical and technical constraints implied by the concept to the implementation technologies.</p>
+
+<p>Let us take a look at a very simple example.
+Assume a simple <code class="language-plaintext highlighter-rouge">Customer</code> aggregate that is responsible to implement business constraints.
+For example, we should be allowed to assign multiple addresses to the customer, but at least a single <code class="language-plaintext highlighter-rouge">Address</code> instance needs to be assigned to it.
+This is admittedly simplistic but the complexity of the constraints does not actually matter to the point I am trying to make.
+Let us further assume, we would want to map the model code to the database directly using JPA and Spring Data repositories.
+I know this is a topic worth debating on its own, but let us stick with that for now.
+Even in that very reduced example, the actual implementation has significant impact on the code to be written:</p>
+
+<ul>
+  <li>The concept of an aggregate in the code base is established by the presence of an entity and a corresponding repository.</li>
+  <li>The implementation of the root entity of the aggregate has to adhere to some constraints implied by JPA: a default constructor is required, explicit, embedded identifier types have to implement <code class="language-plaintext highlighter-rouge">Serializable</code>, etc.</li>
+  <li>We need to apply some default mappings that are expressions of the constraints implied by the roles of the individual types and the overall arrangement: the dedicated identifier type has to be annotated with <code class="language-plaintext highlighter-rouge">@EmbeddedId</code>.
+The list of addresses has to be mapped as cascading <code class="language-plaintext highlighter-rouge">@OneToMany</code> relationship to express the governing nature of the conceptual aggregate.</li>
+</ul>
+
+<p>There might be well justified exceptions to those mappings but fundamentally, there are rules that can and have to be applied to express the logical concept.
+Zooming out a bit, there are a couple of things going on here at the same time.
+First, the logical concept of an aggregate is not explicit.
+It is scattered amongst different technologies that kind of help expressing the concept but suffer a fundamental problem themselves, which is – second – they are not designed with the architectural abstraction in mind in the first place.
+Arguably, Spring Data is built around the concept of a DDD repository. Also, Spring provides stereotype annotations like <code class="language-plaintext highlighter-rouge">@Service</code> and <code class="language-plaintext highlighter-rouge">@Repository</code> to assign roles to container managed components.
+However, they are driven by the needs of the particular technology’s requirements and functionality like applying transactions and persistence exception translation in the examples given.</p>
+
+<p class="teaser">
+What if we could approach this differently?
+What if we could express the well established architectural and design concepts explicitly and the technology mappings or at least more reasonable defaults for them would be derived from those?
+</p>
+
+<p><a name="jmolecules"></a></p>
+<h2 id="jmolecules">jMolecules</h2>
+
+<p>Let us take it one step at a time.
+<a href="http://jmolecules.org">jMolecules</a> is a project that attempts to tackle the first step: expressing architectural concepts in code directly, either through annotations or interfaces.
+It has evolved from the jDDD library discussed in <a href="http://odrotbohm.de/2020/03/Implementing-DDD-Building-Blocks-in-Java/">this earlier blog post</a> but found a new home in the <a href="http://xmolecules.org/">xMolecules project</a> that in turn attempts to provide similar architectural abstractions for different programming ecosystems.</p>
+
+<p>So we would start by using the Domain-Driven Design abstractions provided by jMolecules in our domain model:</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">org.jmolecules.ddd.types.AggregateRoot</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">org.jmolecules.ddd.types.Entity</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">org.jmolecules.ddd.types.Identifier</span><span class="o">;</span>
+
+<span class="kd">class</span> <span class="nc">Customer</span> <span class="kd">implements</span> <span class="nc">AggregateRoot</span><span class="o">&lt;</span><span class="nc">Customer</span><span class="o">,</span> <span class="nc">CustomerId</span><span class="o">&gt;</span> <span class="o">{</span>
+
+  <span class="kd">private</span> <span class="kd">final</span> <span class="nc">CustomerId</span> <span class="n">id</span><span class="o">;</span>
+  <span class="kd">private</span> <span class="nc">List</span><span class="o">&lt;</span><span class="nc">Address</span><span class="o">&gt;</span> <span class="n">addresses</span><span class="o">;</span>
+
+  <span class="cm">/* Other properties and business methods omitted. */</span>
+
+  <span class="nd">@Value</span><span class="o">(</span><span class="n">staticConstructor</span> <span class="o">=</span> <span class="s">"of"</span><span class="o">)</span>
+  <span class="kd">public</span> <span class="kd">static</span> <span class="kd">class</span> <span class="nc">CustomerId</span> <span class="kd">implements</span> <span class="nc">Identifier</span> <span class="o">{</span>
+    <span class="kd">private</span> <span class="kd">final</span> <span class="no">UUID</span> <span class="n">id</span><span class="o">;</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+
+<span class="kd">class</span> <span class="nc">Address</span> <span class="kd">implements</span> <span class="nc">Entity</span><span class="o">&lt;</span><span class="nc">Customer</span><span class="o">,</span> <span class="nc">AddressId</span><span class="o">&gt;</span> <span class="o">{</span>
+
+  <span class="cm">/* Other properties and business methods omitted. */</span>
+
+  <span class="nd">@Value</span><span class="o">(</span><span class="n">staticConstructor</span> <span class="o">=</span> <span class="s">"of"</span><span class="o">)</span>
+  <span class="kd">static</span> <span class="kd">class</span> <span class="nc">AddressId</span> <span class="kd">implements</span> <span class="nc">Identifier</span> <span class="o">{</span>
+    <span class="kd">private</span> <span class="kd">final</span> <span class="no">UUID</span> <span class="n">id</span><span class="o">;</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>We’re able to express Domain-Driven Design concepts here:</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">CustomerId</code> and <code class="language-plaintext highlighter-rouge">AddressId</code> are identifiers.</li>
+  <li><code class="language-plaintext highlighter-rouge">Customer</code> is an aggregate with <code class="language-plaintext highlighter-rouge">CustomerId</code> as its identifier type.</li>
+  <li><code class="language-plaintext highlighter-rouge">Address</code> is an entity belonging to the <code class="language-plaintext highlighter-rouge">Customer</code> aggregate using <code class="language-plaintext highlighter-rouge">AddressId</code> as identifier type.</li>
+</ul>
+
+<p>This looks very neat so far.
+Except the slightly verbose identifier wrapper types, we are writing only the minimal amount of code necessary and the higher level concepts are both explicitly visible to the developers and also extractable for tools that might want to derive documentation.
+However, if this code was supposed to be persisted using for example JPA, we would now have to go ahead and add quite a bit of boilerplate annotations and implementation code:</p>
+
+<ul>
+  <li>Both <code class="language-plaintext highlighter-rouge">Address</code> and <code class="language-plaintext highlighter-rouge">Customer</code> would need to be annotated with JPA’s <code class="language-plaintext highlighter-rouge">@Entity</code> and get default constructors.
+As we can only <code class="language-plaintext highlighter-rouge">null</code> the properties, this would effectively prevent us from imposing non-nullability constraints on any fields.</li>
+  <li>The implementations of <code class="language-plaintext highlighter-rouge">Identifier</code> would have to additionally implement <code class="language-plaintext highlighter-rouge">Serializable</code> and ideally also declare a serial version UUID.</li>
+  <li>We would have to annotate the identifier types as <code class="language-plaintext highlighter-rouge">@Embeddable</code>, the identifier fields within the entities as <code class="language-plaintext highlighter-rouge">@EmbeddedId</code> and map the <code class="language-plaintext highlighter-rouge">addresses</code> property using an <code class="language-plaintext highlighter-rouge">@OneToMany</code>.</li>
+</ul>
+
+<p><a name="jmolecules-integrations"></a></p>
+<h2 id="jmolecules-technology-integrations">jMolecules technology integrations</h2>
+
+<p>Besides the core artifacts containing abstractions to express architectural patterns, jMolecules provides a set of <a href="https://github.com/xmolecules/jmolecules-integrations">technology integration libraries</a>.
+At its heart, there is a ByteBuddy plugin that will translate jMolecules annotations and interfaces into the technology specific annotations and declarations to make sure they work out of the box within in a particular technology context.
+The complete example can be found <a href="https://github.com/xmolecules/jmolecules-integrations/tree/main/jmolecules-examples/jmolecules-spring-data-jpa">here</a>.</p>
+
+<div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;build&gt;</span>
+  <span class="nt">&lt;plugins&gt;</span>
+    <span class="nt">&lt;plugin&gt;</span>
+      <span class="nt">&lt;groupId&gt;</span>net.bytebuddy<span class="nt">&lt;/groupId&gt;</span>
+      <span class="nt">&lt;artifactId&gt;</span>byte-buddy-maven-plugin<span class="nt">&lt;/artifactId&gt;</span>
+      <span class="nt">&lt;version&gt;</span>1.10.21<span class="nt">&lt;/version&gt;</span>
+      <span class="nt">&lt;executions&gt;</span>
+        <span class="nt">&lt;execution&gt;</span>
+          <span class="nt">&lt;goals&gt;</span>
+            <span class="nt">&lt;goal&gt;</span>transform<span class="nt">&lt;/goal&gt;</span>
+          <span class="nt">&lt;/goals&gt;</span>
+        <span class="nt">&lt;/execution&gt;</span>
+      <span class="nt">&lt;/executions&gt;</span>
+      <span class="nt">&lt;dependencies&gt;</span>
+        <span class="nt">&lt;dependency&gt;</span>
+          <span class="nt">&lt;groupId&gt;</span>org.jmolecules.integrations<span class="nt">&lt;/groupId&gt;</span>
+          <span class="nt">&lt;artifactId&gt;</span>jmolecules-bytebuddy<span class="nt">&lt;/artifactId&gt;</span>
+          <span class="nt">&lt;version&gt;</span>0.1.0<span class="nt">&lt;/version&gt;</span>
+        <span class="nt">&lt;/dependency&gt;</span>
+      <span class="nt">&lt;/dependencies&gt;</span>
+    <span class="nt">&lt;/plugin&gt;</span>
+  <span class="nt">&lt;/plugins&gt;</span>
+<span class="nt">&lt;/build&gt;</span>
+</code></pre></div></div>
+
+<p>The <code class="language-plaintext highlighter-rouge">jmolecules-bytebuddy</code> plugin will – depending on the classpath arrangement of the project being built – inspect the code to be compiled for architectural concepts expressed via jMolecules annotations and types.
+It will then add the technology specific annotations that are required to implement the concept and add it to the code compiled.</p>
+
+<p>With that plugin integrated into the build, the code <code class="language-plaintext highlighter-rouge">Customer</code> aggregate code shown above is indeed a fully functional JPA entity.
+All default constructors, additional interfaces and default mappings as described above will be generated.
+Also, if the nullability annotations arrangement of the type describes fields as non-nullable, a generated <code class="language-plaintext highlighter-rouge">@PrePersist</code>/<code class="language-plaintext highlighter-rouge">@PostLoad</code> method will verify the instance to be persisted or just loaded to be in valid state, in other words, that no non-nullable fields are actually <code class="language-plaintext highlighter-rouge">null</code>.</p>
+
+<h3 id="spring-integration">Spring integration</h3>
+
+<p>Besides the integration for JPA, the ByteBuddy plugin also translates jMolecules <code class="language-plaintext highlighter-rouge">@Service</code>, <code class="language-plaintext highlighter-rouge">@Repository</code> etc. annotations into their Spring counterparts so that application components can stay free of Spring annotations for the sole purpose of component definition but still work out of the box with it.</p>
+
+<p>Also, jMolecules’ <a href="https://github.com/xmolecules/jmolecules/blob/1.1.0/jmolecules-events/src/main/java/org/jmolecules/event/annotation/DomainEventHandler.java"><code class="language-plaintext highlighter-rouge">@DomainEventHandler</code></a> annotation is translate into Spring’s <code class="language-plaintext highlighter-rouge">@EventListener</code> to implement annotation driven event listeners.</p>
+
+<h2 id="summary">Summary</h2>
+
+<p>jMolecules allows to express architectural concepts like Domain-Driven Design building blocks as annotations or types within Java code.
+Its integration library projects those concepts into particular technologies like JPA and Spring.</p>
+
+</div>
+
+<div id="related">
+  <h2>Related Posts</h2>
+  <ul class="posts">
+    
+      <li><span>17 Mar 2020</span> &raquo; <a href="/2020/03/Implementing-DDD-Building-Blocks-in-Java/">Implementing DDD Building Blocks in Java</a></li>
+    
+      <li><span>09 Oct 2016</span> &raquo; <a href="/2016/10/evolving-distributed-systems/">Evolving Distributed Systems</a></li>
+    
+      <li><span>29 Apr 2016</span> &raquo; <a href="/2016/04/benefits-of-hypermedia/">The Benefits of Hypermedia APIs</a></li>
+    
+  </ul>
+</div>
+
+
+
+
+  <div id="disqus_thread"></div>
+<script type="text/javascript">
+    var disqus_developer = 1;
+    var disqus_shortname = 'olivergierke'; // required: replace example with your forum shortname
+    
+    /* * * DON'T EDIT BELOW THIS LINE * * */
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+
+
+
+
+
+
+    <div class="footer">
+      <div class="contact">
+        <p>
+          Oliver Drotbohm<br />
+          Soul Power!<br />
+        </p>
+      </div>
+      <div class="contact">
+        <p>
+          <a href="http://github.com/odrotbohm/">github.com/odrotbohm</a><br />
+          <a href="http://twitter.com/odrotbohm/">twitter.com/odrotbohm</a><br />
+          <a href='mailto:info@odrotbohm.de'>info@odrotbohm.de</a>
+        </p>
+      </div>
+      <div class="rss">
+        <a href="/atom.xml">
+          <img src="/assets/themes/tom/images/rss.png" alt="Subscribe to Atom Feed" />
+        </a>
+      </div>
+    </div>
+  </div>
+
+  
+</body>
+</html>
+

@@ -14,11 +14,10 @@
    <!-- Homepage CSS -->
    <link rel="stylesheet" href="/assets/themes/tom/css/screen.css" type="text/css" media="screen, projection" />
 
-   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fira+Sans:wght@300;700&display=swap" type="text/css" />
+   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fira+Sans:wght@300700&display=swap" type="text/css" />
+   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;700&display=swap" type="text/css" />
 
-   <!-- Typekit -->
-   <script type="text/javascript" src="http://use.typekit.com/jpd0pfm.js"></script>
-   <script type="text/javascript">try{Typekit.load();}catch(e){}</script>
+
 </head>
 <body>
 
@@ -52,9 +51,9 @@
   <p>The Spring guys love to tout their support for MongoDb as an advantage over frameworks like JEE. However, using it in a real life project shows how severely lacking and fundamentally mis-designed the framework is. Spring Data MongoDB tries to shoehorn an ORM style strictness to a fundamentally non-relational database, resulting in it being rendered useless in real life.</p>
 </blockquote>
 
-<p>Quite an intro, right? Rest assured, the tone doesn’t get any less aggressive throughout the post. Having that said, what’s more important to me here is that it would’ve been tremendously helpful to what this ORM-style strictness is, that we impose onto users. Just to give you an impression, here’s what it looks like to persist a raw <code>String</code> or MongoDB <code>DBObject</code> using our <code>MongoTemplate</code>:</p>
+<p>Quite an intro, right? Rest assured, the tone doesn’t get any less aggressive throughout the post. Having that said, what’s more important to me here is that it would’ve been tremendously helpful to what this ORM-style strictness is, that we impose onto users. Just to give you an impression, here’s what it looks like to persist a raw <code class="language-plaintext highlighter-rouge">String</code> or MongoDB <code class="language-plaintext highlighter-rouge">DBObject</code> using our <code class="language-plaintext highlighter-rouge">MongoTemplate</code>:</p>
 
-<pre><code>String document = "{'firstname' : 'Dave', 'lastname' : 'Matthews'}";
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>String document = "{'firstname' : 'Dave', 'lastname' : 'Matthews'}";
 template.save(document, "myCollection");
 
 DBObject document = new BasicDBObject();
@@ -63,9 +62,9 @@ document.put("lastname", "Matthews");
 template.save(document, "myCollection");
 
 template.findAll(Map.class, "myCollection")
-</code></pre>
+</code></pre></div></div>
 
-<p>Not very ORMish, right? You don’t even need types to persist data and get it out of the store again. “What is <code>MongoTemplate</code> then even good for?”, you might ask. First, you <em>can</em> make use of the extensive object-to-store mapping we provide if you like to. However, even if you opt out of that, what you definitely get is appropriate resource mapping and exception translation from MongoDB specific exceptions into Spring’s <code>DataAccessException</code>s. Just the way Spring developers expect it when using a template provided by us. In general the automatic object-to-store mapping is one of the key reasons developers use Spring Data MongoDB over the raw driver, but let’s go on…</p>
+<p>Not very ORMish, right? You don’t even need types to persist data and get it out of the store again. “What is <code class="language-plaintext highlighter-rouge">MongoTemplate</code> then even good for?”, you might ask. First, you <em>can</em> make use of the extensive object-to-store mapping we provide if you like to. However, even if you opt out of that, what you definitely get is appropriate resource mapping and exception translation from MongoDB specific exceptions into Spring’s <code class="language-plaintext highlighter-rouge">DataAccessException</code>s. Just the way Spring developers expect it when using a template provided by us. In general the automatic object-to-store mapping is one of the key reasons developers use Spring Data MongoDB over the raw driver, but let’s go on…</p>
 
 <h2 id="cant-retrieve-fields---full-document-only">Can’t retrieve fields - Full document only</h2>
 
@@ -73,7 +72,7 @@ template.findAll(Map.class, "myCollection")
   <p>This is the biggest indicator of how flawed Spring Mongo’s design is. It tries to model documents like rows in a SQL database and wants you to make ‘entity’ classes like an ORM. Guess what, the two are not the same. A document can be far more complex and larger than a typical row in sql database.</p>
 </blockquote>
 
-<p>So first of all - no we don’t. As indicated above it’s perfectly fine to use Spring Data MongoDB with plain <code>Map</code>s or <code>DBObjects</code>. However, writing Java application, developers are used to interact with types to write type safe code. Hence it’s an extremely valuable feature to be able to get the documents retrieved from the store mapped onto domain classes automatically. A friendly reminder: an entity is not a concept tied to ORM. Feel free to read up on this in Eric Evans’ “Domain Driven Design” - a highly recommended book anyway.</p>
+<p>So first of all - no we don’t. As indicated above it’s perfectly fine to use Spring Data MongoDB with plain <code class="language-plaintext highlighter-rouge">Map</code>s or <code class="language-plaintext highlighter-rouge">DBObjects</code>. However, writing Java application, developers are used to interact with types to write type safe code. Hence it’s an extremely valuable feature to be able to get the documents retrieved from the store mapped onto domain classes automatically. A friendly reminder: an entity is not a concept tied to ORM. Feel free to read up on this in Eric Evans’ “Domain Driven Design” - a highly recommended book anyway.</p>
 
 <blockquote>
   <p>With a row in a sql db, it is assumed that you will pull out all of it on most queries, otherwise the data is usually split in multiple tables. But documents are a different beast. Documents are nested within each other, and most of the time you only want to pull out a small subset of it from your database.</p>
@@ -81,15 +80,15 @@ template.findAll(Map.class, "myCollection")
   <p>But with Spring Mongo’s ‘entity’ modelling, you are forced to pull out your entire document on each query.</p>
 </blockquote>
 
-<p>I am terribly sorry, but this is wrong again. There are a few ways to skin the cat here: first of all, on the reading side, you’re not forced to use the same types as you might have used when writing the data. So it’s perfectly fine to persist a <code>Person</code>, but trigger a query for <code>PersonSummary</code> and which only consists of firstname, lastname and email address.</p>
+<p>I am terribly sorry, but this is wrong again. There are a few ways to skin the cat here: first of all, on the reading side, you’re not forced to use the same types as you might have used when writing the data. So it’s perfectly fine to persist a <code class="language-plaintext highlighter-rouge">Person</code>, but trigger a query for <code class="language-plaintext highlighter-rouge">PersonSummary</code> and which only consists of firstname, lastname and email address.</p>
 
-<p>The second approach is just staying with <code>Person</code> but equip the <code>Query</code> instance you use with a field spec to in- or exclude the fields you’d like:</p>
+<p>The second approach is just staying with <code class="language-plaintext highlighter-rouge">Person</code> but equip the <code class="language-plaintext highlighter-rouge">Query</code> instance you use with a field spec to in- or exclude the fields you’d like:</p>
 
-<pre><code>Query query = new Query().fields().include("firstname").include("lastname");
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Query query = new Query().fields().include("firstname").include("lastname");
 template.find(query, Person.class);
-</code></pre>
+</code></pre></div></div>
 
-<p>This would essentially populate only the <code>firstname</code> and <code>lastname</code> field of the type handed into the template.</p>
+<p>This would essentially populate only the <code class="language-plaintext highlighter-rouge">firstname</code> and <code class="language-plaintext highlighter-rouge">lastname</code> field of the type handed into the template.</p>
 
 <h2 id="no-dbref-lazy-loading">No DBRef lazy loading</h2>
 <blockquote>
@@ -108,7 +107,7 @@ template.find(query, Person.class);
   <p>The fact that the bug report on this is almost 2 years old and has been assigned a ‘minor’ status with no resolution in sight is mindboggling, and shows how misaligned Spring Mongo’s visions are with its usage in the real world.</p>
 </blockquote>
 
-<p>Admittedly <a href="https://jira.springsource.org/browse/DATAMONGO-348">DATAMONGO-348</a> has been open for quite a while. Still, we’ve seen tons of customer projects working perfectly fine with eagerly loaded <code>DBRef</code>s or - if that was a problem - simply using manually maintained references. In fact, the MongoDB reference documentation actually recommends <a href="http://docs.mongodb.org/manual/reference/database-references/"><em>not to use DBRefs</em></a> but manual references. So what constitutes the “real world” is a matter of perspective.</p>
+<p>Admittedly <a href="https://jira.springsource.org/browse/DATAMONGO-348">DATAMONGO-348</a> has been open for quite a while. Still, we’ve seen tons of customer projects working perfectly fine with eagerly loaded <code class="language-plaintext highlighter-rouge">DBRef</code>s or - if that was a problem - simply using manually maintained references. In fact, the MongoDB reference documentation actually recommends <a href="http://docs.mongodb.org/manual/reference/database-references/"><em>not to use DBRefs</em></a> but manual references. So what constitutes the “real world” is a matter of perspective.</p>
 
 <h2 id="no-cursor-support">No cursor support</h2>
 
@@ -118,7 +117,7 @@ template.find(query, Person.class);
 
 <p>Exactly! However, what’s so utterly wrong with that? A few lines ago we’ve got complaints about abstracting too much, now we’re back to too little. Here’s how it goes:</p>
 
-<pre><code>template.execute(new CollectionCallback&lt;Void&gt;() {
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>template.execute(new CollectionCallback&lt;Void&gt;() {
     Void doInCollection(DBCollection collection) {
 
         DBObject query = new BasicDBObject("lastname", "Matthews");
@@ -131,7 +130,7 @@ template.find(query, Person.class);
         return null;
     }
 })
-</code></pre>
+</code></pre></div></div>
 
 <p>It’s not really “falling back” but rather using the template mechanisms of resource management and exception translation but still getting access to the driver API to perform operations closer to the store. For plain iterating we have <a href="https://jira.springsource.org/browse/DATAMONGO-203">DATAMONGO-203</a>. It hasn’t got many votes so far but we’re of course happy to implement it.</p>
 
@@ -155,10 +154,10 @@ template.find(query, Person.class);
 <p>I have to admit, I couldn’t make too much sense of that section. Maybe an example would have been helpful here as there seems to be some obvious confusion.</p>
 
 <blockquote>
-  <p>Spring also has an <code>ensureIndex()</code> method to manually create indexes on fields, without using annotations, but there are no guidelines whatsoever as to when and how frequently it should be called and what the performance implications of calling it are.</p>
+  <p>Spring also has an <code class="language-plaintext highlighter-rouge">ensureIndex()</code> method to manually create indexes on fields, without using annotations, but there are no guidelines whatsoever as to when and how frequently it should be called and what the performance implications of calling it are.</p>
 </blockquote>
 
-<p>Spring doesn’t have methods. <code>MongoTemplate</code> has, the said one in particular. No guidelines? What are the performance implications? We assume basic knowledge of MongoDB indexing but generally speaking the usage of <code>ensureIndex()</code> is recommended over the use of annotations mostly as you’ll probably like to create the indexes in your app explicitly rather than the mapping sub-system create the them on the fly when you bootstrap the app.</p>
+<p>Spring doesn’t have methods. <code class="language-plaintext highlighter-rouge">MongoTemplate</code> has, the said one in particular. No guidelines? What are the performance implications? We assume basic knowledge of MongoDB indexing but generally speaking the usage of <code class="language-plaintext highlighter-rouge">ensureIndex()</code> is recommended over the use of annotations mostly as you’ll probably like to create the indexes in your app explicitly rather than the mapping sub-system create the them on the fly when you bootstrap the app.</p>
 
 <h2 id="cant-switch-database">Can’t switch database</h2>
 <blockquote>
@@ -167,7 +166,7 @@ template.find(query, Person.class);
   <p>With the native Mongo driver, switching between the databases is a simple matter of calling getDb(dbName). With Spring however, this is close to impossible unless you are willing to write a chunk of the framework yourself (which may change underneath you across releases).</p>
 </blockquote>
 
-<p>What is described as “close to impossible” here is essentially a <code>MongoTemplate</code> instance per database you want to interact with. I even described an approach to multi-tenancy with Spring Data MongoDB using our <code>MongoDbFactory</code> abstraction in a <a href="http://stackoverflow.com/questions/16325606/making-spring-data-mongodb-multi-tenant">post</a> on StackOverflow recently. Not sure you want to get more dynamic than that. By the way, the approach is close to what you get with <code>AbstractRoutingDataSource</code> in the Spring JDBC world. I’d also argue it’s good practice not to actively reach out for resources from within application code, so hiding this behind configuration and using dependency injection to access such components has been agreed on to be the right way to go for almost a decade.</p>
+<p>What is described as “close to impossible” here is essentially a <code class="language-plaintext highlighter-rouge">MongoTemplate</code> instance per database you want to interact with. I even described an approach to multi-tenancy with Spring Data MongoDB using our <code class="language-plaintext highlighter-rouge">MongoDbFactory</code> abstraction in a <a href="http://stackoverflow.com/questions/16325606/making-spring-data-mongodb-multi-tenant">post</a> on StackOverflow recently. Not sure you want to get more dynamic than that. By the way, the approach is close to what you get with <code class="language-plaintext highlighter-rouge">AbstractRoutingDataSource</code> in the Spring JDBC world. I’d also argue it’s good practice not to actively reach out for resources from within application code, so hiding this behind configuration and using dependency injection to access such components has been agreed on to be the right way to go for almost a decade.</p>
 
 <p>Regarding the changing APIs: first, I fail to see something utterly hacky is necessary to achieve the flexibility and second we stick to semantic versioning and don’t deliberately break APIs.</p>
 
@@ -179,7 +178,7 @@ This means if you are starting out with Spring Data, your very first experience 
 
 <p>The reason Spring is still on Commons Logging is backwards compatibility and has been <a href="https://spring.io/blog/2009/12/04/logging-dependencies-in-spring">outlined in 2009</a> already. If we started the core framework from scratch we’d use Slf4j. If you write Java software today and still you’re still on Commons Logging, you have quite a different problem anyway. The usage of Slf4j is consistent amongst all the Spring Data modules in the release train.</p>
 
-<p>We don’t explicitly include this in the reference documentation as we strongly recommend to use tools like Maven or Gradle for dependency management. Using those it’s a matter of e.g. <code>mvn dependency:tree</code> to see what get’s pulled in from where. Explicitly listing dependencies in the reference documentation creates redundancy and increases the risk of inconsistencies which we want to avoid.</p>
+<p>We don’t explicitly include this in the reference documentation as we strongly recommend to use tools like Maven or Gradle for dependency management. Using those it’s a matter of e.g. <code class="language-plaintext highlighter-rouge">mvn dependency:tree</code> to see what get’s pulled in from where. Explicitly listing dependencies in the reference documentation creates redundancy and increases the risk of inconsistencies which we want to avoid.</p>
 
 <p>I haven’t really heard of people being heavily plagued by runtime errors related to logging when starting with Spring Data modules. Especially if you follow the sample projects or even use Spring Boot to get started finding dependencies is either really simple or even being taken care of for you.</p>
 
@@ -202,11 +201,11 @@ This means if you are starting out with Spring Data, your very first experience 
   <h2>Related Posts</h2>
   <ul class="posts">
     
+      <li><span>22 Feb 2021</span> &raquo; <a href="/2021/02/Architecturally-evident-code-with-jMolecules/">Architecturally evident code with jMolecules</a></li>
+    
       <li><span>17 Mar 2020</span> &raquo; <a href="/2020/03/Implementing-DDD-Building-Blocks-in-Java/">Implementing DDD Building Blocks in Java</a></li>
     
       <li><span>09 Oct 2016</span> &raquo; <a href="/2016/10/evolving-distributed-systems/">Evolving Distributed Systems</a></li>
-    
-      <li><span>29 Apr 2016</span> &raquo; <a href="/2016/04/benefits-of-hypermedia/">The Benefits of Hypermedia APIs</a></li>
     
   </ul>
 </div>
@@ -245,7 +244,7 @@ This means if you are starting out with Spring Data, your very first experience 
         <p>
           <a href="http://github.com/odrotbohm/">github.com/odrotbohm</a><br />
           <a href="http://twitter.com/odrotbohm/">twitter.com/odrotbohm</a><br />
-          <a href='mailto:info@olivergierke.de'>info@olivergierke.de</a>
+          <a href='mailto:info@odrotbohm.de'>info@odrotbohm.de</a>
         </p>
       </div>
       <div class="rss">
@@ -255,7 +254,6 @@ This means if you are starting out with Spring Data, your very first experience 
       </div>
     </div>
   </div>
-  <a href="http://github.com/odrotbohm"><img style="position: absolute; top: 0; right: 0; border: 0;" src="http://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png" alt="Fork me on GitHub" /></a>
 
   
 </body>

@@ -14,11 +14,10 @@
    <!-- Homepage CSS -->
    <link rel="stylesheet" href="/assets/themes/tom/css/screen.css" type="text/css" media="screen, projection" />
 
-   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fira+Sans:wght@300;700&display=swap" type="text/css" />
+   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fira+Sans:wght@300700&display=swap" type="text/css" />
+   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;700&display=swap" type="text/css" />
 
-   <!-- Typekit -->
-   <script type="text/javascript" src="http://use.typekit.com/jpd0pfm.js"></script>
-   <script type="text/javascript">try{Typekit.load();}catch(e){}</script>
+
 </head>
 <body>
 
@@ -54,20 +53,20 @@
 
 <p>Here’s the solution I came up with…</p>
 
-<p>I have an interface <code>Plugin&lt;T&gt;</code>, where T defines the criteria or delimiter to select plugins that shall actually be invoked. The only method this interface contains is <code>boolean supports(T delimiter)</code>. To define an actual plugin interface you create an interface that extends Plugin, declare the delimiter and add the business methods you want the plugin to provide. E.g.:</p>
+<p>I have an interface <code class="language-plaintext highlighter-rouge">Plugin&lt;T&gt;</code>, where T defines the criteria or delimiter to select plugins that shall actually be invoked. The only method this interface contains is <code class="language-plaintext highlighter-rouge">boolean supports(T delimiter)</code>. To define an actual plugin interface you create an interface that extends Plugin, declare the delimiter and add the business methods you want the plugin to provide. E.g.:</p>
 
-<pre><code>public interface NotificationProvider implements Plugin&lt;String&gt; {
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>public interface NotificationProvider implements Plugin&lt;String&gt; {
   void notify(Notification notification);
 }
-</code></pre>
+</code></pre></div></div>
 
-<p>Your <code>NotificationProvider</code> instances have to implement <code>supports</code> thus decide if they are able to handle the given delimiter or not. In most cases the delimiter might be a parameter of some business method like <code>Notification</code> in this case, but it does not have to be.</p>
+<p>Your <code class="language-plaintext highlighter-rouge">NotificationProvider</code> instances have to implement <code class="language-plaintext highlighter-rouge">supports</code> thus decide if they are able to handle the given delimiter or not. In most cases the delimiter might be a parameter of some business method like <code class="language-plaintext highlighter-rouge">Notification</code> in this case, but it does not have to be.</p>
 
-<p>The next core abstraction is the <code>PluginRegistry&lt;S extends Plugin&lt;T&gt;, T&gt;</code>. Wow, whatta signature. Instantiating it, it allows you to register <code>Plugin</code>s of type <code>S</code> and in turn access the by providing delimiter in various ways. You can ask the registry for the first suitable <code>Plugin</code>, all suitable plugins or ask for mandatory plugins and let the registry throw an exception if none found. See the <a href="http://trac.synyx.org/hera/chrome/site/mvn/plugin-core/apidocs/index.html">JavaDoc</a> for details.</p>
+<p>The next core abstraction is the <code class="language-plaintext highlighter-rouge">PluginRegistry&lt;S extends Plugin&lt;T&gt;, T&gt;</code>. Wow, whatta signature. Instantiating it, it allows you to register <code class="language-plaintext highlighter-rouge">Plugin</code>s of type <code class="language-plaintext highlighter-rouge">S</code> and in turn access the by providing delimiter in various ways. You can ask the registry for the first suitable <code class="language-plaintext highlighter-rouge">Plugin</code>, all suitable plugins or ask for mandatory plugins and let the registry throw an exception if none found. See the <a href="http://trac.synyx.org/hera/chrome/site/mvn/plugin-core/apidocs/index.html">JavaDoc</a> for details.</p>
 
-<p>Thats a lot of lowlevel code but enables you to define clean plugin interfaces and manage access to plugin instances in an elegant way. So you can easily inject a <code>PluginRegistry</code> into a Spring bean and access plugins as you like.</p>
+<p>Thats a lot of lowlevel code but enables you to define clean plugin interfaces and manage access to plugin instances in an elegant way. So you can easily inject a <code class="language-plaintext highlighter-rouge">PluginRegistry</code> into a Spring bean and access plugins as you like.</p>
 
-<pre><code>&lt;bean id="notificationProviders" class="org.synyx.plugin.core.PluginRegistry"&gt;
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;bean id="notificationProviders" class="org.synyx.plugin.core.PluginRegistry"&gt;
   &lt;property name="plugins"&gt;
     &lt;list&gt;
       &lt;bean class="com.acme.notification.EmailNotificationProvider" /&gt;
@@ -75,17 +74,17 @@
     &lt;/list&gt;
   &lt;/property&gt;
 &lt;/bean&gt;
-</code></pre>
+</code></pre></div></div>
 
 <h2 id="how-to-create-a-registry">How to create a registry?</h2>
 
-<p>Well, thats nice but quite static. What if you would like to allow your colleague to create a JAR file to drop in your classpath and automatically find his <code>NotificationProvider</code> implementation after next application restart.</p>
+<p>Well, thats nice but quite static. What if you would like to allow your colleague to create a JAR file to drop in your classpath and automatically find his <code class="language-plaintext highlighter-rouge">NotificationProvider</code> implementation after next application restart.</p>
 
 <p>Note that I do not want to cover exchanging JARs at runtime, rather want to feature some kind of “configuration on packaging” with the least overhead possible.</p>
 
-<p>This is where Spring comes into play again. I implemented a <code>PluginRegistryBeanFactoryPostProcessor</code> (only less than half of the class name length is my fault ;). It will rummage the parsed bean definitions and combine those implementing a certain interface in a <code>PluginRegistry</code> and expose it as a new bean in the application context itself.</p>
+<p>This is where Spring comes into play again. I implemented a <code class="language-plaintext highlighter-rouge">PluginRegistryBeanFactoryPostProcessor</code> (only less than half of the class name length is my fault ;). It will rummage the parsed bean definitions and combine those implementing a certain interface in a <code class="language-plaintext highlighter-rouge">PluginRegistry</code> and expose it as a new bean in the application context itself.</p>
 
-<pre><code>&lt;bean class="org.synyx.plugin.support.PluginRegistryBeanFactoryPostProcessor"&gt;
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;bean class="org.synyx.plugin.support.PluginRegistryBeanFactoryPostProcessor"&gt;
   &lt;property name="lists"&gt;
     &lt;map&gt;
       &lt;entry key="notificationProviders"
@@ -93,33 +92,33 @@
     &lt;/map&gt;
   &lt;/property&gt;
 &lt;/bean&gt;
-</code></pre>
+</code></pre></div></div>
 
-<p>The property name lists is somewhat ugly as it expects a map as parameter. This is because you ca define multiple lists, each entry results in one list or better named <code>PluginRegistry</code>. This is mainly due to the requirement to create multiple <code>PluginRegistry</code>s with one <code>BeanPostProcessor</code>. Maybe we’d drop this providing a more speaking interface but take into account to register one <code>BeanFactoryPostProcessor</code> for one <code>PluginRegistry</code>.</p>
+<p>The property name lists is somewhat ugly as it expects a map as parameter. This is because you ca define multiple lists, each entry results in one list or better named <code class="language-plaintext highlighter-rouge">PluginRegistry</code>. This is mainly due to the requirement to create multiple <code class="language-plaintext highlighter-rouge">PluginRegistry</code>s with one <code class="language-plaintext highlighter-rouge">BeanPostProcessor</code>. Maybe we’d drop this providing a more speaking interface but take into account to register one <code class="language-plaintext highlighter-rouge">BeanFactoryPostProcessor</code> for one <code class="language-plaintext highlighter-rouge">PluginRegistry</code>.</p>
 
 <h2 id="so-how-do-you-set-up-your-plugin-jars">So how do you set up your plugin JARs?</h2>
 
 <p>What we can’t free you from is declaring your plugin implementation as a Spring bean. You should define a special configuration file location and name to allow the plugin host to automatically lookup the plugin configuration file via a wildcarded import, e.g.</p>
 
-<p><code>&lt;import resource="classpath*:com/acme/**/plugin-context.xml" /&gt;</code></p>
+<p><code class="language-plaintext highlighter-rouge">&lt;import resource="classpath*:com/acme/**/plugin-context.xml" /&gt;</code></p>
 
-<p>Defining this along with the <code>BeanPostProcessor</code> above in your plugin host JAR will allow you to simply drop plugin JARs into your classpath and let them provide plugin implementation. Using maven you simply need to declare the plugin implementation project as dependency, turning Maven <code>pom.xml</code> files into some kind of program instance configuration.</p>
+<p>Defining this along with the <code class="language-plaintext highlighter-rouge">BeanPostProcessor</code> above in your plugin host JAR will allow you to simply drop plugin JARs into your classpath and let them provide plugin implementation. Using maven you simply need to declare the plugin implementation project as dependency, turning Maven <code class="language-plaintext highlighter-rouge">pom.xml</code> files into some kind of program instance configuration.</p>
 
 <h2 id="syntactic-sugar">Syntactic sugar</h2>
 
-<p>As you might have noticed, registration of the <code>BeanFactoryPostProcessor</code> is somewhat ugly. Besides the enormous name it is a LOT of XML to just define registering all beans implementing <code>Foo</code> under <code>bar</code>. Furthermore the entry’s “key” is actually the bean id the <code>PluginRegistry</code> is registered under, the “value” is actually a type name.</p>
+<p>As you might have noticed, registration of the <code class="language-plaintext highlighter-rouge">BeanFactoryPostProcessor</code> is somewhat ugly. Besides the enormous name it is a LOT of XML to just define registering all beans implementing <code class="language-plaintext highlighter-rouge">Foo</code> under <code class="language-plaintext highlighter-rouge">bar</code>. Furthermore the entry’s “key” is actually the bean id the <code class="language-plaintext highlighter-rouge">PluginRegistry</code> is registered under, the “value” is actually a type name.</p>
 
-<p>To ease configuration a little I’ve added a Spring namespace implementation , that boils declaring a <code>PluginRegistry</code> down to something like this:</p>
+<p>To ease configuration a little I’ve added a Spring namespace implementation , that boils declaring a <code class="language-plaintext highlighter-rouge">PluginRegistry</code> down to something like this:</p>
 
-<pre><code>&lt;plugin:registry id="notificationProviders"
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;plugin:registry id="notificationProviders"
   class="com.acme.notification.NotificationProvider" /&gt;
-</code></pre>
+</code></pre></div></div>
 
-<p>You can gain Eclipse classname code completion by adding <code>org/synyx/plugin/core/config/plugin-config.xsd</code> to your XML catalog. If you installed <a href="http://springide.org">Spring IDE</a>, it should come up with the code completion if you edit the class attribute of the registry element.</p>
+<p>You can gain Eclipse classname code completion by adding <code class="language-plaintext highlighter-rouge">org/synyx/plugin/core/config/plugin-config.xsd</code> to your XML catalog. If you installed <a href="http://springide.org">Spring IDE</a>, it should come up with the code completion if you edit the class attribute of the registry element.</p>
 
 <h2 id="simple-lists">Simple lists</h2>
 
-<p>The project also includes Spring support for a little stripped down version of the requirements by providing a <code>BeanListBeanFactoryPostProcessor</code>, that simply combines bean implementing a given interface to a list. This is useful if you want to leverage the automatic lookup functionality but do not need to select beans based on a given criteria and thus in turn not need to implement <code>Plugin</code> and use <code>PluginRegistry</code>. Of course there is also a namespace element list, that provides a configuration shortcut to define this <code>BeanFactoryPostProcessor</code>, too.</p>
+<p>The project also includes Spring support for a little stripped down version of the requirements by providing a <code class="language-plaintext highlighter-rouge">BeanListBeanFactoryPostProcessor</code>, that simply combines bean implementing a given interface to a list. This is useful if you want to leverage the automatic lookup functionality but do not need to select beans based on a given criteria and thus in turn not need to implement <code class="language-plaintext highlighter-rouge">Plugin</code> and use <code class="language-plaintext highlighter-rouge">PluginRegistry</code>. Of course there is also a namespace element list, that provides a configuration shortcut to define this <code class="language-plaintext highlighter-rouge">BeanFactoryPostProcessor</code>, too.</p>
 
 <h2 id="summary">Summary</h2>
 
@@ -145,11 +144,11 @@
   <h2>Related Posts</h2>
   <ul class="posts">
     
+      <li><span>22 Feb 2021</span> &raquo; <a href="/2021/02/Architecturally-evident-code-with-jMolecules/">Architecturally evident code with jMolecules</a></li>
+    
       <li><span>17 Mar 2020</span> &raquo; <a href="/2020/03/Implementing-DDD-Building-Blocks-in-Java/">Implementing DDD Building Blocks in Java</a></li>
     
       <li><span>09 Oct 2016</span> &raquo; <a href="/2016/10/evolving-distributed-systems/">Evolving Distributed Systems</a></li>
-    
-      <li><span>29 Apr 2016</span> &raquo; <a href="/2016/04/benefits-of-hypermedia/">The Benefits of Hypermedia APIs</a></li>
     
   </ul>
 </div>
@@ -188,7 +187,7 @@
         <p>
           <a href="http://github.com/odrotbohm/">github.com/odrotbohm</a><br />
           <a href="http://twitter.com/odrotbohm/">twitter.com/odrotbohm</a><br />
-          <a href='mailto:info@olivergierke.de'>info@olivergierke.de</a>
+          <a href='mailto:info@odrotbohm.de'>info@odrotbohm.de</a>
         </p>
       </div>
       <div class="rss">
@@ -198,7 +197,6 @@
       </div>
     </div>
   </div>
-  <a href="http://github.com/odrotbohm"><img style="position: absolute; top: 0; right: 0; border: 0;" src="http://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png" alt="Fork me on GitHub" /></a>
 
   
 </body>

@@ -14,11 +14,10 @@
    <!-- Homepage CSS -->
    <link rel="stylesheet" href="/assets/themes/tom/css/screen.css" type="text/css" media="screen, projection" />
 
-   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fira+Sans:wght@300;700&display=swap" type="text/css" />
+   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fira+Sans:wght@300700&display=swap" type="text/css" />
+   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;700&display=swap" type="text/css" />
 
-   <!-- Typekit -->
-   <script type="text/javascript" src="http://use.typekit.com/jpd0pfm.js"></script>
-   <script type="text/javascript">try{Typekit.load();}catch(e){}</script>
+
 </head>
 <body>
 
@@ -44,11 +43,11 @@
     
   </p>
   
-<p>Today I devoted my day to a general check in how far Hades can be run with the <a href="http://www.springsource.com/download/community?project="> latest Spring 3 milestone</a>. After managing the typical Maven foo I had a project profile up and running that builds <a href="http://hades.synyx.org">Hades</a> against Spring 3 M3 and executes the tests against it. In case you try to migrate some of your code, too, and wonder where <code>spring-agent</code> JAR has gone: its <code>org.springframework.instrument</code> now. But back to topic.</p>
+<p>Today I devoted my day to a general check in how far Hades can be run with the <a href="http://www.springsource.com/download/community?project="> latest Spring 3 milestone</a>. After managing the typical Maven foo I had a project profile up and running that builds <a href="http://hades.synyx.org">Hades</a> against Spring 3 M3 and executes the tests against it. In case you try to migrate some of your code, too, and wonder where <code class="language-plaintext highlighter-rouge">spring-agent</code> JAR has gone: its <code class="language-plaintext highlighter-rouge">org.springframework.instrument</code> now. But back to topic.</p>
 
 <p>The build went fine but unfortunately some of my test cases broke when executed under M3. I noticed that things started to get fuzzy with the first test case that was supposed to throw an exception. I have some test cases that look as follows:</p>
 
-<pre><code>@Test(expected=DataAccessException.class)
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>@Test(expected=DataAccessException.class)
 public void checkDoesNotCascadeIfNotConfigured() {
 
   // Setup some persistent object graph that is
@@ -56,11 +55,11 @@ public void checkDoesNotCascadeIfNotConfigured() {
 
   userDao.saveAndFlush(user);
 }
-</code></pre>
+</code></pre></div></div>
 
 <p>The key thing to notice here is that I flush the database as the constraint violation I want to expose is only checked at the time the data gets pushed to the database actually. Stepping through the code of Spring testing library in a first level of detail, I realized that the exception is thrown correctly and even detected as the one that is supposed to be thrown. Nevertheless the test method was marked as failed with the exception supposed to be thrown. Furthermore all upcoming tests failed with a duplicate key exception as setting up the test fixture failed right in the beginning. What the heck was going on?</p>
 
-<p>It seemed obvious to me that there would have to be something wrong with the transaction management, so I digged a little further in that direction. Finally I found out this one: in <a href="https://fisheye.springsource.org/browse/spring-framework/trunk/org.springframework.test/src/main/java/org/springframework/test/context/transaction/TransactionalTestExecutionListener.java?r1=134&amp;r2=655">this commit</a> Jürgen Höller added a <code>transactionStatus.flush()</code> during the rollback of a transaction after test execution. This of course raises the exception I wanted to raise a second time but - unfortunately - after the moment the first exception had already been checked to be the expected one. Thus the second exception bubbles up causing the test and the rollback to fail.</p>
+<p>It seemed obvious to me that there would have to be something wrong with the transaction management, so I digged a little further in that direction. Finally I found out this one: in <a href="https://fisheye.springsource.org/browse/spring-framework/trunk/org.springframework.test/src/main/java/org/springframework/test/context/transaction/TransactionalTestExecutionListener.java?r1=134&amp;r2=655">this commit</a> Jürgen Höller added a <code class="language-plaintext highlighter-rouge">transactionStatus.flush()</code> during the rollback of a transaction after test execution. This of course raises the exception I wanted to raise a second time but - unfortunately - after the moment the first exception had already been checked to be the expected one. Thus the second exception bubbles up causing the test and the rollback to fail.</p>
 
 <p>As I spoke to <a href="http://blog.springsource.com/author/juergenh/">Jürgen</a> we found out that the flush was implemented due to a <a href="http://jira.springframework.org/browse/SPR-5315">improvement</a> filed in JIRA. Fortunately there is already <a href="http://jira.springframework.org/browse/SPR-5699">another ticket</a> that adresses the issue. Waiting for RC1 to see this fixed…</p>
 
@@ -72,11 +71,11 @@ public void checkDoesNotCascadeIfNotConfigured() {
   <h2>Related Posts</h2>
   <ul class="posts">
     
+      <li><span>22 Feb 2021</span> &raquo; <a href="/2021/02/Architecturally-evident-code-with-jMolecules/">Architecturally evident code with jMolecules</a></li>
+    
       <li><span>17 Mar 2020</span> &raquo; <a href="/2020/03/Implementing-DDD-Building-Blocks-in-Java/">Implementing DDD Building Blocks in Java</a></li>
     
       <li><span>09 Oct 2016</span> &raquo; <a href="/2016/10/evolving-distributed-systems/">Evolving Distributed Systems</a></li>
-    
-      <li><span>29 Apr 2016</span> &raquo; <a href="/2016/04/benefits-of-hypermedia/">The Benefits of Hypermedia APIs</a></li>
     
   </ul>
 </div>
@@ -115,7 +114,7 @@ public void checkDoesNotCascadeIfNotConfigured() {
         <p>
           <a href="http://github.com/odrotbohm/">github.com/odrotbohm</a><br />
           <a href="http://twitter.com/odrotbohm/">twitter.com/odrotbohm</a><br />
-          <a href='mailto:info@olivergierke.de'>info@olivergierke.de</a>
+          <a href='mailto:info@odrotbohm.de'>info@odrotbohm.de</a>
         </p>
       </div>
       <div class="rss">
@@ -125,7 +124,6 @@ public void checkDoesNotCascadeIfNotConfigured() {
       </div>
     </div>
   </div>
-  <a href="http://github.com/odrotbohm"><img style="position: absolute; top: 0; right: 0; border: 0;" src="http://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png" alt="Fork me on GitHub" /></a>
 
   
 </body>

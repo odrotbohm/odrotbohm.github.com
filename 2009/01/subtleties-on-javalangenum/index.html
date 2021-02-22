@@ -14,11 +14,10 @@
    <!-- Homepage CSS -->
    <link rel="stylesheet" href="/assets/themes/tom/css/screen.css" type="text/css" media="screen, projection" />
 
-   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fira+Sans:wght@300;700&display=swap" type="text/css" />
+   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fira+Sans:wght@300700&display=swap" type="text/css" />
+   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;700&display=swap" type="text/css" />
 
-   <!-- Typekit -->
-   <script type="text/javascript" src="http://use.typekit.com/jpd0pfm.js"></script>
-   <script type="text/javascript">try{Typekit.load();}catch(e){}</script>
+
 </head>
 <body>
 
@@ -45,25 +44,25 @@
   </p>
   <p>As i twittered a few days ago, I stumbled over a subtle issue in the core Java library. Not as extreme as <a href="http://www.olivergierke.de/wordpress/2008/12/javac-issues-implementing-generics/">here</a> but one to raise ones eyebrows, too.</p>
 
-<p>I just wanted to write a small method to access an enum value by its <code>String</code> representation or use a default, if the conversion fails:</p>
+<p>I just wanted to write a small method to access an enum value by its <code class="language-plaintext highlighter-rouge">String</code> representation or use a default, if the conversion fails:</p>
 
-<pre><code>public static &lt;T extends Enum&lt;T&gt;&gt; T toEnum(String value, T default) {
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>public static &lt;T extends Enum&lt;T&gt;&gt; T toEnum(String value, T default) {
 
   // Checking values omitted
   return (T) Enum.valueOf((Class) defaultValue.getClass(), StringUtils
     .upperCase(value))
 }
-</code></pre>
+</code></pre></div></div>
 
-<p>Of course, I wrote a unittest to verify the behaviour and it worked fine. Nevetheless using this class in my application threw an exception for a different (than the one in the testcase) <code>Enum</code> type, claiming the type handed to the <code>valueOf(…)</code> method was not an Enum?</p>
+<p>Of course, I wrote a unittest to verify the behaviour and it worked fine. Nevetheless using this class in my application threw an exception for a different (than the one in the testcase) <code class="language-plaintext highlighter-rouge">Enum</code> type, claiming the type handed to the <code class="language-plaintext highlighter-rouge">valueOf(…)</code> method was not an Enum?</p>
 
-<p>What? I’ve handed over an <code>Enum</code> as default value and you tell me, it is not of an <code>Enum</code> type. I digged down into the details. Looked like Enums with methods broke the code, Enums without methods worked. Seems like the compiler works with anonymous inner classes when creating byte code. The solution to the problem is using <code>getDeclaringClass()</code> instead, as the JavaDoc reveals.</p>
+<p>What? I’ve handed over an <code class="language-plaintext highlighter-rouge">Enum</code> as default value and you tell me, it is not of an <code class="language-plaintext highlighter-rouge">Enum</code> type. I digged down into the details. Looked like Enums with methods broke the code, Enums without methods worked. Seems like the compiler works with anonymous inner classes when creating byte code. The solution to the problem is using <code class="language-plaintext highlighter-rouge">getDeclaringClass()</code> instead, as the JavaDoc reveals.</p>
 
-<p>Although I understand that <code>Enum</code>s with methods are implemented with inner classes, I do not understand why these inner classes do not extend <code>Enum&lt;T&gt;</code>. Futhermore I cannot believe that the behaviour of <code>getClass()</code> changes depending on whether you use methods in your <code>Enum</code> or not. Strange thing…</p>
+<p>Although I understand that <code class="language-plaintext highlighter-rouge">Enum</code>s with methods are implemented with inner classes, I do not understand why these inner classes do not extend <code class="language-plaintext highlighter-rouge">Enum&lt;T&gt;</code>. Futhermore I cannot believe that the behaviour of <code class="language-plaintext highlighter-rouge">getClass()</code> changes depending on whether you use methods in your <code class="language-plaintext highlighter-rouge">Enum</code> or not. Strange thing…</p>
 
 <p>Below you find a small test case to reproduce the issue. Be sure you have JUnit in version 4 or above on the classpath.</p>
 
-<pre><code>public class EnumSample {
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>public class EnumSample {
 
   private enum Foo {
     FOO;
@@ -96,7 +95,7 @@
     toEnum("BAR", Bar.BAR);
   }
 }
-</code></pre>
+</code></pre></div></div>
 
 </div>
 
@@ -104,11 +103,11 @@
   <h2>Related Posts</h2>
   <ul class="posts">
     
+      <li><span>22 Feb 2021</span> &raquo; <a href="/2021/02/Architecturally-evident-code-with-jMolecules/">Architecturally evident code with jMolecules</a></li>
+    
       <li><span>17 Mar 2020</span> &raquo; <a href="/2020/03/Implementing-DDD-Building-Blocks-in-Java/">Implementing DDD Building Blocks in Java</a></li>
     
       <li><span>09 Oct 2016</span> &raquo; <a href="/2016/10/evolving-distributed-systems/">Evolving Distributed Systems</a></li>
-    
-      <li><span>29 Apr 2016</span> &raquo; <a href="/2016/04/benefits-of-hypermedia/">The Benefits of Hypermedia APIs</a></li>
     
   </ul>
 </div>
@@ -147,7 +146,7 @@
         <p>
           <a href="http://github.com/odrotbohm/">github.com/odrotbohm</a><br />
           <a href="http://twitter.com/odrotbohm/">twitter.com/odrotbohm</a><br />
-          <a href='mailto:info@olivergierke.de'>info@olivergierke.de</a>
+          <a href='mailto:info@odrotbohm.de'>info@odrotbohm.de</a>
         </p>
       </div>
       <div class="rss">
@@ -157,7 +156,6 @@
       </div>
     </div>
   </div>
-  <a href="http://github.com/odrotbohm"><img style="position: absolute; top: 0; right: 0; border: 0;" src="http://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png" alt="Fork me on GitHub" /></a>
 
   
 </body>

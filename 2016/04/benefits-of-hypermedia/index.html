@@ -14,11 +14,10 @@
    <!-- Homepage CSS -->
    <link rel="stylesheet" href="/assets/themes/tom/css/screen.css" type="text/css" media="screen, projection" />
 
-   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fira+Sans:wght@300;700&display=swap" type="text/css" />
+   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fira+Sans:wght@300700&display=swap" type="text/css" />
+   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;700&display=swap" type="text/css" />
 
-   <!-- Typekit -->
-   <script type="text/javascript" src="http://use.typekit.com/jpd0pfm.js"></script>
-   <script type="text/javascript">try{Typekit.load();}catch(e){}</script>
+
 </head>
 <body>
 
@@ -75,13 +74,13 @@ Notice how the order can only be canceled in the payment expected state in this 
 
 <p>If you now coded a mobile client naïvely, it would probably look for the status field of the JSON payload, check whether it’s “payment expected” and if so, display a button to trigger the request for canceling.</p>
 
-<pre><code>GET /orders/4711
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>GET /orders/4711
 
 {
     …,
     "status" : "payment expected"
 }
-</code></pre>
+</code></pre></div></div>
 
 <p>The client would have to know about the resource to issue the request to, the HTTP method it’s supposed to use and the payload it has to send to the server.
 You could even tip your toes into hypermedia and let the client look for the link to find the request target but hypermedia is not going to free the server from knowing about the request method and payload details.
@@ -105,9 +104,9 @@ Bummer!
 What could we have done instead?</p>
 
 <p>As I also describe in the talk, using hypermedia is basically about reducing critical decisions in the client to the presence of a link with a certain name in a certain context.
-We could’ve just implemented our mobile client that way: whenever the representation of an order contains a <code>cancel</code> link, we display the corresponding button and trigger the documented HTTP call to issue the cancellation if it’s pressed.</p>
+We could’ve just implemented our mobile client that way: whenever the representation of an order contains a <code class="language-plaintext highlighter-rouge">cancel</code> link, we display the corresponding button and trigger the documented HTTP call to issue the cancellation if it’s pressed.</p>
 
-<pre><code>GET /orders/4711
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>GET /orders/4711
 
 {
     "_links" : {
@@ -115,7 +114,7 @@ We could’ve just implemented our mobile client that way: whenever the represen
     }, …
     "status" : "…"
 }
-</code></pre>
+</code></pre></div></div>
 
 <p>This fundamentally reduces the knowledge baked into the client to nothing but the presence of the link.
 That slight change in the way the client is implemented would’ve made it capable to not break due to a change in the API (1, as it would just forward the value of the field to display to the user) and even pick up a new feature transparently (2, as it would transparently display the button in a completely different state of the order as well).</p>
@@ -148,11 +147,11 @@ That’s a great trade-off as the protocol semantics are much less likely to cha
   <h2>Related Posts</h2>
   <ul class="posts">
     
+      <li><span>22 Feb 2021</span> &raquo; <a href="/2021/02/Architecturally-evident-code-with-jMolecules/">Architecturally evident code with jMolecules</a></li>
+    
       <li><span>17 Mar 2020</span> &raquo; <a href="/2020/03/Implementing-DDD-Building-Blocks-in-Java/">Implementing DDD Building Blocks in Java</a></li>
     
       <li><span>09 Oct 2016</span> &raquo; <a href="/2016/10/evolving-distributed-systems/">Evolving Distributed Systems</a></li>
-    
-      <li><span>22 Nov 2013</span> &raquo; <a href="/2013/11/why-field-injection-is-evil/">Why field injection is evil</a></li>
     
   </ul>
 </div>
@@ -191,7 +190,7 @@ That’s a great trade-off as the protocol semantics are much less likely to cha
         <p>
           <a href="http://github.com/odrotbohm/">github.com/odrotbohm</a><br />
           <a href="http://twitter.com/odrotbohm/">twitter.com/odrotbohm</a><br />
-          <a href='mailto:info@olivergierke.de'>info@olivergierke.de</a>
+          <a href='mailto:info@odrotbohm.de'>info@odrotbohm.de</a>
         </p>
       </div>
       <div class="rss">
@@ -201,7 +200,6 @@ That’s a great trade-off as the protocol semantics are much less likely to cha
       </div>
     </div>
   </div>
-  <a href="http://github.com/odrotbohm"><img style="position: absolute; top: 0; right: 0; border: 0;" src="http://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png" alt="Fork me on GitHub" /></a>
 
   
 </body>

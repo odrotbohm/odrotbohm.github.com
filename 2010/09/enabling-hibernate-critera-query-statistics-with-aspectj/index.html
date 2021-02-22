@@ -14,11 +14,10 @@
    <!-- Homepage CSS -->
    <link rel="stylesheet" href="/assets/themes/tom/css/screen.css" type="text/css" media="screen, projection" />
 
-   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fira+Sans:wght@300;700&display=swap" type="text/css" />
+   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fira+Sans:wght@300700&display=swap" type="text/css" />
+   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;700&display=swap" type="text/css" />
 
-   <!-- Typekit -->
-   <script type="text/javascript" src="http://use.typekit.com/jpd0pfm.js"></script>
-   <script type="text/javascript">try{Typekit.load();}catch(e){}</script>
+
 </head>
 <body>
 
@@ -44,19 +43,19 @@
     
   </p>
   
-<p>In the <code>#java.de</code> IRC channel someone pointed me to this <a href="http://opensource.atlassian.com/projects/hibernate/browse/HHH-3452">request for enhancement</a> in Hibernate recently. The bottom line here is that Hibernate’s statistics feature that can be used to capture persistence metrics (information about query executions and execution times and so on) does not include queries triggered through using the criteria API.</p>
+<p>In the <code class="language-plaintext highlighter-rouge">#java.de</code> IRC channel someone pointed me to this <a href="http://opensource.atlassian.com/projects/hibernate/browse/HHH-3452">request for enhancement</a> in Hibernate recently. The bottom line here is that Hibernate’s statistics feature that can be used to capture persistence metrics (information about query executions and execution times and so on) does not include queries triggered through using the criteria API.</p>
 
-<p>This is quite a a reasonable request for enhancement in my opinion and it’s quite surprising that the ticket has been open for over 2 years now, especially as the solution seems to be simply adding a method to <code>CriteriaLoader</code> class, as Chuck May points out.  So supposed you want to use this feature <em>now</em>. The only option seems to be patching Hibernate (sort of doable), building it (a huge magnitude more complex – no offense, building Spring is not trivial either) and the use and maintain that patched version over further releases. Isn’t there another way to get that feature into Hibernate? Of course there is… AspectJ.
+<p>This is quite a a reasonable request for enhancement in my opinion and it’s quite surprising that the ticket has been open for over 2 years now, especially as the solution seems to be simply adding a method to <code class="language-plaintext highlighter-rouge">CriteriaLoader</code> class, as Chuck May points out.  So supposed you want to use this feature <em>now</em>. The only option seems to be patching Hibernate (sort of doable), building it (a huge magnitude more complex – no offense, building Spring is not trivial either) and the use and maintain that patched version over further releases. Isn’t there another way to get that feature into Hibernate? Of course there is… AspectJ.
 As the fix seems to be simply adding a method to an existing class we can leverage AspectJ inter-type declarations to add this special method from the outside. Here’s the aspect code:</p>
 
-<pre><code>public privileged aspect CriteriaStatisticsAspect {
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>public privileged aspect CriteriaStatisticsAspect {
   public String CriteriaLoader.getQueryIdentifier() {
     return "[CRITERIA] " + getSQLString();
   }
 }
-</code></pre>
+</code></pre></div></div>
 
-<p>It’s pretty easy to understand I think as the method declaration only slightly differs from a normal Java one (no pun intended). You actually only have to explicitly mention the type you want to add the method to. To weave this aspect into Hibernate you simply add the <a href="http://mojo.codehaus.org/aspectj-maven-plugin/">Maven AspectJ plugin</a> to your <code>pom.xml</code> and tell it to consider the Hibernate JARs too by adding a <code>weaveDependencies</code> block to the configuration section of the plugin.</p>
+<p>It’s pretty easy to understand I think as the method declaration only slightly differs from a normal Java one (no pun intended). You actually only have to explicitly mention the type you want to add the method to. To weave this aspect into Hibernate you simply add the <a href="http://mojo.codehaus.org/aspectj-maven-plugin/">Maven AspectJ plugin</a> to your <code class="language-plaintext highlighter-rouge">pom.xml</code> and tell it to consider the Hibernate JARs too by adding a <code class="language-plaintext highlighter-rouge">weaveDependencies</code> block to the configuration section of the plugin.</p>
 
 <p>To ease the burden of getting started with this approach I have uploaded the <a href="http://github.com/olivergierke/hibernate-criteria-statistics">sample code</a> to Github, also containing a test case to demonstrate this actually works. Upgrading to another Hibernate versions should work seamlessly as the aspect gets woven into the never version then. As soon as the feature gets actually implemented (let’s hope it won’t take another two years ;) simply throw away the aspect.</p>
 
@@ -66,11 +65,11 @@ As the fix seems to be simply adding a method to an existing class we can levera
   <h2>Related Posts</h2>
   <ul class="posts">
     
+      <li><span>22 Feb 2021</span> &raquo; <a href="/2021/02/Architecturally-evident-code-with-jMolecules/">Architecturally evident code with jMolecules</a></li>
+    
       <li><span>17 Mar 2020</span> &raquo; <a href="/2020/03/Implementing-DDD-Building-Blocks-in-Java/">Implementing DDD Building Blocks in Java</a></li>
     
       <li><span>09 Oct 2016</span> &raquo; <a href="/2016/10/evolving-distributed-systems/">Evolving Distributed Systems</a></li>
-    
-      <li><span>29 Apr 2016</span> &raquo; <a href="/2016/04/benefits-of-hypermedia/">The Benefits of Hypermedia APIs</a></li>
     
   </ul>
 </div>
@@ -109,7 +108,7 @@ As the fix seems to be simply adding a method to an existing class we can levera
         <p>
           <a href="http://github.com/odrotbohm/">github.com/odrotbohm</a><br />
           <a href="http://twitter.com/odrotbohm/">twitter.com/odrotbohm</a><br />
-          <a href='mailto:info@olivergierke.de'>info@olivergierke.de</a>
+          <a href='mailto:info@odrotbohm.de'>info@odrotbohm.de</a>
         </p>
       </div>
       <div class="rss">
@@ -119,7 +118,6 @@ As the fix seems to be simply adding a method to an existing class we can levera
       </div>
     </div>
   </div>
-  <a href="http://github.com/odrotbohm"><img style="position: absolute; top: 0; right: 0; border: 0;" src="http://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png" alt="Fork me on GitHub" /></a>
 
   
 </body>

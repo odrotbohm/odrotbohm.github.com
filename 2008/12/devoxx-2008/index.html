@@ -14,11 +14,10 @@
    <!-- Homepage CSS -->
    <link rel="stylesheet" href="/assets/themes/tom/css/screen.css" type="text/css" media="screen, projection" />
 
-   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fira+Sans:wght@300;700&display=swap" type="text/css" />
+   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fira+Sans:wght@300700&display=swap" type="text/css" />
+   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;700&display=swap" type="text/css" />
 
-   <!-- Typekit -->
-   <script type="text/javascript" src="http://use.typekit.com/jpd0pfm.js"></script>
-   <script type="text/javascript">try{Typekit.load();}catch(e){}</script>
+
 </head>
 <body>
 
@@ -61,14 +60,14 @@
 
 <p>In the lunch break I had my quicky session on Hades, with actually worked out quite well. Actually I stripped it down to be more demo centric the night before. You can download the slides <a href="http://www.olivergierke.de/wordpress/wp-content/uploads/2008/12/generic-daos-with-hades.pdf">here</a>.</p>
 
-<p>The <a href="http://www.devoxx.com/display/JV08/Pro+Spring+2.5">Pro Spring 2.5</a> talk actually summed up all the neat features introduced in 2.5. One thing I got stuck on was the fact that you can use <code>@Autowired</code> on a property of type <code>List</code> and it will get all Spring beans injected implementing the <code>Foo</code> interface. Of course this raises the question of how Spring can detect the generic type at runtime. Seems like <code>org.sfw.core.GenericCollectionTypeResolver</code> does the trick.</p>
+<p>The <a href="http://www.devoxx.com/display/JV08/Pro+Spring+2.5">Pro Spring 2.5</a> talk actually summed up all the neat features introduced in 2.5. One thing I got stuck on was the fact that you can use <code class="language-plaintext highlighter-rouge">@Autowired</code> on a property of type <code class="language-plaintext highlighter-rouge">List</code> and it will get all Spring beans injected implementing the <code class="language-plaintext highlighter-rouge">Foo</code> interface. Of course this raises the question of how Spring can detect the generic type at runtime. Seems like <code class="language-plaintext highlighter-rouge">org.sfw.core.GenericCollectionTypeResolver</code> does the trick.</p>
 
 <h2 id="wednesday">Wednesday</h2>
 
 <p>The session day ended with a <a href="http://www.devoxx.com/display/JV08/RESTful+Design%2C+Patterns+and+Anti-Patterns">talk</a> of <a href="http://www.innoq.com/blog/st/">Stefan Tilkov</a> on REST Webservices. He could not have given a better and shorter REST introduction than he did. He very nicely unfolded the - sometimes absurd - concepts and abuses SOAP does to HTTP. Just two small examples: have you ever thought about the SOAP notion of an <strong>endpoint</strong>? As the web is build to be interconnected, the term is just ridiculous. The same applies to tunneling every call through POST or GET, not only freeing HTTP verbs from all its semantics, but intentionally abusing them. As Stefan said:</p>
 
 <blockquote>
-  <p>It’s like overriding a <code>plus</code> method, with formatting your harddrive.”</p>
+  <p>It’s like overriding a <code class="language-plaintext highlighter-rouge">plus</code> method, with formatting your harddrive.”</p>
 </blockquote>
 
 <p>Note, that same as to the quote of Ted - exeggeration serves descriptiveness. ;)</p>
@@ -84,9 +83,9 @@
   <li>no Properties</li>
   <li>no reimplemented Generics</li>
   <li>small language changes:
-** multiple exceptions in catchclause: <code>catch (Foo, Bar e)</code>
-** null-safe object traversal: <code>a?.foo()?.bar()?</code> -&gt; returns <code>null</code> if one of the values in between is <code>null</code>
-** type inference: <code>Map&lt;String, Object&gt; map = new HashMap();</code> &lt;- gets <code>new HashMap&lt;String, Object&gt;();</code> automatically</li>
+** multiple exceptions in catchclause: <code class="language-plaintext highlighter-rouge">catch (Foo, Bar e)</code>
+** null-safe object traversal: <code class="language-plaintext highlighter-rouge">a?.foo()?.bar()?</code> -&gt; returns <code class="language-plaintext highlighter-rouge">null</code> if one of the values in between is <code class="language-plaintext highlighter-rouge">null</code>
+** type inference: <code class="language-plaintext highlighter-rouge">Map&lt;String, Object&gt; map = new HashMap();</code> &lt;- gets <code class="language-plaintext highlighter-rouge">new HashMap&lt;String, Object&gt;();</code> automatically</li>
   <li>modularity on language level</li>
 </ul>
 
@@ -108,11 +107,11 @@
   <h2>Related Posts</h2>
   <ul class="posts">
     
+      <li><span>22 Feb 2021</span> &raquo; <a href="/2021/02/Architecturally-evident-code-with-jMolecules/">Architecturally evident code with jMolecules</a></li>
+    
       <li><span>17 Mar 2020</span> &raquo; <a href="/2020/03/Implementing-DDD-Building-Blocks-in-Java/">Implementing DDD Building Blocks in Java</a></li>
     
       <li><span>09 Oct 2016</span> &raquo; <a href="/2016/10/evolving-distributed-systems/">Evolving Distributed Systems</a></li>
-    
-      <li><span>29 Apr 2016</span> &raquo; <a href="/2016/04/benefits-of-hypermedia/">The Benefits of Hypermedia APIs</a></li>
     
   </ul>
 </div>
@@ -151,7 +150,7 @@
         <p>
           <a href="http://github.com/odrotbohm/">github.com/odrotbohm</a><br />
           <a href="http://twitter.com/odrotbohm/">twitter.com/odrotbohm</a><br />
-          <a href='mailto:info@olivergierke.de'>info@olivergierke.de</a>
+          <a href='mailto:info@odrotbohm.de'>info@odrotbohm.de</a>
         </p>
       </div>
       <div class="rss">
@@ -161,7 +160,6 @@
       </div>
     </div>
   </div>
-  <a href="http://github.com/odrotbohm"><img style="position: absolute; top: 0; right: 0; border: 0;" src="http://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png" alt="Fork me on GitHub" /></a>
 
   
 </body>

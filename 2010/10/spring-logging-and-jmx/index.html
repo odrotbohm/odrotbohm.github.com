@@ -14,11 +14,10 @@
    <!-- Homepage CSS -->
    <link rel="stylesheet" href="/assets/themes/tom/css/screen.css" type="text/css" media="screen, projection" />
 
-   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fira+Sans:wght@300;700&display=swap" type="text/css" />
+   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fira+Sans:wght@300700&display=swap" type="text/css" />
+   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;700&display=swap" type="text/css" />
 
-   <!-- Typekit -->
-   <script type="text/javascript" src="http://use.typekit.com/jpd0pfm.js"></script>
-   <script type="text/javascript">try{Typekit.load();}catch(e){}</script>
+
 </head>
 <body>
 
@@ -46,29 +45,29 @@
   
 <p>Pretty much every application out in the wild is using logging to some extend. As applications tend to have bugs (yes, yours as well) it’s a common requirement to alter log levels at runtime. As JMX (Java Management Extensions) is a standard to monitor and manage applications it seems to be a reasonable approach to expose the loggers used in an application via JMX to allow tuning of log levels via a JMX client like jconsole. So let’s take a look on how you enable JMX with Spring.</p>
 
-<pre><code>&lt;context:mbean-server /&gt;
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;context:mbean-server /&gt;
 &lt;context:mbean-export /&gt;
-</code></pre>
+</code></pre></div></div>
 
-<p>The first element from the context namespace sets up a JMX server so that MBeans can be registered. The second element activates automatic export of all Spring beans the either leverage Spring JMX support (annotation based) or Spring beans that satisfy the JMX naming scheme (a class implementing an interface named <code>${classname}MBean</code>). Fortunately Log4J ships with a <code>LoggerDynamicMBean</code> that exports a <code>Logger</code> instance to the JMX infrastructure. It’s API is not really built with dependency injection in mind but due to the flexibility of the Spring XML configuration language we could register this MBean as follows:</p>
+<p>The first element from the context namespace sets up a JMX server so that MBeans can be registered. The second element activates automatic export of all Spring beans the either leverage Spring JMX support (annotation based) or Spring beans that satisfy the JMX naming scheme (a class implementing an interface named <code class="language-plaintext highlighter-rouge">${classname}MBean</code>). Fortunately Log4J ships with a <code class="language-plaintext highlighter-rouge">LoggerDynamicMBean</code> that exports a <code class="language-plaintext highlighter-rouge">Logger</code> instance to the JMX infrastructure. It’s API is not really built with dependency injection in mind but due to the flexibility of the Spring XML configuration language we could register this MBean as follows:</p>
 
-<pre><code>&lt;bean class="org.apache.log4j.jmx.LoggerDynamicMBean"&gt;
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;bean class="org.apache.log4j.jmx.LoggerDynamicMBean"&gt;
   &lt;constructor-arg&gt;
     &lt;bean class="org.apache.log4j.Logger" factory-method="getLogger"&gt;
       &lt;constructor-arg value="org.springframework.jmx" /&gt;
     &lt;/bean&gt;
   &lt;/constructor-arg&gt;
 &lt;/bean&gt;
-</code></pre>
+</code></pre></div></div>
 
 <p>Running this in combination with the XML snippet above now exposes the logger for org.springframework.jmx as JMX MBean.</p>
 
 <h2 id="xml-hell-go-make-it-clear-and-nice">XML Hell? Go make it clear and nice!</h2>
 
-<p>Declaring the MBean for a single logger requires quite an amount of XML and is boilerplate to a large degree. The two things that are unique in this case is that we want to expose a Log4J logger and the logger name of <code>org.springframework.jmx</code>. So what if we could expose the logger with something like this:</p>
+<p>Declaring the MBean for a single logger requires quite an amount of XML and is boilerplate to a large degree. The two things that are unique in this case is that we want to expose a Log4J logger and the logger name of <code class="language-plaintext highlighter-rouge">org.springframework.jmx</code>. So what if we could expose the logger with something like this:</p>
 
-<pre><code>&lt;jmx:logger type="Log4J" name="org.springframework.jmx" /&gt;
-</code></pre>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;jmx:logger type="Log4J" name="org.springframework.jmx" /&gt;
+</code></pre></div></div>
 
 <p>We can! I’ve created a small <a href="http://github.com/olivergierke/spring-jmx-namespace">sample project</a> project containing a custom JMX namespace and put it up on Github. The README file contains instructions how to play around with the Sample class, altering the log level via jconsole and see results in the console output. Right now it’s pretty much just a proof of concept and could be improved in a few corners. We should support other logging libraries and we could transparently register and whcih is not the case currently. Feel free to suggest or add extensions!</p>
 
@@ -78,11 +77,11 @@
   <h2>Related Posts</h2>
   <ul class="posts">
     
+      <li><span>22 Feb 2021</span> &raquo; <a href="/2021/02/Architecturally-evident-code-with-jMolecules/">Architecturally evident code with jMolecules</a></li>
+    
       <li><span>17 Mar 2020</span> &raquo; <a href="/2020/03/Implementing-DDD-Building-Blocks-in-Java/">Implementing DDD Building Blocks in Java</a></li>
     
       <li><span>09 Oct 2016</span> &raquo; <a href="/2016/10/evolving-distributed-systems/">Evolving Distributed Systems</a></li>
-    
-      <li><span>29 Apr 2016</span> &raquo; <a href="/2016/04/benefits-of-hypermedia/">The Benefits of Hypermedia APIs</a></li>
     
   </ul>
 </div>
@@ -121,7 +120,7 @@
         <p>
           <a href="http://github.com/odrotbohm/">github.com/odrotbohm</a><br />
           <a href="http://twitter.com/odrotbohm/">twitter.com/odrotbohm</a><br />
-          <a href='mailto:info@olivergierke.de'>info@olivergierke.de</a>
+          <a href='mailto:info@odrotbohm.de'>info@odrotbohm.de</a>
         </p>
       </div>
       <div class="rss">
@@ -131,7 +130,6 @@
       </div>
     </div>
   </div>
-  <a href="http://github.com/odrotbohm"><img style="position: absolute; top: 0; right: 0; border: 0;" src="http://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png" alt="Fork me on GitHub" /></a>
 
   
 </body>

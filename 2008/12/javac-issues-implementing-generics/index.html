@@ -14,11 +14,10 @@
    <!-- Homepage CSS -->
    <link rel="stylesheet" href="/assets/themes/tom/css/screen.css" type="text/css" media="screen, projection" />
 
-   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fira+Sans:wght@300;700&display=swap" type="text/css" />
+   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fira+Sans:wght@300700&display=swap" type="text/css" />
+   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;700&display=swap" type="text/css" />
 
-   <!-- Typekit -->
-   <script type="text/javascript" src="http://use.typekit.com/jpd0pfm.js"></script>
-   <script type="text/javascript">try{Typekit.load();}catch(e){}</script>
+
 </head>
 <body>
 
@@ -45,7 +44,7 @@
   </p>
   <p>Attenting <a href="http://www.olivergierke.de/wordpress/2008/12/devoxx-2008">Devoxx last week</a>, I had the chance to talk to Joshua Bloch about an compiler issue I had a while ago implementing static factory method pattern from his book. Take this as example:</p>
 
-<pre><code>public class PluginRegistry &lt;T extends Plugin&lt;S&gt;, S&gt; {
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>public class PluginRegistry &lt;T extends Plugin&lt;S&gt;, S&gt; {
   public static &lt;T extends Plugin&lt;S&gt;, S&gt;
     PluginRegistry&lt;T, S&gt; create() {
     return new PluginRegistry();
@@ -54,7 +53,7 @@
 
 PluginRegistry&lt;Plugin&lt;String&gt;, String&gt; registry =
   PluginRegistry.create();
-</code></pre>
+</code></pre></div></div>
 
 <p>Don’t try to get the details, there are only three important things:</p>
 
@@ -64,13 +63,13 @@ PluginRegistry&lt;Plugin&lt;String&gt;, String&gt; registry =
   <li>The last line takes advantage of this method to create an instance of the registry.</li>
 </ul>
 
-<p>The strange thing is, this compiles within Eclipse but does not on plain <code>javac</code>. I mailed Alex Buckley about the issue and after some back and forth he discovered a strange issue with javac.</p>
+<p>The strange thing is, this compiles within Eclipse but does not on plain <code class="language-plaintext highlighter-rouge">javac</code>. I mailed Alex Buckley about the issue and after some back and forth he discovered a strange issue with javac.</p>
 
 <p>To let the cat out of the bag: its a bug in javac. Actually according to Maurizio Cimadamore it is a coeffect of some bugs that are actually already marked as fixed (<a href="http://bugs.sun.com/view_bug.do?bug_id=6192945">6192945</a>, <a href="http://bugs.sun.com/view_bug.do?bug_id=6369605">6369605</a>, <a href="http://bugs.sun.com/view_bug.do?bug_id=6193815">6193815</a>). I’ll leave out the bloody details, here is, what it boils down to:</p>
 
-<p><code>Javac</code> somehow only tries to lookup types forward in this case. It infers <code>T == Plugin&lt;String&gt;</code>, but complains that for it <code>Plugin&lt;String&gt;</code> is not a subtype of <code>Plugin&lt;S&gt;</code> (as it has not inferred S yet). Guess what, if you simply switch the generic parameters, it compiles like a charm:</p>
+<p><code class="language-plaintext highlighter-rouge">Javac</code> somehow only tries to lookup types forward in this case. It infers <code class="language-plaintext highlighter-rouge">T == Plugin&lt;String&gt;</code>, but complains that for it <code class="language-plaintext highlighter-rouge">Plugin&lt;String&gt;</code> is not a subtype of <code class="language-plaintext highlighter-rouge">Plugin&lt;S&gt;</code> (as it has not inferred S yet). Guess what, if you simply switch the generic parameters, it compiles like a charm:</p>
 
-<pre><code>public class PluginRegistry &lt;T extends Plugin&lt;S&gt;, S&gt; {
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>public class PluginRegistry &lt;T extends Plugin&lt;S&gt;, S&gt; {
   public static &lt;S, T extends Plugin&lt;S&gt;&gt;
     PluginRegistry&lt;T, S&gt; create() {
     return new PluginRegistry();
@@ -79,11 +78,11 @@ PluginRegistry&lt;Plugin&lt;String&gt;, String&gt; registry =
 
 PluginRegistry&lt;Plugin&lt;String&gt;, String&gt; registry =
   PluginRegistry.create();
-</code></pre>
+</code></pre></div></div>
 
 <p>(Note the order of the generic types in the method signature)</p>
 
-<p>Tell me if it’s just me, but now the method signature somehow looks “wrong” to me. As the types are not being derived in the order they are declared at the method. Nevertheless, I at least compiles both on <code>javac</code> and the Eclipse compiler. So keep an eye on stuff like this, if you implement generic types ;). I’ll give you an update if there are further things happen on this.</p>
+<p>Tell me if it’s just me, but now the method signature somehow looks “wrong” to me. As the types are not being derived in the order they are declared at the method. Nevertheless, I at least compiles both on <code class="language-plaintext highlighter-rouge">javac</code> and the Eclipse compiler. So keep an eye on stuff like this, if you implement generic types ;). I’ll give you an update if there are further things happen on this.</p>
 
 </div>
 
@@ -91,11 +90,11 @@ PluginRegistry&lt;Plugin&lt;String&gt;, String&gt; registry =
   <h2>Related Posts</h2>
   <ul class="posts">
     
+      <li><span>22 Feb 2021</span> &raquo; <a href="/2021/02/Architecturally-evident-code-with-jMolecules/">Architecturally evident code with jMolecules</a></li>
+    
       <li><span>17 Mar 2020</span> &raquo; <a href="/2020/03/Implementing-DDD-Building-Blocks-in-Java/">Implementing DDD Building Blocks in Java</a></li>
     
       <li><span>09 Oct 2016</span> &raquo; <a href="/2016/10/evolving-distributed-systems/">Evolving Distributed Systems</a></li>
-    
-      <li><span>29 Apr 2016</span> &raquo; <a href="/2016/04/benefits-of-hypermedia/">The Benefits of Hypermedia APIs</a></li>
     
   </ul>
 </div>
@@ -134,7 +133,7 @@ PluginRegistry&lt;Plugin&lt;String&gt;, String&gt; registry =
         <p>
           <a href="http://github.com/odrotbohm/">github.com/odrotbohm</a><br />
           <a href="http://twitter.com/odrotbohm/">twitter.com/odrotbohm</a><br />
-          <a href='mailto:info@olivergierke.de'>info@olivergierke.de</a>
+          <a href='mailto:info@odrotbohm.de'>info@odrotbohm.de</a>
         </p>
       </div>
       <div class="rss">
@@ -144,7 +143,6 @@ PluginRegistry&lt;Plugin&lt;String&gt;, String&gt; registry =
       </div>
     </div>
   </div>
-  <a href="http://github.com/odrotbohm"><img style="position: absolute; top: 0; right: 0; border: 0;" src="http://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png" alt="Fork me on GitHub" /></a>
 
   
 </body>
