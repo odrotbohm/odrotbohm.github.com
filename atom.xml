@@ -3,7 +3,7 @@
  <title>Oliver Drotbohm</title>
  <link href="http://www.odrotbohm.de/atom.xml" rel="self"/>
  <link href="http://www.odrotbohm.de"/>
- <updated>2021-02-22T23:52:15+01:00</updated>
+ <updated>2021-02-23T09:54:31+01:00</updated>
  <id>http://www.odrotbohm.de</id>
  <author>
    <name>Oliver Drotbohm</name>
@@ -171,7 +171,9 @@ Its integration library projects those concepts into particular technologies lik
    <link href="http://www.odrotbohm.de/2020/03/Implementing-DDD-Building-Blocks-in-Java/"/>
    <updated>2020-03-17T16:25:00+01:00</updated>
    <id>http://www.odrotbohm.de/2020/03/Implementing-DDD-Building-Blocks-in-Java</id>
-   <content type="html">
+   <content type="html">&lt;p&gt;&lt;em&gt;NOTE: This post has been largely superseded by “Architecturally evident code with jMolecules”.
+Make sure you rather read this one for the most up to date state of affairs.&lt;/em&gt;&lt;/p&gt;
+
 &lt;p&gt;When it comes to implementing building blocks of DDD, developers often struggle to find a good balance between conceptual purity and technical pragmatism.
 In this article I’m going to discuss an experimental idea to express some of tactical design concepts of DDD in Java code and derive the metadata to e.g. implement persistence without polluting the domain model with annotations on the one hand and an additional mapping layer on the other.&lt;/p&gt;
 
@@ -799,8 +801,9 @@ We could’ve just implemented our mobile client that way: whenever the represen
 {
     &quot;_links&quot; : {
       &quot;cancel&quot; : &quot;…&quot;
-    }, …
-    &quot;status&quot; : &quot;…&quot;
+    },
+    &quot;status&quot; : &quot;…&quot;,
+    …
 }
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
@@ -811,11 +814,9 @@ That slight change in the way the client is implemented would’ve made it capab
 
 &lt;h2 id=&quot;what-have-we-done-effectively&quot;&gt;What have we done effectively?&lt;/h2&gt;
 
-&lt;p&gt;We basically traded two different kinds of complexity here.&lt;/p&gt;
-
 &lt;script async=&quot;&quot; class=&quot;speakerdeck-embed&quot; data-slide=&quot;52&quot; data-id=&quot;a96550a9853d48078257b7ae7f331dfa&quot; data-ratio=&quot;1.77777777777778&quot; src=&quot;//speakerdeck.com/assets/embed.js&quot;&gt;&lt;/script&gt;
 
-&lt;p&gt;The naive approach described in the beginning of the post lets the system end up in the left part of the spectrum as adds semantics to certain parts of the payload and by that replicates business logic already implemented on the server.
+&lt;p&gt;We basically traded two different kinds of complexity here. The naive approach described in the beginning of the post lets the system end up in the left part of the spectrum as adds semantics to certain parts of the payload and by that replicates business logic already implemented on the server.
 That duplication across system boundaries is what effectively creates the coupling which we have to avoid to make sure we can roll out changes to the server easily.
 That said, this reduction in coupling doesn’t come for free: we paid for it by slightly increasing the protocol knowledge (the client knowing about the media type, how to find links, knowing the semantics of the link relations).&lt;/p&gt;
 
@@ -826,7 +827,7 @@ That’s a great trade-off as the protocol semantics are much less likely to cha
 
 &lt;p&gt;&lt;a name=&quot;changelog&quot;&gt;&lt;/a&gt;&lt;/p&gt;
 
-&lt;h4 id=&quot;changelog&quot;&gt;Changelog&lt;/h4&gt;
+&lt;h3 id=&quot;changelog&quot;&gt;Changelog&lt;/h3&gt;
 &lt;p&gt;2016-08-07: Added a paragraph to elaborate on the conceptual differences of the approaches and the architectural consequences on system coupling. Minor wording updates for the previously existing content.&lt;/p&gt;
 </content>
  </entry>

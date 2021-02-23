@@ -111,8 +111,9 @@ We could’ve just implemented our mobile client that way: whenever the represen
 {
     "_links" : {
       "cancel" : "…"
-    }, …
-    "status" : "…"
+    },
+    "status" : "…",
+    …
 }
 </code></pre></div></div>
 
@@ -123,11 +124,9 @@ That slight change in the way the client is implemented would’ve made it capab
 
 <h2 id="what-have-we-done-effectively">What have we done effectively?</h2>
 
-<p>We basically traded two different kinds of complexity here.</p>
-
 <script async="" class="speakerdeck-embed" data-slide="52" data-id="a96550a9853d48078257b7ae7f331dfa" data-ratio="1.77777777777778" src="//speakerdeck.com/assets/embed.js"></script>
 
-<p>The naive approach described in the beginning of the post lets the system end up in the left part of the spectrum as adds semantics to certain parts of the payload and by that replicates business logic already implemented on the server.
+<p>We basically traded two different kinds of complexity here. The naive approach described in the beginning of the post lets the system end up in the left part of the spectrum as adds semantics to certain parts of the payload and by that replicates business logic already implemented on the server.
 That duplication across system boundaries is what effectively creates the coupling which we have to avoid to make sure we can roll out changes to the server easily.
 That said, this reduction in coupling doesn’t come for free: we paid for it by slightly increasing the protocol knowledge (the client knowing about the media type, how to find links, knowing the semantics of the link relations).</p>
 
@@ -138,7 +137,7 @@ That’s a great trade-off as the protocol semantics are much less likely to cha
 
 <p><a name="changelog"></a></p>
 
-<h4 id="changelog">Changelog</h4>
+<h3 id="changelog">Changelog</h3>
 <p>2016-08-07: Added a paragraph to elaborate on the conceptual differences of the approaches and the architectural consequences on system coupling. Minor wording updates for the previously existing content.</p>
 
 </div>
