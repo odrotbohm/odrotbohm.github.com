@@ -3,13 +3,366 @@
  <title>Oliver Drotbohm</title>
  <link href="http://www.odrotbohm.de/atom.xml" rel="self"/>
  <link href="http://www.odrotbohm.de"/>
- <updated>2021-02-23T09:54:31+01:00</updated>
+ <updated>2021-04-14T19:21:13+02:00</updated>
  <id>http://www.odrotbohm.de</id>
  <author>
    <name>Oliver Drotbohm</name>
    <email>info@odrotbohm.de</email>
  </author>
 
+ 
+ <entry>
+   <title>Spring RESTBucks in 2021</title>
+   <link href="http://www.odrotbohm.de/2021/04/Spring-RESTBucks-in-2021/"/>
+   <updated>2021-04-14T19:21:00+02:00</updated>
+   <id>http://www.odrotbohm.de/2021/04/Spring-RESTBucks-in-2021</id>
+   <content type="html">
+&lt;p&gt;The &lt;a href=&quot;https://github.com/odrotbohm/spring-restbucks&quot;&gt;RESTBucks sample project&lt;/a&gt; has served as showcase for various Spring related technologies in the context of building a hypermedia based API implementing a high-level business process for almost a decade.
+It has evolved significantly since then and – in the last couple of months – accumulated quite a batch of changes.
+I think that it’s worthwhile to have a look at them and how new libraries, specs, and their integration into Spring projects shape the sample.&lt;/p&gt;
+
+&lt;p&gt;&lt;a name=&quot;jmolecules&quot;&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;h1 id=&quot;jmolecules&quot;&gt;jMolecules&lt;/h1&gt;
+
+&lt;p&gt;I’ve written about the &lt;a href=&quot;https://github.com/xmolecules/jmolecules&quot;&gt;jMolecules project&lt;/a&gt; in a &lt;a href=&quot;../../02/Architecturally-evident-code-with-jMolecules&quot;&gt;previous post&lt;/a&gt;.
+Its general idea is to allow user code to express architectural concepts in code, and a lot of the boilerplate code that’s needed, if – for example – the model shall be persisted with JPA.
+I know that whether to persist a domain model using JPA directly is a topic for debate, but I’d like to leave that for another post for now.
+&lt;a href=&quot;https://github.com/odrotbohm/spring-restbucks/commit/0a42f07ebed87eb777b633ae861fcb494339afa6&quot;&gt;This commit&lt;/a&gt; moved Spring RESTBucks domain model to jMolecules and essentially consist of the following steps:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Aggregates, entities, and value objects now implement jMolecules’ &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;AggregateRoot&lt;/code&gt;, &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Entity&lt;/code&gt; and are annotated with &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;@Value&lt;/code&gt;.&lt;/li&gt;
+  &lt;li&gt;Entities and aggregates now all use identifier types that implement &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Identifier&lt;/code&gt; backed by &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;UUID&lt;/code&gt; strings.&lt;/li&gt;
+  &lt;li&gt;Associations are now explicitly modeled through jMolecules &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Association&lt;/code&gt; interface.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;All JPA annotations and customizations that were necessary could be removed in favor of the &lt;a href=&quot;https://github.com/xmolecules/jmolecules-integrations/tree/main/jmolecules-bytebuddy&quot;&gt;jMolecules ByteBuddy plugin&lt;/a&gt; to generate the mappings and boilerplate derived from the jMolecules annotations.&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Identifier fields and types do not need any kind of technical mapping and customizations anymore.&lt;/li&gt;
+  &lt;li&gt;Entity relationships like &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Order.lineItems&lt;/code&gt; get default mappings applied, considering the default composition nature of aggregates, i.e. the aggregate lifecycle governing the lifecycle of the contained entities.&lt;/li&gt;
+  &lt;li&gt;Persisting &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Association&lt;/code&gt; instances works out of the box due to the ByteBuddy plugin generating the necessary boilerplate &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;AttributeConverter&lt;/code&gt; and field mapping.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;a name=&quot;spring-data-rest&quot;&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;h2 id=&quot;spring-data-rest&quot;&gt;Spring Data REST&lt;/h2&gt;
+
+&lt;p&gt;The &lt;a href=&quot;https://spring.io/blog/2021/04/14/spring-data-2021-0-goes-ga&quot;&gt;Spring Data Pascal release&lt;/a&gt; train ships fundamental integration with jMolecules, like the ability to convert &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Identifier&lt;/code&gt; instances into primitives and properly integrate &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Association&lt;/code&gt; into the object mapping.
+Also, Spring Data REST now picks up &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Converter&lt;/code&gt; implementations shipped by the jMolecules Integrations project.
+All of that causes RESTBucks just to work seamlessly with the DDD building blocks expressed via jMolecules abstractions.&lt;/p&gt;
+
+&lt;p&gt;&lt;a name=&quot;jackson&quot;&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;h2 id=&quot;jackson&quot;&gt;Jackson&lt;/h2&gt;
+
+&lt;p&gt;Another piece of the puzzle is the jMolecules Jackson support that automatically customizes the serialization, deserialization of both &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Identifier&lt;/code&gt; types and value objects declared through jMolecules &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;@ValueObject&lt;/code&gt; annotation.
+This can be seen in effect on &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;CreditCardNumber&lt;/code&gt; that’s a value object in the domain model wrapping a &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;String&lt;/code&gt; to apply rules of the domain concept to it.
+Despite the nesting, it serializes as plain &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;String&lt;/code&gt; and also seamlessly deserializes &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;String&lt;/code&gt;s into a &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;CreditCardNumber&lt;/code&gt;.
+You can find more details about the jMolecules Jackson integration &lt;a href=&quot;https://github.com/xmolecules/jmolecules-integrations/tree/main/jmolecules-jackson&quot;&gt;here&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;&lt;a name=&quot;advanced-metadata&quot;&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;h1 id=&quot;advanced-metadata-for-state-transitions&quot;&gt;Advanced metadata for state transitions&lt;/h1&gt;
+
+&lt;p&gt;The very start of a significant improvement in the API was to realize that the way the sample handled order submission wasn’t really a representation of the real-life process.
+The standard Spring Data REST export of the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Order&lt;/code&gt; domain type assumed that an order was created by &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;POST&lt;/code&gt;ing line items to the server, including prices.
+That is not quite how it works in the real world at best.
+To be blunt: it’s been wrong from day one, but I effectively didn’t care about this as the example project’s focus was on the general use of hypermedia in APIs, not taking every part of the process and implement it perfectly to the very end.&lt;/p&gt;
+
+&lt;p&gt;This step of the process has now changed to be rather implemented by a custom Spring MVC controller as Spring Data REST allows us to hook into the URI space it exposes and selectively override individual resources and mappings.
+We start by introducing a dedicated data transfer object (DTO) to capture all information necessary for placing an order.
+In our case it’s the location the drink is supposed to be consumed at, as well as a list of drinks.
+Also, we add a method to create a new &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Order&lt;/code&gt; from that information to the DTO:&lt;/p&gt;
+
+&lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nd&quot;&gt;@Data&lt;/span&gt;
+&lt;span class=&quot;kd&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;LocationAndDrinks&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+
+  &lt;span class=&quot;nd&quot;&gt;@NotNull&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;//&lt;/span&gt;
+  &lt;span class=&quot;kd&quot;&gt;private&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Location&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;location&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+  &lt;span class=&quot;kd&quot;&gt;private&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;List&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;Drink&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;drinks&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+
+  &lt;span class=&quot;nc&quot;&gt;Order&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;toOrder&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+
+    &lt;span class=&quot;nc&quot;&gt;Order&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;order&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Order&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;Collections&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;emptyList&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(),&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;location&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;drinks&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;forEach&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;order:&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;add&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+
+    &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;order&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+  &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;We now use that type in our controller method to map the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;@RequestBody&lt;/code&gt;.
+That process makes use of a new feature just introduced in Spring Data REST, that allows to bind aggregate instances from URIs of resources exposed by it.
+&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Drink&lt;/code&gt; is a Spring Data REST managed aggregate, and thus, we have to submit a list of URIs pointing to drinks:&lt;/p&gt;
+
+&lt;div class=&quot;language-json highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;&quot;drinks&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;…/drinks/3322ac99-…&quot;&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;],&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;&quot;location&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;Zum mitnehmen&quot;&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;Spring Data REST will take care of resolving the URI to the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Drink&lt;/code&gt; instance with identifier &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;3322ac99-…&lt;/code&gt; automatically for us.
+This leaves the question of how the client will know about that structure and how to populate the fields.
+We will this discuss this in detail below.
+Before we do that, let’s have a look at the controller method implementation as it’s quite interesting as well:&lt;/p&gt;
+
+&lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nd&quot;&gt;@BasePathAwareController&lt;/span&gt;
+&lt;span class=&quot;nd&quot;&gt;@RequiredArgsConstructor&lt;/span&gt;
+&lt;span class=&quot;kd&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;OrderController&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+
+  &lt;span class=&quot;kd&quot;&gt;private&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;final&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Orders&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;orders&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+
+  &lt;span class=&quot;nd&quot;&gt;@PostMapping&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;path&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;/orders&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+  &lt;span class=&quot;nc&quot;&gt;HttpEntity&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;?&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;placeOrder&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nd&quot;&gt;@RequestBody&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;LocationAndDrinks&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;payload&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt;
+    &lt;span class=&quot;nc&quot;&gt;Errors&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;errors&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;PersistentEntityResourceAssembler&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;assembler&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+
+    &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;MappedPayloads&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;of&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;payload&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;errors&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+        &lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;mapIfValid&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;LocationAndDrinks:&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;toOrder&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+        &lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;mapIfValid&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;orders:&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;save&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+        &lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;mapIfValid&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;assembler:&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;toFullResource&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+        &lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;concludeIfValid&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;it&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&amp;gt;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+
+          &lt;span class=&quot;kt&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;uri&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;it&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;getRequiredLink&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;IanaLinkRelations&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;SELF&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;).&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;toUri&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt;
+
+          &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;ResponseEntity&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;created&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;uri&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;).&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;body&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;it&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+        &lt;span class=&quot;o&quot;&gt;});&lt;/span&gt;
+  &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;Note, how it makes use of the &lt;a href=&quot;https://github.com/odrotbohm/spring-playground/tree/main/spring-web-tools#a-monadic-mappedpayload-type&quot;&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;MappedPayloads&lt;/code&gt;&lt;/a&gt; abstraction currently living in my &lt;a href=&quot;https://github.com/odrotbohm/spring-playground&quot;&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;spring-playground&lt;/code&gt;&lt;/a&gt; repository.
+It provides an API to express the typical processing steps of a web request fluently: apply some validation, transformation of the payload, invoke business code, assemble a response representation.
+We simply accept the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;LocationAndDrinks&lt;/code&gt; instance deserialized by Jackson, create an &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Order&lt;/code&gt; instance from it, store that and then use Spring Data REST’s &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;PersistentEntityResourceAssembler&lt;/code&gt; to produce a response following the usual rules of pointing to referenced aggregates etc.
+The pipeline will transparently handle binding errors by returning a &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;400 Bad Request&lt;/code&gt; rendering the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Errors&lt;/code&gt; instance as response, including support to internationalized error messages etc.
+Read more about this in &lt;a href=&quot;https://github.com/odrotbohm/spring-playground/tree/main/spring-web-tools#a-monadic-mappedpayload-type&quot;&gt;the documentation&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h2 id=&quot;advertising-the-order-creation-using-hal-forms&quot;&gt;Advertising the order creation using HAL FORMS&lt;/h2&gt;
+
+&lt;p&gt;Now that we’ve customized the step of creating an order in the first place, how does the client find out about it?
+The &lt;a href=&quot;https://rwcbook.github.io/hal-forms/&quot;&gt;HAL FORMS media type&lt;/a&gt; allows to describe resource state transitions, and the payload structure expected for those.
+&lt;a href=&quot;https://github.com/spring-projects/spring-hateoas/releases/tag/1.3.0&quot;&gt;Spring HATEOAS 1.3&lt;/a&gt; has shipped advanced support for that and allows us to easily create such forms by defining affordances.
+Affordances capture the semantics expressed by e.g. a Spring MVC controller method and depending on the configuration exposes those in the way a particular media type is defined.
+As of the Spring Data Pascal release train, Spring Data REST enabled projects generally enable the exposure of affordances as HAL FORMS, but they do not expose any forms automatically yet.&lt;/p&gt;
+
+&lt;p&gt;To expose the order creation form we enrich the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;RepositoryRootResource&lt;/code&gt;’s &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;order&lt;/code&gt; link with an affordance.
+All we need to do to achieve that is point at the method that is accepting the request in a &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;RepresentationModelProcessor&lt;/code&gt;.&lt;/p&gt;
+
+&lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nd&quot;&gt;@Component&lt;/span&gt;
+&lt;span class=&quot;kd&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;RootResourceModelProcessor&lt;/span&gt;
+  &lt;span class=&quot;kd&quot;&gt;implements&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;RepresentationModelProcessor&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;RepositoryLinksResource&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+
+  &lt;span class=&quot;nd&quot;&gt;@Override&lt;/span&gt;
+  &lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;RepositoryLinksResource&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;process&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;RepositoryLinksResource&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;model&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+
+    &lt;span class=&quot;c1&quot;&gt;// We point to the method we want to advertise&lt;/span&gt;
+    &lt;span class=&quot;kt&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;affordance&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;afford&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;methodOn&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;OrderController&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;class&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+      &lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;placeOrder&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;kc&quot;&gt;null&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;kc&quot;&gt;null&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;kc&quot;&gt;null&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;));&lt;/span&gt;
+
+    &lt;span class=&quot;c1&quot;&gt;// Add the affordance to the orders link&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;model&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;mapLink&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;LinkRelation&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;of&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;orders&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;),&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;link&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&amp;gt;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+      &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;link&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;andAffordance&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;affordance&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+    &lt;span class=&quot;o&quot;&gt;});&lt;/span&gt;
+  &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;Note, how we, in a media type independent way, describe what’s to be advertised from the root resource.
+We deliberately guide the client to propose a state transition using the controller method pointed to.
+Alternatively, we could have built the affordance manually using Spring HATEOAS’ &lt;a href=&quot;https://docs.spring.io/spring-hateoas/docs/1.3.0/reference/html/#server.affordances.api&quot;&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;AffordanceBuilder&lt;/code&gt; API&lt;/a&gt;.
+Clients that continue to request HAL won’t see any of this, but ones that understand HAL FORMs can now request the resource using an &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Accept&lt;/code&gt; header set to &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;application/prs.hal-forms+json&lt;/code&gt; and see the following:&lt;/p&gt;
+
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;GET /
+Accept: application/prs.hal-forms+json
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;div class=&quot;language-json highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;err&quot;&gt;…&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;&quot;_templates&quot;&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+    &lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;&quot;default&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+      &lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;&quot;method&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;post&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+      &lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;&quot;properties&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+        &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+          &lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;&quot;name&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;location&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+          &lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;&quot;options&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+            &lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;&quot;inline&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+              &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;Zum mitnehmen&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+              &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;Vor Ort&quot;&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+            &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;],&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+            &lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;&quot;maxItems&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+          &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;},&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+          &lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;&quot;prompt&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;Ort&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+          &lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;&quot;required&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;kc&quot;&gt;true&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+          &lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;&quot;value&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;Zum mitnehmen&quot;&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+        &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;},&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+        &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+          &lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;&quot;name&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;drinks&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+          &lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;&quot;options&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+            &lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;&quot;link&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+              &lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;&quot;href&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;http://localhost:8080/drinks/by-name{?q}&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+              &lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;&quot;templated&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;kc&quot;&gt;true&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+            &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;},&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+            &lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;&quot;minItems&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+          &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;},&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+          &lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;&quot;prompt&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;Getränke&quot;&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+        &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+      &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;],&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+      &lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;&quot;target&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;http://localhost:8080/orders&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+      &lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;&quot;title&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;Eine Bestellung erzeugen&quot;&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+    &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;There’s quite a lot going on here.
+The response contains a &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;_template&lt;/code&gt; rendered for the affordance that we described in our &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;RepresentationModelProcessor&lt;/code&gt;.
+According to the HAL FORMS spec, if only one is contained in it, it’s named &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;default&lt;/code&gt;.
+The &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;target&lt;/code&gt; and &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;method&lt;/code&gt; attributes are derived from the controller method we pointed to and also, the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;LocationAndDrinks&lt;/code&gt;’ payload type has been unfolded and its properties are advertised.
+We have both the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;title&lt;/code&gt; and &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;prompt&lt;/code&gt; attributes internationalized to German using a simple resource bundle as described in &lt;a href=&quot;https://docs.spring.io/spring-hateoas/docs/current/reference/html/#mediatypes.hal-forms.i18n&quot;&gt;Spring HATEOAS’ reference documentation&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;Both properties use the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;options&lt;/code&gt; element, indicating that the value to be submitted for them has to be one or more items from a given list of options.
+For &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;location&lt;/code&gt;, that list is a simple inline list of text values.
+They in turn an internationalized variants of the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Location&lt;/code&gt; enum that’s part of the server side model handled by Spring Data REST’s automatic enum translation feature.&lt;/p&gt;
+
+&lt;p&gt;However, the slightly more interesting case is the option definition for &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;drink&lt;/code&gt;.
+We can express that the list of available options is dynamic, and the values to be provided for selection are available via a particular (templated) URI.
+HAL FORMS defines that, unless otherwise specified, the target resource is supposed to return a collection of either scalar values, or a dictionary with fields &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;value&lt;/code&gt; and &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;prompt&lt;/code&gt;.
+Thus, we now expose a dedicated resource blending into the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;/drinks&lt;/code&gt; URI space from &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;DrinksOptions&lt;/code&gt;:&lt;/p&gt;
+
+&lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;
+&lt;span class=&quot;nd&quot;&gt;@BasePathAwareController&lt;/span&gt;
+&lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;DrinksOptions&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+
+  &lt;span class=&quot;kd&quot;&gt;private&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;final&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Drinks&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;drinks&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+  &lt;span class=&quot;kd&quot;&gt;private&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;final&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;TypedEntityLinks&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;Drink&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;links&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+
+  &lt;span class=&quot;cm&quot;&gt;/* Constructor omitted */&lt;/span&gt;
+
+  &lt;span class=&quot;nd&quot;&gt;@GetMapping&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;/drinks/by-name&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+  &lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;HttpEntity&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;?&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;getOptions&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nd&quot;&gt;@RequestParam&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Optional&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;String&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;q&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+
+    &lt;span class=&quot;kt&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;sort&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;sort&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;Drink&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;class&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;).&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;by&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;Drink:&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;getName&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;).&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;ascending&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt;
+
+    &lt;span class=&quot;kt&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;options&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;q&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;map&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;it&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;drinks&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;findByNameContaining&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;it&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;sort&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;))&lt;/span&gt;
+        &lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;orElseGet&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(()&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;drinks&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;findAll&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;sort&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;))&lt;/span&gt;
+        &lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;map&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;this&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;toPromptedValue&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+        &lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;toList&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt;
+
+    &lt;span class=&quot;kt&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;model&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;HalModelBuilder&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;halModel&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt;
+        &lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;embed&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;options&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;LinkRelation&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;of&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;drinks&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;))&lt;/span&gt;
+        &lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;build&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt;
+
+    &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;ResponseEntity&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;ok&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;model&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+  &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+
+  &lt;span class=&quot;nc&quot;&gt;HalFormsPromptedValue&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;toPromptedValue&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;Drink&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;drink&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;HalFormsPromptedValue&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;of&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;drink&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;getName&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(),&lt;/span&gt;
+      &lt;span class=&quot;n&quot;&gt;links&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;linkToItemResource&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;drink&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;).&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;getHref&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;())&lt;/span&gt;
+  &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;The request is answered by either looking up all drinks or applying a name filter, mapping the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Drink&lt;/code&gt; instances to expose their name as prompt, and the URI they’re exposed under as value.
+Thus, the responses look as follows:&lt;/p&gt;
+
+&lt;div class=&quot;language-json highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;&quot;_embedded&quot;&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+    &lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;&quot;drinks&quot;&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+      &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;&quot;prompt&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;Cappuchino&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;&quot;value&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;…/drinks/462a692d-…&quot;&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;},&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+      &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;&quot;prompt&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;Java Chip&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;&quot;value&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;…/drinks/07217680-…&quot;&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+    &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;The client is now supposed to follow the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;link&lt;/code&gt; attribute of the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;options&lt;/code&gt; document found in the form, and – depending on the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;minItems&lt;/code&gt;/&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;maxItems&lt;/code&gt; arrangement – offer a selection control for the values returned.
+The server is even prepared to serve some kind of auto-completion by taking the partial user input as query parameter (through the exposed template variable).
+It would then submit the form to the URI described in &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;target&lt;/code&gt; and use the values backing the individual option items.
+The options configuration is added via the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;HalFormsConfiguration&lt;/code&gt; bean located in &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;JacksonCustomizations&lt;/code&gt;.&lt;/p&gt;
+
+&lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nd&quot;&gt;@Configuration&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;proxyBeanMethods&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;kc&quot;&gt;false&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;kd&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;JacksonCustomizations&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+
+  &lt;span class=&quot;nd&quot;&gt;@Bean&lt;/span&gt;
+  &lt;span class=&quot;nc&quot;&gt;HalFormsConfiguration&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;halFormsConfiguration&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+
+    &lt;span class=&quot;nc&quot;&gt;Supplier&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;Link&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;drinksOptionsUri&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;linkTo&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;methodOn&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;DrinksOptions&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;class&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+      &lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;getOptions&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;Optional&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;empty&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;()))&lt;/span&gt;
+      &lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;withSelfRel&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt;
+      &lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;withType&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;MediaTypes&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;HAL_JSON_VALUE&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+
+    &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;HalFormsConfiguration&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt;
+        &lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;withPattern&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;CreditCardNumber&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;class&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;CreditCardNumber&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;REGEX&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+        &lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;withOptions&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;LocationAndDrinks&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;class&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;location&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt;
+            &lt;span class=&quot;n&quot;&gt;it&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&amp;gt;&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;HalFormsOptions&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;inline&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;Location&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;values&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;())&lt;/span&gt;
+              &lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;withSelectedValue&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;Location&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;TAKE_AWAY&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+              &lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;withMaxItems&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1L&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;))&lt;/span&gt;
+        &lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;withOptions&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;LocationAndDrinks&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;class&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;drinks&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt;
+            &lt;span class=&quot;n&quot;&gt;it&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&amp;gt;&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;HalFormsOptions&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;remote&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;drinksOptionsUri&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;get&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;())&lt;/span&gt;
+              &lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;withMinItems&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1L&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;));&lt;/span&gt;
+  &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;See how we define inline options for the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;LocationAndDrinks.location&lt;/code&gt; property by simply pointing to the enum values and set up the remote options for &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;drinks&lt;/code&gt; by constructing a URI.&lt;/p&gt;
+
+&lt;p&gt;A similar form has been exposed for the process step of issuing a payment (see &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;PaymentOrderModelProcessor&lt;/code&gt;).
+Note, how it is only conditionally added to the representations using &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;RepresentationModel.mapLinkIf(…)&lt;/code&gt; which means that the form will only be visible to clients if the order is to be paid in the first place implementing the hypermedia as the engine of application state idea.
+The &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;HalFormsConfiguration&lt;/code&gt; has set up an explicit pattern for the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;CreditCardNumber&lt;/code&gt; domain type (see above).
+This causes the form derived from &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;PaymentForm&lt;/code&gt; (the type mapping the payload) expose that pattern as &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;regex&lt;/code&gt; for the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;number&lt;/code&gt; field.&lt;/p&gt;
+
+&lt;h2 id=&quot;hal-explorer&quot;&gt;HAL Explorer&lt;/h2&gt;
+
+&lt;p&gt;It’s not by accident that the just released 0.16.0 version of the &lt;a href=&quot;https://github.com/toedter/hal-explorer&quot;&gt;HAL Explorer library&lt;/a&gt; maintained by Spring HATEOAS community veteran &lt;a href=&quot;https://twitter.com/kaitoedter&quot;&gt;Kai Tödter&lt;/a&gt; has shipped extended support for HAL FORMS in general and the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;options&lt;/code&gt; field in particular.
+Kai has helped to shape the addition of the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;options&lt;/code&gt; element to the HAL FORMS significantly, and I am glad that we could get Spring Data REST’s HAL Explorer module to be updated to consume the WebJAR of that version for the Pascal release.
+That means, the advanced support for HAL FORMS in Spring HATEOAS and Spring Data REST can be visualized right away.
+Let’s have a quick walk through the individual process steps using the HAL Explorer.&lt;/p&gt;
+
+&lt;p&gt;To start the application, simply clone the sample project repository, move into the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;server&lt;/code&gt; directory, run &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;./mvnw spring-boot:run&lt;/code&gt; and point your browser to &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;http://localhost:8080&lt;/code&gt;.
+The HAL Explorer will show up and issue an HTTP request asking for HAL FORMS to the root of the API.
+The above mentioned form returned will cause the UI show that it found a form.&lt;/p&gt;
+
+&lt;div style=&quot;text-align: center&quot;&gt;
+  &lt;img src=&quot;/assets/images/restbucks/place-order-form-1.png&quot; /&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Note, how the internationalized title returned in the form is used for display purposes.
+Clicking on the plus icon will reveal the form and allow users to actually fill it out:&lt;/p&gt;
+
+&lt;div style=&quot;text-align: center&quot;&gt;
+  &lt;img src=&quot;/assets/images/restbucks/place-order-form-2.png&quot; /&gt;
+&lt;/div&gt;
+
+&lt;p&gt;See how HAL Explorer advertises the properties required to be submitted, how it has rendered a single-value selection drop-down menu for the location as well as a multi-select element for the drinks, populated with the values obtained from the resource.
+In the body section of the form you can also see the actual payload that HAL Explorer is going to submit to the server.
+If you select a second element from the “Getränke” section, it will automatically add that to the array value of the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;drinks&lt;/code&gt; field.&lt;/p&gt;
+
+&lt;p&gt;Once we submitted the form, the client follows the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Location&lt;/code&gt; header of the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;201 Created&lt;/code&gt; response.
+As the order is now in “payment expected” state, it exposes both the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;restbucks:payment&lt;/code&gt; link as well as a form to submit the payment:&lt;/p&gt;
+
+&lt;div style=&quot;text-align: center&quot;&gt;
+  &lt;img src=&quot;/assets/images/restbucks/payment-form-1.png&quot; /&gt;
+&lt;/div&gt;
+
+&lt;p&gt;We can again click the button to reveal the full form:&lt;/p&gt;
+
+&lt;div style=&quot;text-align: center&quot;&gt;
+  &lt;img src=&quot;/assets/images/restbucks/payment-form-2.png&quot; /&gt;
+&lt;/div&gt;
+
+&lt;p&gt;See how the client has made use of the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;regex&lt;/code&gt; field of the form definition to automatically apply validation to the input field, and reports the error, as we’re still lacking to enter the 16th digit of the credit card number.&lt;/p&gt;
+
+&lt;p&gt;While HAL Explorer is of course not a UI that you’d like to expose to end users, it is a great tool to make a hypermedia API discoverable by client developers.
+Especially, as – in contrast to other approaches – does not only inspect static API description, but also integrates with the dynamic nature of hypermedia APIs nicely.&lt;/p&gt;
+
+&lt;h1 id=&quot;summary&quot;&gt;Summary&lt;/h1&gt;
+
+&lt;p&gt;That’s been quite a ride!
+I hope you could get an impression of how the features shipped in the latest Spring HATEOAS and Spring Data releases help you to build richer APIs and at the same time reduce the amount of persistence technology induced boilerplate in your domain model.
+There’s more in the pipeline.
+In particular, I am going to improve on the testing and documentation story, so that you get an impression of how to use Spring REST Docs to document hypermedia APIs and package that documentation right with the application so that it’s discoverable by HAL Explorer.
+Also, I’d like to polish up my Android client implementation also contained in the repository to make more extensive use of the affordances exposed by the API.&lt;/p&gt;
+
+&lt;p&gt;Anything you liked in particular?
+Suggestions to make what to improve on?
+Please leave a comment below!&lt;/p&gt;
+</content>
+ </entry>
  
  <entry>
    <title>Architecturally evident code with jMolecules</title>

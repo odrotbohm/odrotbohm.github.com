@@ -8,6 +8,7 @@ http://www.odrotbohm.de/sitemap.txt
 http://www.odrotbohm.de/tags/
 http://www.odrotbohm.de/robots.txt
 
+http://www.odrotbohm.de/2021/04/Spring-RESTBucks-in-2021/
 http://www.odrotbohm.de/2021/02/Architecturally-evident-code-with-jMolecules/
 http://www.odrotbohm.de/2020/03/Implementing-DDD-Building-Blocks-in-Java/
 http://www.odrotbohm.de/2016/10/evolving-distributed-systems/

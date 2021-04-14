@@ -1,0 +1,454 @@
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+   <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+   <title>Oliver Drotbohm - Spring RESTBucks in 2021</title>
+   <meta name="author" content="Oliver Drotbohm" />
+   <meta name="google-site-verification" content="jK1GPyjzTp269nR-GMzfjkdcdR0Y-b3gHHWUIgebv8M" />
+   <link href="/atom.xml" rel="alternate" title="Blog Atom Feed" type="application/atom+xml" />
+
+   <!-- syntax highlighting CSS -->
+   <link rel="stylesheet" href="/assets/themes/tom/css/syntax.css" type="text/css" />
+
+   <!-- Homepage CSS -->
+   <link rel="stylesheet" href="/assets/themes/tom/css/screen.css" type="text/css" media="screen, projection" />
+
+   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fira+Sans:wght@300700&display=swap" type="text/css" />
+   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;700&display=swap" type="text/css" />
+
+
+</head>
+<body>
+
+  <div class="site">
+    <div class="title">
+      <a href="/">Oliver Drotbohm</a>
+
+      <a class="extra" href="/archive">Archive</a>
+      <a class="extra" href="/about">About</a>
+      <a class="extra" href="/tags">Tags</a>
+    </div>
+
+    
+<div id="post">
+  <h1>Spring RESTBucks in 2021</h1>
+  <p class="meta">
+    <!-- Whitespace added for readability -->
+    
+    April
+    14th,
+    
+    2021
+    
+  </p>
+  
+<p>The <a href="https://github.com/odrotbohm/spring-restbucks">RESTBucks sample project</a> has served as showcase for various Spring related technologies in the context of building a hypermedia based API implementing a high-level business process for almost a decade.
+It has evolved significantly since then and – in the last couple of months – accumulated quite a batch of changes.
+I think that it’s worthwhile to have a look at them and how new libraries, specs, and their integration into Spring projects shape the sample.</p>
+
+<p><a name="jmolecules"></a></p>
+<h1 id="jmolecules">jMolecules</h1>
+
+<p>I’ve written about the <a href="https://github.com/xmolecules/jmolecules">jMolecules project</a> in a <a href="../../02/Architecturally-evident-code-with-jMolecules">previous post</a>.
+Its general idea is to allow user code to express architectural concepts in code, and a lot of the boilerplate code that’s needed, if – for example – the model shall be persisted with JPA.
+I know that whether to persist a domain model using JPA directly is a topic for debate, but I’d like to leave that for another post for now.
+<a href="https://github.com/odrotbohm/spring-restbucks/commit/0a42f07ebed87eb777b633ae861fcb494339afa6">This commit</a> moved Spring RESTBucks domain model to jMolecules and essentially consist of the following steps:</p>
+
+<ul>
+  <li>Aggregates, entities, and value objects now implement jMolecules’ <code class="language-plaintext highlighter-rouge">AggregateRoot</code>, <code class="language-plaintext highlighter-rouge">Entity</code> and are annotated with <code class="language-plaintext highlighter-rouge">@Value</code>.</li>
+  <li>Entities and aggregates now all use identifier types that implement <code class="language-plaintext highlighter-rouge">Identifier</code> backed by <code class="language-plaintext highlighter-rouge">UUID</code> strings.</li>
+  <li>Associations are now explicitly modeled through jMolecules <code class="language-plaintext highlighter-rouge">Association</code> interface.</li>
+</ul>
+
+<p>All JPA annotations and customizations that were necessary could be removed in favor of the <a href="https://github.com/xmolecules/jmolecules-integrations/tree/main/jmolecules-bytebuddy">jMolecules ByteBuddy plugin</a> to generate the mappings and boilerplate derived from the jMolecules annotations.</p>
+
+<ul>
+  <li>Identifier fields and types do not need any kind of technical mapping and customizations anymore.</li>
+  <li>Entity relationships like <code class="language-plaintext highlighter-rouge">Order.lineItems</code> get default mappings applied, considering the default composition nature of aggregates, i.e. the aggregate lifecycle governing the lifecycle of the contained entities.</li>
+  <li>Persisting <code class="language-plaintext highlighter-rouge">Association</code> instances works out of the box due to the ByteBuddy plugin generating the necessary boilerplate <code class="language-plaintext highlighter-rouge">AttributeConverter</code> and field mapping.</li>
+</ul>
+
+<p><a name="spring-data-rest"></a></p>
+<h2 id="spring-data-rest">Spring Data REST</h2>
+
+<p>The <a href="https://spring.io/blog/2021/04/14/spring-data-2021-0-goes-ga">Spring Data Pascal release</a> train ships fundamental integration with jMolecules, like the ability to convert <code class="language-plaintext highlighter-rouge">Identifier</code> instances into primitives and properly integrate <code class="language-plaintext highlighter-rouge">Association</code> into the object mapping.
+Also, Spring Data REST now picks up <code class="language-plaintext highlighter-rouge">Converter</code> implementations shipped by the jMolecules Integrations project.
+All of that causes RESTBucks just to work seamlessly with the DDD building blocks expressed via jMolecules abstractions.</p>
+
+<p><a name="jackson"></a></p>
+<h2 id="jackson">Jackson</h2>
+
+<p>Another piece of the puzzle is the jMolecules Jackson support that automatically customizes the serialization, deserialization of both <code class="language-plaintext highlighter-rouge">Identifier</code> types and value objects declared through jMolecules <code class="language-plaintext highlighter-rouge">@ValueObject</code> annotation.
+This can be seen in effect on <code class="language-plaintext highlighter-rouge">CreditCardNumber</code> that’s a value object in the domain model wrapping a <code class="language-plaintext highlighter-rouge">String</code> to apply rules of the domain concept to it.
+Despite the nesting, it serializes as plain <code class="language-plaintext highlighter-rouge">String</code> and also seamlessly deserializes <code class="language-plaintext highlighter-rouge">String</code>s into a <code class="language-plaintext highlighter-rouge">CreditCardNumber</code>.
+You can find more details about the jMolecules Jackson integration <a href="https://github.com/xmolecules/jmolecules-integrations/tree/main/jmolecules-jackson">here</a>.</p>
+
+<p><a name="advanced-metadata"></a></p>
+<h1 id="advanced-metadata-for-state-transitions">Advanced metadata for state transitions</h1>
+
+<p>The very start of a significant improvement in the API was to realize that the way the sample handled order submission wasn’t really a representation of the real-life process.
+The standard Spring Data REST export of the <code class="language-plaintext highlighter-rouge">Order</code> domain type assumed that an order was created by <code class="language-plaintext highlighter-rouge">POST</code>ing line items to the server, including prices.
+That is not quite how it works in the real world at best.
+To be blunt: it’s been wrong from day one, but I effectively didn’t care about this as the example project’s focus was on the general use of hypermedia in APIs, not taking every part of the process and implement it perfectly to the very end.</p>
+
+<p>This step of the process has now changed to be rather implemented by a custom Spring MVC controller as Spring Data REST allows us to hook into the URI space it exposes and selectively override individual resources and mappings.
+We start by introducing a dedicated data transfer object (DTO) to capture all information necessary for placing an order.
+In our case it’s the location the drink is supposed to be consumed at, as well as a list of drinks.
+Also, we add a method to create a new <code class="language-plaintext highlighter-rouge">Order</code> from that information to the DTO:</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">@Data</span>
+<span class="kd">class</span> <span class="nc">LocationAndDrinks</span> <span class="o">{</span>
+
+  <span class="nd">@NotNull</span> <span class="c1">//</span>
+  <span class="kd">private</span> <span class="nc">Location</span> <span class="n">location</span><span class="o">;</span>
+  <span class="kd">private</span> <span class="nc">List</span><span class="o">&lt;</span><span class="nc">Drink</span><span class="o">&gt;</span> <span class="n">drinks</span><span class="o">;</span>
+
+  <span class="nc">Order</span> <span class="nf">toOrder</span><span class="o">()</span> <span class="o">{</span>
+
+    <span class="nc">Order</span> <span class="n">order</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">Order</span><span class="o">(</span><span class="nc">Collections</span><span class="o">.</span><span class="na">emptyList</span><span class="o">(),</span> <span class="n">location</span><span class="o">);</span>
+    <span class="n">drinks</span><span class="o">.</span><span class="na">forEach</span><span class="o">(</span><span class="nl">order:</span><span class="o">:</span><span class="n">add</span><span class="o">);</span>
+
+    <span class="k">return</span> <span class="n">order</span><span class="o">;</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>We now use that type in our controller method to map the <code class="language-plaintext highlighter-rouge">@RequestBody</code>.
+That process makes use of a new feature just introduced in Spring Data REST, that allows to bind aggregate instances from URIs of resources exposed by it.
+<code class="language-plaintext highlighter-rouge">Drink</code> is a Spring Data REST managed aggregate, and thus, we have to submit a list of URIs pointing to drinks:</p>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"drinks"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="s2">"…/drinks/3322ac99-…"</span><span class="w"> </span><span class="p">],</span><span class="w">
+  </span><span class="nl">"location"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Zum mitnehmen"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<p>Spring Data REST will take care of resolving the URI to the <code class="language-plaintext highlighter-rouge">Drink</code> instance with identifier <code class="language-plaintext highlighter-rouge">3322ac99-…</code> automatically for us.
+This leaves the question of how the client will know about that structure and how to populate the fields.
+We will this discuss this in detail below.
+Before we do that, let’s have a look at the controller method implementation as it’s quite interesting as well:</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">@BasePathAwareController</span>
+<span class="nd">@RequiredArgsConstructor</span>
+<span class="kd">class</span> <span class="nc">OrderController</span> <span class="o">{</span>
+
+  <span class="kd">private</span> <span class="kd">final</span> <span class="nc">Orders</span> <span class="n">orders</span><span class="o">;</span>
+
+  <span class="nd">@PostMapping</span><span class="o">(</span><span class="n">path</span> <span class="o">=</span> <span class="s">"/orders"</span><span class="o">)</span>
+  <span class="nc">HttpEntity</span><span class="o">&lt;?&gt;</span> <span class="n">placeOrder</span><span class="o">(</span><span class="nd">@RequestBody</span> <span class="nc">LocationAndDrinks</span> <span class="n">payload</span><span class="o">,</span>
+    <span class="nc">Errors</span> <span class="n">errors</span><span class="o">,</span> <span class="nc">PersistentEntityResourceAssembler</span> <span class="n">assembler</span><span class="o">)</span> <span class="o">{</span>
+
+    <span class="k">return</span> <span class="nc">MappedPayloads</span><span class="o">.</span><span class="na">of</span><span class="o">(</span><span class="n">payload</span><span class="o">,</span> <span class="n">errors</span><span class="o">)</span>
+        <span class="o">.</span><span class="na">mapIfValid</span><span class="o">(</span><span class="nl">LocationAndDrinks:</span><span class="o">:</span><span class="n">toOrder</span><span class="o">)</span>
+        <span class="o">.</span><span class="na">mapIfValid</span><span class="o">(</span><span class="nl">orders:</span><span class="o">:</span><span class="n">save</span><span class="o">)</span>
+        <span class="o">.</span><span class="na">mapIfValid</span><span class="o">(</span><span class="nl">assembler:</span><span class="o">:</span><span class="n">toFullResource</span><span class="o">)</span>
+        <span class="o">.</span><span class="na">concludeIfValid</span><span class="o">(</span><span class="n">it</span> <span class="o">-&gt;</span> <span class="o">{</span>
+
+          <span class="kt">var</span> <span class="n">uri</span> <span class="o">=</span> <span class="n">it</span><span class="o">.</span><span class="na">getRequiredLink</span><span class="o">(</span><span class="nc">IanaLinkRelations</span><span class="o">.</span><span class="na">SELF</span><span class="o">).</span><span class="na">toUri</span><span class="o">();</span>
+
+          <span class="k">return</span> <span class="nc">ResponseEntity</span><span class="o">.</span><span class="na">created</span><span class="o">(</span><span class="n">uri</span><span class="o">).</span><span class="na">body</span><span class="o">(</span><span class="n">it</span><span class="o">);</span>
+        <span class="o">});</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>Note, how it makes use of the <a href="https://github.com/odrotbohm/spring-playground/tree/main/spring-web-tools#a-monadic-mappedpayload-type"><code class="language-plaintext highlighter-rouge">MappedPayloads</code></a> abstraction currently living in my <a href="https://github.com/odrotbohm/spring-playground"><code class="language-plaintext highlighter-rouge">spring-playground</code></a> repository.
+It provides an API to express the typical processing steps of a web request fluently: apply some validation, transformation of the payload, invoke business code, assemble a response representation.
+We simply accept the <code class="language-plaintext highlighter-rouge">LocationAndDrinks</code> instance deserialized by Jackson, create an <code class="language-plaintext highlighter-rouge">Order</code> instance from it, store that and then use Spring Data REST’s <code class="language-plaintext highlighter-rouge">PersistentEntityResourceAssembler</code> to produce a response following the usual rules of pointing to referenced aggregates etc.
+The pipeline will transparently handle binding errors by returning a <code class="language-plaintext highlighter-rouge">400 Bad Request</code> rendering the <code class="language-plaintext highlighter-rouge">Errors</code> instance as response, including support to internationalized error messages etc.
+Read more about this in <a href="https://github.com/odrotbohm/spring-playground/tree/main/spring-web-tools#a-monadic-mappedpayload-type">the documentation</a>.</p>
+
+<h2 id="advertising-the-order-creation-using-hal-forms">Advertising the order creation using HAL FORMS</h2>
+
+<p>Now that we’ve customized the step of creating an order in the first place, how does the client find out about it?
+The <a href="https://rwcbook.github.io/hal-forms/">HAL FORMS media type</a> allows to describe resource state transitions, and the payload structure expected for those.
+<a href="https://github.com/spring-projects/spring-hateoas/releases/tag/1.3.0">Spring HATEOAS 1.3</a> has shipped advanced support for that and allows us to easily create such forms by defining affordances.
+Affordances capture the semantics expressed by e.g. a Spring MVC controller method and depending on the configuration exposes those in the way a particular media type is defined.
+As of the Spring Data Pascal release train, Spring Data REST enabled projects generally enable the exposure of affordances as HAL FORMS, but they do not expose any forms automatically yet.</p>
+
+<p>To expose the order creation form we enrich the <code class="language-plaintext highlighter-rouge">RepositoryRootResource</code>’s <code class="language-plaintext highlighter-rouge">order</code> link with an affordance.
+All we need to do to achieve that is point at the method that is accepting the request in a <code class="language-plaintext highlighter-rouge">RepresentationModelProcessor</code>.</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">@Component</span>
+<span class="kd">class</span> <span class="nc">RootResourceModelProcessor</span>
+  <span class="kd">implements</span> <span class="nc">RepresentationModelProcessor</span><span class="o">&lt;</span><span class="nc">RepositoryLinksResource</span><span class="o">&gt;</span> <span class="o">{</span>
+
+  <span class="nd">@Override</span>
+  <span class="kd">public</span> <span class="nc">RepositoryLinksResource</span> <span class="nf">process</span><span class="o">(</span><span class="nc">RepositoryLinksResource</span> <span class="n">model</span><span class="o">)</span> <span class="o">{</span>
+
+    <span class="c1">// We point to the method we want to advertise</span>
+    <span class="kt">var</span> <span class="n">affordance</span> <span class="o">=</span> <span class="n">afford</span><span class="o">(</span><span class="n">methodOn</span><span class="o">(</span><span class="nc">OrderController</span><span class="o">.</span><span class="na">class</span><span class="o">)</span>
+      <span class="o">.</span><span class="na">placeOrder</span><span class="o">(</span><span class="kc">null</span><span class="o">,</span> <span class="kc">null</span><span class="o">,</span> <span class="kc">null</span><span class="o">));</span>
+
+    <span class="c1">// Add the affordance to the orders link</span>
+    <span class="k">return</span> <span class="n">model</span><span class="o">.</span><span class="na">mapLink</span><span class="o">(</span><span class="nc">LinkRelation</span><span class="o">.</span><span class="na">of</span><span class="o">(</span><span class="s">"orders"</span><span class="o">),</span> <span class="n">link</span> <span class="o">-&gt;</span> <span class="o">{</span>
+      <span class="k">return</span> <span class="n">link</span><span class="o">.</span><span class="na">andAffordance</span><span class="o">(</span><span class="n">affordance</span><span class="o">);</span>
+    <span class="o">});</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>Note, how we, in a media type independent way, describe what’s to be advertised from the root resource.
+We deliberately guide the client to propose a state transition using the controller method pointed to.
+Alternatively, we could have built the affordance manually using Spring HATEOAS’ <a href="https://docs.spring.io/spring-hateoas/docs/1.3.0/reference/html/#server.affordances.api"><code class="language-plaintext highlighter-rouge">AffordanceBuilder</code> API</a>.
+Clients that continue to request HAL won’t see any of this, but ones that understand HAL FORMs can now request the resource using an <code class="language-plaintext highlighter-rouge">Accept</code> header set to <code class="language-plaintext highlighter-rouge">application/prs.hal-forms+json</code> and see the following:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>GET /
+Accept: application/prs.hal-forms+json
+</code></pre></div></div>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="err">…</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"_templates"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"default"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+      </span><span class="nl">"method"</span><span class="p">:</span><span class="w"> </span><span class="s2">"post"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"properties"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+        </span><span class="p">{</span><span class="w">
+          </span><span class="nl">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"location"</span><span class="p">,</span><span class="w">
+          </span><span class="nl">"options"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+            </span><span class="nl">"inline"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+              </span><span class="s2">"Zum mitnehmen"</span><span class="p">,</span><span class="w">
+              </span><span class="s2">"Vor Ort"</span><span class="w">
+            </span><span class="p">],</span><span class="w">
+            </span><span class="nl">"maxItems"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="w">
+          </span><span class="p">},</span><span class="w">
+          </span><span class="nl">"prompt"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Ort"</span><span class="p">,</span><span class="w">
+          </span><span class="nl">"required"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w">
+          </span><span class="nl">"value"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Zum mitnehmen"</span><span class="w">
+        </span><span class="p">},</span><span class="w">
+        </span><span class="p">{</span><span class="w">
+          </span><span class="nl">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"drinks"</span><span class="p">,</span><span class="w">
+          </span><span class="nl">"options"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+            </span><span class="nl">"link"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+              </span><span class="nl">"href"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://localhost:8080/drinks/by-name{?q}"</span><span class="p">,</span><span class="w">
+              </span><span class="nl">"templated"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
+            </span><span class="p">},</span><span class="w">
+            </span><span class="nl">"minItems"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="w">
+          </span><span class="p">},</span><span class="w">
+          </span><span class="nl">"prompt"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Getränke"</span><span class="w">
+        </span><span class="p">}</span><span class="w">
+      </span><span class="p">],</span><span class="w">
+      </span><span class="nl">"target"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://localhost:8080/orders"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"title"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Eine Bestellung erzeugen"</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<p>There’s quite a lot going on here.
+The response contains a <code class="language-plaintext highlighter-rouge">_template</code> rendered for the affordance that we described in our <code class="language-plaintext highlighter-rouge">RepresentationModelProcessor</code>.
+According to the HAL FORMS spec, if only one is contained in it, it’s named <code class="language-plaintext highlighter-rouge">default</code>.
+The <code class="language-plaintext highlighter-rouge">target</code> and <code class="language-plaintext highlighter-rouge">method</code> attributes are derived from the controller method we pointed to and also, the <code class="language-plaintext highlighter-rouge">LocationAndDrinks</code>’ payload type has been unfolded and its properties are advertised.
+We have both the <code class="language-plaintext highlighter-rouge">title</code> and <code class="language-plaintext highlighter-rouge">prompt</code> attributes internationalized to German using a simple resource bundle as described in <a href="https://docs.spring.io/spring-hateoas/docs/current/reference/html/#mediatypes.hal-forms.i18n">Spring HATEOAS’ reference documentation</a>.</p>
+
+<p>Both properties use the <code class="language-plaintext highlighter-rouge">options</code> element, indicating that the value to be submitted for them has to be one or more items from a given list of options.
+For <code class="language-plaintext highlighter-rouge">location</code>, that list is a simple inline list of text values.
+They in turn an internationalized variants of the <code class="language-plaintext highlighter-rouge">Location</code> enum that’s part of the server side model handled by Spring Data REST’s automatic enum translation feature.</p>
+
+<p>However, the slightly more interesting case is the option definition for <code class="language-plaintext highlighter-rouge">drink</code>.
+We can express that the list of available options is dynamic, and the values to be provided for selection are available via a particular (templated) URI.
+HAL FORMS defines that, unless otherwise specified, the target resource is supposed to return a collection of either scalar values, or a dictionary with fields <code class="language-plaintext highlighter-rouge">value</code> and <code class="language-plaintext highlighter-rouge">prompt</code>.
+Thus, we now expose a dedicated resource blending into the <code class="language-plaintext highlighter-rouge">/drinks</code> URI space from <code class="language-plaintext highlighter-rouge">DrinksOptions</code>:</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+<span class="nd">@BasePathAwareController</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">DrinksOptions</span> <span class="o">{</span>
+
+  <span class="kd">private</span> <span class="kd">final</span> <span class="nc">Drinks</span> <span class="n">drinks</span><span class="o">;</span>
+  <span class="kd">private</span> <span class="kd">final</span> <span class="nc">TypedEntityLinks</span><span class="o">&lt;</span><span class="nc">Drink</span><span class="o">&gt;</span> <span class="n">links</span><span class="o">;</span>
+
+  <span class="cm">/* Constructor omitted */</span>
+
+  <span class="nd">@GetMapping</span><span class="o">(</span><span class="s">"/drinks/by-name"</span><span class="o">)</span>
+  <span class="kd">public</span> <span class="nc">HttpEntity</span><span class="o">&lt;?&gt;</span> <span class="n">getOptions</span><span class="o">(</span><span class="nd">@RequestParam</span> <span class="nc">Optional</span><span class="o">&lt;</span><span class="nc">String</span><span class="o">&gt;</span> <span class="n">q</span><span class="o">)</span> <span class="o">{</span>
+
+    <span class="kt">var</span> <span class="n">sort</span> <span class="o">=</span> <span class="n">sort</span><span class="o">(</span><span class="nc">Drink</span><span class="o">.</span><span class="na">class</span><span class="o">).</span><span class="na">by</span><span class="o">(</span><span class="nl">Drink:</span><span class="o">:</span><span class="n">getName</span><span class="o">).</span><span class="na">ascending</span><span class="o">();</span>
+
+    <span class="kt">var</span> <span class="n">options</span> <span class="o">=</span> <span class="n">q</span><span class="o">.</span><span class="na">map</span><span class="o">(</span><span class="n">it</span> <span class="o">-&gt;</span> <span class="n">drinks</span><span class="o">.</span><span class="na">findByNameContaining</span><span class="o">(</span><span class="n">it</span><span class="o">,</span> <span class="n">sort</span><span class="o">))</span>
+        <span class="o">.</span><span class="na">orElseGet</span><span class="o">(()</span> <span class="o">-&gt;</span> <span class="n">drinks</span><span class="o">.</span><span class="na">findAll</span><span class="o">(</span><span class="n">sort</span><span class="o">))</span>
+        <span class="o">.</span><span class="na">map</span><span class="o">(</span><span class="k">this</span><span class="o">::</span><span class="n">toPromptedValue</span><span class="o">)</span>
+        <span class="o">.</span><span class="na">toList</span><span class="o">();</span>
+
+    <span class="kt">var</span> <span class="n">model</span> <span class="o">=</span> <span class="nc">HalModelBuilder</span><span class="o">.</span><span class="na">halModel</span><span class="o">()</span>
+        <span class="o">.</span><span class="na">embed</span><span class="o">(</span><span class="n">options</span><span class="o">,</span> <span class="nc">LinkRelation</span><span class="o">.</span><span class="na">of</span><span class="o">(</span><span class="s">"drinks"</span><span class="o">))</span>
+        <span class="o">.</span><span class="na">build</span><span class="o">();</span>
+
+    <span class="k">return</span> <span class="nc">ResponseEntity</span><span class="o">.</span><span class="na">ok</span><span class="o">(</span><span class="n">model</span><span class="o">);</span>
+  <span class="o">}</span>
+
+  <span class="nc">HalFormsPromptedValue</span> <span class="nf">toPromptedValue</span><span class="o">(</span><span class="nc">Drink</span> <span class="n">drink</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">return</span> <span class="nc">HalFormsPromptedValue</span><span class="o">.</span><span class="na">of</span><span class="o">(</span><span class="n">drink</span><span class="o">.</span><span class="na">getName</span><span class="o">(),</span>
+      <span class="n">links</span><span class="o">.</span><span class="na">linkToItemResource</span><span class="o">(</span><span class="n">drink</span><span class="o">).</span><span class="na">getHref</span><span class="o">())</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>The request is answered by either looking up all drinks or applying a name filter, mapping the <code class="language-plaintext highlighter-rouge">Drink</code> instances to expose their name as prompt, and the URI they’re exposed under as value.
+Thus, the responses look as follows:</p>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"_embedded"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"drinks"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+      </span><span class="p">{</span><span class="w"> </span><span class="nl">"prompt"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Cappuchino"</span><span class="p">,</span><span class="w"> </span><span class="nl">"value"</span><span class="p">:</span><span class="w"> </span><span class="s2">"…/drinks/462a692d-…"</span><span class="w"> </span><span class="p">},</span><span class="w">
+      </span><span class="p">{</span><span class="w"> </span><span class="nl">"prompt"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Java Chip"</span><span class="p">,</span><span class="w"> </span><span class="nl">"value"</span><span class="p">:</span><span class="w"> </span><span class="s2">"…/drinks/07217680-…"</span><span class="w"> </span><span class="p">}</span><span class="w">
+    </span><span class="p">]</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<p>The client is now supposed to follow the <code class="language-plaintext highlighter-rouge">link</code> attribute of the <code class="language-plaintext highlighter-rouge">options</code> document found in the form, and – depending on the <code class="language-plaintext highlighter-rouge">minItems</code>/<code class="language-plaintext highlighter-rouge">maxItems</code> arrangement – offer a selection control for the values returned.
+The server is even prepared to serve some kind of auto-completion by taking the partial user input as query parameter (through the exposed template variable).
+It would then submit the form to the URI described in <code class="language-plaintext highlighter-rouge">target</code> and use the values backing the individual option items.
+The options configuration is added via the <code class="language-plaintext highlighter-rouge">HalFormsConfiguration</code> bean located in <code class="language-plaintext highlighter-rouge">JacksonCustomizations</code>.</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">@Configuration</span><span class="o">(</span><span class="n">proxyBeanMethods</span> <span class="o">=</span> <span class="kc">false</span><span class="o">)</span>
+<span class="kd">class</span> <span class="nc">JacksonCustomizations</span> <span class="o">{</span>
+
+  <span class="nd">@Bean</span>
+  <span class="nc">HalFormsConfiguration</span> <span class="nf">halFormsConfiguration</span><span class="o">()</span> <span class="o">{</span>
+
+    <span class="nc">Supplier</span><span class="o">&lt;</span><span class="nc">Link</span><span class="o">&gt;</span> <span class="n">drinksOptionsUri</span> <span class="o">=</span> <span class="n">linkTo</span><span class="o">(</span><span class="n">methodOn</span><span class="o">(</span><span class="nc">DrinksOptions</span><span class="o">.</span><span class="na">class</span><span class="o">)</span>
+      <span class="o">.</span><span class="na">getOptions</span><span class="o">(</span><span class="nc">Optional</span><span class="o">.</span><span class="na">empty</span><span class="o">()))</span>
+      <span class="o">.</span><span class="na">withSelfRel</span><span class="o">()</span>
+      <span class="o">.</span><span class="na">withType</span><span class="o">(</span><span class="nc">MediaTypes</span><span class="o">.</span><span class="na">HAL_JSON_VALUE</span><span class="o">);</span>
+
+    <span class="k">return</span> <span class="k">new</span> <span class="nf">HalFormsConfiguration</span><span class="o">()</span>
+        <span class="o">.</span><span class="na">withPattern</span><span class="o">(</span><span class="nc">CreditCardNumber</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="nc">CreditCardNumber</span><span class="o">.</span><span class="na">REGEX</span><span class="o">)</span>
+        <span class="o">.</span><span class="na">withOptions</span><span class="o">(</span><span class="nc">LocationAndDrinks</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="s">"location"</span><span class="o">,</span>
+            <span class="n">it</span> <span class="o">-&gt;</span> <span class="nc">HalFormsOptions</span><span class="o">.</span><span class="na">inline</span><span class="o">(</span><span class="nc">Location</span><span class="o">.</span><span class="na">values</span><span class="o">())</span>
+              <span class="o">.</span><span class="na">withSelectedValue</span><span class="o">(</span><span class="nc">Location</span><span class="o">.</span><span class="na">TAKE_AWAY</span><span class="o">)</span>
+              <span class="o">.</span><span class="na">withMaxItems</span><span class="o">(</span><span class="mi">1L</span><span class="o">))</span>
+        <span class="o">.</span><span class="na">withOptions</span><span class="o">(</span><span class="nc">LocationAndDrinks</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="s">"drinks"</span><span class="o">,</span>
+            <span class="n">it</span> <span class="o">-&gt;</span> <span class="nc">HalFormsOptions</span><span class="o">.</span><span class="na">remote</span><span class="o">(</span><span class="n">drinksOptionsUri</span><span class="o">.</span><span class="na">get</span><span class="o">())</span>
+              <span class="o">.</span><span class="na">withMinItems</span><span class="o">(</span><span class="mi">1L</span><span class="o">));</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+<p>See how we define inline options for the <code class="language-plaintext highlighter-rouge">LocationAndDrinks.location</code> property by simply pointing to the enum values and set up the remote options for <code class="language-plaintext highlighter-rouge">drinks</code> by constructing a URI.</p>
+
+<p>A similar form has been exposed for the process step of issuing a payment (see <code class="language-plaintext highlighter-rouge">PaymentOrderModelProcessor</code>).
+Note, how it is only conditionally added to the representations using <code class="language-plaintext highlighter-rouge">RepresentationModel.mapLinkIf(…)</code> which means that the form will only be visible to clients if the order is to be paid in the first place implementing the hypermedia as the engine of application state idea.
+The <code class="language-plaintext highlighter-rouge">HalFormsConfiguration</code> has set up an explicit pattern for the <code class="language-plaintext highlighter-rouge">CreditCardNumber</code> domain type (see above).
+This causes the form derived from <code class="language-plaintext highlighter-rouge">PaymentForm</code> (the type mapping the payload) expose that pattern as <code class="language-plaintext highlighter-rouge">regex</code> for the <code class="language-plaintext highlighter-rouge">number</code> field.</p>
+
+<h2 id="hal-explorer">HAL Explorer</h2>
+
+<p>It’s not by accident that the just released 0.16.0 version of the <a href="https://github.com/toedter/hal-explorer">HAL Explorer library</a> maintained by Spring HATEOAS community veteran <a href="https://twitter.com/kaitoedter">Kai Tödter</a> has shipped extended support for HAL FORMS in general and the <code class="language-plaintext highlighter-rouge">options</code> field in particular.
+Kai has helped to shape the addition of the <code class="language-plaintext highlighter-rouge">options</code> element to the HAL FORMS significantly, and I am glad that we could get Spring Data REST’s HAL Explorer module to be updated to consume the WebJAR of that version for the Pascal release.
+That means, the advanced support for HAL FORMS in Spring HATEOAS and Spring Data REST can be visualized right away.
+Let’s have a quick walk through the individual process steps using the HAL Explorer.</p>
+
+<p>To start the application, simply clone the sample project repository, move into the <code class="language-plaintext highlighter-rouge">server</code> directory, run <code class="language-plaintext highlighter-rouge">./mvnw spring-boot:run</code> and point your browser to <code class="language-plaintext highlighter-rouge">http://localhost:8080</code>.
+The HAL Explorer will show up and issue an HTTP request asking for HAL FORMS to the root of the API.
+The above mentioned form returned will cause the UI show that it found a form.</p>
+
+<div style="text-align: center">
+  <img src="/assets/images/restbucks/place-order-form-1.png" />
+</div>
+
+<p>Note, how the internationalized title returned in the form is used for display purposes.
+Clicking on the plus icon will reveal the form and allow users to actually fill it out:</p>
+
+<div style="text-align: center">
+  <img src="/assets/images/restbucks/place-order-form-2.png" />
+</div>
+
+<p>See how HAL Explorer advertises the properties required to be submitted, how it has rendered a single-value selection drop-down menu for the location as well as a multi-select element for the drinks, populated with the values obtained from the resource.
+In the body section of the form you can also see the actual payload that HAL Explorer is going to submit to the server.
+If you select a second element from the “Getränke” section, it will automatically add that to the array value of the <code class="language-plaintext highlighter-rouge">drinks</code> field.</p>
+
+<p>Once we submitted the form, the client follows the <code class="language-plaintext highlighter-rouge">Location</code> header of the <code class="language-plaintext highlighter-rouge">201 Created</code> response.
+As the order is now in “payment expected” state, it exposes both the <code class="language-plaintext highlighter-rouge">restbucks:payment</code> link as well as a form to submit the payment:</p>
+
+<div style="text-align: center">
+  <img src="/assets/images/restbucks/payment-form-1.png" />
+</div>
+
+<p>We can again click the button to reveal the full form:</p>
+
+<div style="text-align: center">
+  <img src="/assets/images/restbucks/payment-form-2.png" />
+</div>
+
+<p>See how the client has made use of the <code class="language-plaintext highlighter-rouge">regex</code> field of the form definition to automatically apply validation to the input field, and reports the error, as we’re still lacking to enter the 16th digit of the credit card number.</p>
+
+<p>While HAL Explorer is of course not a UI that you’d like to expose to end users, it is a great tool to make a hypermedia API discoverable by client developers.
+Especially, as – in contrast to other approaches – does not only inspect static API description, but also integrates with the dynamic nature of hypermedia APIs nicely.</p>
+
+<h1 id="summary">Summary</h1>
+
+<p>That’s been quite a ride!
+I hope you could get an impression of how the features shipped in the latest Spring HATEOAS and Spring Data releases help you to build richer APIs and at the same time reduce the amount of persistence technology induced boilerplate in your domain model.
+There’s more in the pipeline.
+In particular, I am going to improve on the testing and documentation story, so that you get an impression of how to use Spring REST Docs to document hypermedia APIs and package that documentation right with the application so that it’s discoverable by HAL Explorer.
+Also, I’d like to polish up my Android client implementation also contained in the repository to make more extensive use of the affordances exposed by the API.</p>
+
+<p>Anything you liked in particular?
+Suggestions to make what to improve on?
+Please leave a comment below!</p>
+
+</div>
+
+<div id="related">
+  <h2>Related Posts</h2>
+  <ul class="posts">
+    
+      <li><span>22 Feb 2021</span> &raquo; <a href="/2021/02/Architecturally-evident-code-with-jMolecules/">Architecturally evident code with jMolecules</a></li>
+    
+      <li><span>17 Mar 2020</span> &raquo; <a href="/2020/03/Implementing-DDD-Building-Blocks-in-Java/">Implementing DDD Building Blocks in Java</a></li>
+    
+      <li><span>09 Oct 2016</span> &raquo; <a href="/2016/10/evolving-distributed-systems/">Evolving Distributed Systems</a></li>
+    
+  </ul>
+</div>
+
+
+
+
+  <div id="disqus_thread"></div>
+<script type="text/javascript">
+    var disqus_developer = 1;
+    var disqus_shortname = 'olivergierke'; // required: replace example with your forum shortname
+    
+    /* * * DON'T EDIT BELOW THIS LINE * * */
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+
+
+
+
+
+
+    <div class="footer">
+      <div class="contact">
+        <p>
+          Oliver Drotbohm<br />
+          Soul Power!<br />
+        </p>
+      </div>
+      <div class="contact">
+        <p>
+          <a href="http://github.com/odrotbohm/">github.com/odrotbohm</a><br />
+          <a href="http://twitter.com/odrotbohm/">twitter.com/odrotbohm</a><br />
+          <a href='mailto:info@odrotbohm.de'>info@odrotbohm.de</a>
+        </p>
+      </div>
+      <div class="rss">
+        <a href="/atom.xml">
+          <img src="/assets/themes/tom/images/rss.png" alt="Subscribe to Atom Feed" />
+        </a>
+      </div>
+    </div>
+  </div>
+
+  
+</body>
+</html>
+
