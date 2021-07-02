@@ -1,0 +1,248 @@
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+   <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+   <title>Oliver Drotbohm - Moduliths 1.1 released</title>
+   <meta name="author" content="Oliver Drotbohm" />
+   <meta name="google-site-verification" content="jK1GPyjzTp269nR-GMzfjkdcdR0Y-b3gHHWUIgebv8M" />
+   <link href="/atom.xml" rel="alternate" title="Blog Atom Feed" type="application/atom+xml" />
+
+   <!-- syntax highlighting CSS -->
+   <link rel="stylesheet" href="/assets/themes/tom/css/syntax.css" type="text/css" />
+
+   <!-- Homepage CSS -->
+   <link rel="stylesheet" href="/assets/themes/tom/css/screen.css" type="text/css" media="screen, projection" />
+
+   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fira+Sans:wght@300700&display=swap" type="text/css" />
+   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;700&display=swap" type="text/css" />
+
+
+</head>
+<body>
+
+  <div class="site">
+    <div class="title">
+      <a href="/">Oliver Drotbohm</a>
+
+      <a class="extra" href="/archive">Archive</a>
+      <a class="extra" href="/about">About</a>
+      <a class="extra" href="/tags">Tags</a>
+    </div>
+
+    
+<div id="post">
+  <h1>Moduliths 1.1 released</h1>
+  <p class="meta">
+    <!-- Whitespace added for readability -->
+    
+    July
+    2nd,
+      
+    2021
+    
+  </p>
+  
+<p>I’d like to announce the availability of Moduliths 1.1 GA.
+Moduliths is a toolkit to create modular, monolithic applications based on Spring Boot.
+The release ships with significant improvements and new features:</p>
+
+<ul>
+  <li>Module detection SPI - <a href="https://github.com/odrotbohm/moduliths/issues/137">#137</a></li>
+  <li>Improvements to Module Canvas
+    <ul>
+      <li>Custom component grouping - <a href="https://github.com/odrotbohm/moduliths/issues/130">#130</a></li>
+      <li>Event listeners report type they’re interested in - <a href="https://github.com/odrotbohm/moduliths/issues/132">#132</a></li>
+      <li>Origins of published events - <a href="https://github.com/odrotbohm/moduliths/issues/139">#139</a></li>
+      <li>Javadoc of event listeners included - <a href="https://github.com/odrotbohm/moduliths/issues/143">#143</a></li>
+    </ul>
+  </li>
+  <li>Spring <code class="language-plaintext highlighter-rouge">ApplicationListener</code> implementations detected as event listeners - <a href="https://github.com/odrotbohm/moduliths/issues/145">#145</a></li>
+  <li>Support for jMolecules - <a href="https://github.com/odrotbohm/moduliths/issues/127">#127</a>
+    <ul>
+      <li>Support for <code class="language-plaintext highlighter-rouge">@DomainEventHandler</code> - <a href="https://github.com/odrotbohm/moduliths/issues/159">#159</a></li>
+      <li>Support for jMolecules <code class="language-plaintext highlighter-rouge">Repository</code> interface - <a href="https://github.com/odrotbohm/moduliths/issues/163">#163</a></li>
+    </ul>
+  </li>
+  <li>Improved <code class="language-plaintext highlighter-rouge">PublishedEvents</code> API - <a href="https://github.com/odrotbohm/moduliths/issues/124">#124</a>, <a href="https://github.com/odrotbohm/moduliths/issues/125">#125</a>, <a href="https://github.com/odrotbohm/moduliths/issues/126">#126</a></li>
+  <li>Transactional event publication registry - <a href="https://github.com/odrotbohm/moduliths/issues/121">#121</a></li>
+</ul>
+
+<p>Let me walk you through the most significant additions in a bit more detail.</p>
+
+<h2 id="transaction-event-publication-registry">Transaction event publication registry</h2>
+
+<p>Probably the biggest feature of this release is the addition of an event publication registry for transactional events.
+By default, Spring’s transactional event listeners are invoked after transaction commit, which means that a listener failing to execute properly will have lost the event and there’s no way to recover from that.</p>
+
+<p>The registry added in Moduliths 1.1 will write a publication log for all events to be consumed by transactional event listeners.
+It will write that log within the original business transaction.
+The execution of the transactional event listeners is then decorated to mark the publications as completed if they successfully execute.
+In case of a failure, the log entry will stay untouched and API is provided to access outstanding event publications for re-submission or escalation.
+I’ve discussed the topic in the “A Deep Dive into Spring Application Events” talk <a href="https://speakerdeck.com/olivergierke/a-deep-dive-into-spring-application-events?slide=12">here</a> (recording <a href="https://www.youtube.com/watch?v=4oBqCtdRIYo">here</a>).</p>
+
+<p>To get started with the registry, all you need to do is adding the Moduliths Events Starter POM to you project:</p>
+
+<div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
+  <span class="nt">&lt;groupId&gt;</span>org.moduliths<span class="nt">&lt;/groupId&gt;</span>
+  <span class="nt">&lt;artifactId&gt;</span>moduliths-events-starter<span class="nt">&lt;/artifactId&gt;</span>
+  <span class="nt">&lt;version&gt;</span>${moduliths.version}<span class="nt">&lt;/version&gt;</span>
+<span class="nt">&lt;/dependency&gt;</span>
+</code></pre></div></div>
+
+<p>It currently pulls in JPA for persistence and Jackson for serialization.
+Published events that are consumed by a transactional event listener will need to be serializable by Jackson to make this work out of the box.
+Both, persistence mechanism and serialization strategy are pluggable.
+If you fancy to contribute different implementations (JDBC, anyone?), please make yourself heard in the <a href="https://github.com/odrotbohm/moduliths/issues">bug tracker</a>.</p>
+
+<h2 id="improvements-to-the-module-canvas">Improvements to the Module Canvas</h2>
+
+<p>Moduliths’ Module Canvas tries to provide a canonical overview of entry points into a particular module.
+In case a developer asks: “What are the most interesing technical parts of a module?”, the Canvas is supposed to provide the answer.
+It’s obviously inspired by Chris Richardson’s <a href="https://github.com/cer/microservice-canvas">Microservice Canvas</a> and the <a href="https://github.com/ddd-crew/bounded-context-canvas">Bounded Context Canvas</a> primarily driven by Nick Tune.
+Here’s one taken from Salespoint, a POS library I am involved with developed by the TU Dresden:</p>
+
+<div style="text-align: center">
+  <img src="/assets/images/module-canvas.png" />
+</div>
+
+<p>On the very surface, the Canvas provides information about</p>
+
+<ul>
+  <li>The Spring components exposed by the module (either public or implementing an interface exposed publicly).</li>
+  <li>The aggregate roots contained in the module.</li>
+  <li>Events listened to and events published by the module.</li>
+</ul>
+
+<h3 id="grouping-components">Grouping components</h3>
+
+<p>Moduliths 1.1 has added more details and smarts to the Canvas.
+The Spring components listed are now grouped and API was introduced to customize the groupings.
+If your application works with a custom stereotype, that is expressed in the code base, you can now create a custom group for it.
+Assume our web layer contained components named <code class="language-plaintext highlighter-rouge">…Representations</code> that were responsible for mapping inbound and outbound JSON representations on our domain model.
+We could make those show up in a dedicated group by customizing the canvas creation like this:</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">static</span> <span class="n">org</span><span class="o">.</span><span class="na">moduliths</span><span class="o">.</span><span class="na">docs</span><span class="o">.</span><span class="na">Documenter</span><span class="o">.</span><span class="na">CanvasOptions</span><span class="o">.*;</span>
+
+<span class="kt">var</span> <span class="n">representations</span> <span class="o">=</span> <span class="nc">Grouping</span><span class="o">.</span><span class="na">of</span><span class="o">(</span><span class="s">"Representations"</span><span class="o">,</span>
+  <span class="s">"Components to map from domain types to DTOs and vice versa."</span><span class="o">,</span>
+  <span class="nc">Grouping</span><span class="o">.</span><span class="na">nameMatching</span><span class="o">(</span><span class="s">".*Representations"</span><span class="o">));</span>
+
+<span class="kt">var</span> <span class="n">documenter</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">Documenter</span><span class="o">(</span><span class="n">modules</span><span class="o">).</span><span class="na">writeModuleCanvases</span><span class="o">(</span>
+  <span class="nc">CanvasOptions</span><span class="o">.</span><span class="na">defaults</span><span class="o">().</span><span class="na">groupingBy</span><span class="o">(</span><span class="n">representations</span><span class="o">));</span>
+</code></pre></div></div>
+
+<h3 id="more-details-about-events-and-event-listeners">More details about events and event listeners</h3>
+
+<p>The sections describing published and listened to events as been enriched to contain more detail about the listener and the publication.
+For the listeners, we now pull in the Javadoc on the listening method as description of the listener (not shown in the image above).</p>
+
+<p>For that to work, you need to use <code class="language-plaintext highlighter-rouge">capital.scalable:spring-auto-restdocs-json-doclet</code> in your Javadoc generation to extract the Javadoc into a JSON file that is then transparently picked up by the documentation generation.
+A request to extract that functionality into a separate project has been filed <a href="https://github.com/ScaCap/spring-auto-restdocs/issues/435">here</a>.</p>
+
+<div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;configuration&gt;</span>
+  <span class="nt">&lt;doclet&gt;</span>c.s.r.jsondoclet.ExtractDocumentationAsJsonDoclet<span class="nt">&lt;/doclet&gt;</span>
+  <span class="nt">&lt;docletArtifact&gt;</span>
+    <span class="nt">&lt;groupId&gt;</span>capital.scalable<span class="nt">&lt;/groupId&gt;</span>
+    <span class="nt">&lt;artifactId&gt;</span>spring-auto-restdocs-json-doclet<span class="nt">&lt;/artifactId&gt;</span>
+    <span class="nt">&lt;version&gt;</span>2.0.8<span class="nt">&lt;/version&gt;</span>
+  <span class="nt">&lt;/docletArtifact&gt;</span>
+  <span class="nt">&lt;/doclet&gt;</span>
+<span class="nt">&lt;/configuration&gt;</span>
+</code></pre></div></div>
+
+<p>The origin of an event publication is tracked by finding constructor and factory method invocations on the event type within the code base.
+If the method that call is coming from is part of the Javadoc created for the project, it gets linked to, just as all other publicly visible types.</p>
+
+<h2 id="support-for-jmolecules">Support for jMolecules</h2>
+
+<p><a href="https://jmolecules.org">jMolecules</a> is a Java library within the <a href="https://xmolecules.org/">xMolecules</a> family of projects that aims to provide programming language specific means to express architectural concepts in code.
+Moduliths 1.1 has added support for jMolecules’ <code class="language-plaintext highlighter-rouge">@DomainEventHandler</code> as well as the <code class="language-plaintext highlighter-rouge">Repository</code> interface.
+If used in code, methods and classes annotated with them will be recognized as event listener or repository respectfully.</p>
+
+<h2 id="module-detection-api">Module detection API</h2>
+
+<p>To be as little invasive as possible, Moduliths assumes a certain package structure to detect logical modules in a particular codebase.
+All packages, directly located under the one that contains the Spring Boot application class, are considered module packages.
+While this is a decent default when structuring new code bases, ones that haven’t been started with that model in mind usually deviate from that.
+To be able to accommodate customization needs, Moduliths 1.1 ships a <code class="language-plaintext highlighter-rouge">ModuleDetectionStrategy</code> SPI, that allows users to return all module base packages given the root package of the application:</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">interface</span> <span class="nc">ModuleDetectionStrategy</span> <span class="o">{</span>
+  <span class="nc">Stream</span><span class="o">&lt;</span><span class="nc">JavaPackage</span><span class="o">&gt;</span> <span class="nf">getModuleBasePackages</span><span class="o">(</span><span class="nc">JavaPackage</span> <span class="n">basePackage</span><span class="o">);</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>We ship two different strategies out of the box: the default one that returns the direct subpackages as described above, and one that considers packages explicitly annotated with <code class="language-plaintext highlighter-rouge">@Module</code> only.</p>
+
+<p>To customize the strategy to be used, register your custom implementation inside <code class="language-plaintext highlighter-rouge">META-INF/spring.factories</code>:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>org.moduliths.model.ModuleDetectionStrategy=\
+  com.acme.CustomModuleDetectionStrategy
+</code></pre></div></div>
+
+<p>The strategy will now be picked up, as soon as you create a <code class="language-plaintext highlighter-rouge">Modules</code> instance in your code.</p>
+
+</div>
+
+<div id="related">
+  <h2>Related Posts</h2>
+  <ul class="posts">
+    
+      <li><span>14 Apr 2021</span> &raquo; <a href="/2021/04/Spring-RESTBucks-in-2021/">Spring RESTBucks in 2021</a></li>
+    
+      <li><span>22 Feb 2021</span> &raquo; <a href="/2021/02/Architecturally-evident-code-with-jMolecules/">Architecturally evident code with jMolecules</a></li>
+    
+      <li><span>17 Mar 2020</span> &raquo; <a href="/2020/03/Implementing-DDD-Building-Blocks-in-Java/">Implementing DDD Building Blocks in Java</a></li>
+    
+  </ul>
+</div>
+
+
+
+
+  <div id="disqus_thread"></div>
+<script type="text/javascript">
+    var disqus_developer = 1;
+    var disqus_shortname = 'olivergierke'; // required: replace example with your forum shortname
+    
+    /* * * DON'T EDIT BELOW THIS LINE * * */
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+
+
+
+
+
+
+    <div class="footer">
+      <div class="contact">
+        <p>
+          Oliver Drotbohm<br />
+          Soul Power!<br />
+        </p>
+      </div>
+      <div class="contact">
+        <p>
+          <a href="http://github.com/odrotbohm/">github.com/odrotbohm</a><br />
+          <a href="http://twitter.com/odrotbohm/">twitter.com/odrotbohm</a><br />
+          <a href='mailto:info@odrotbohm.de'>info@odrotbohm.de</a>
+        </p>
+      </div>
+      <div class="rss">
+        <a href="/atom.xml">
+          <img src="/assets/themes/tom/images/rss.png" alt="Subscribe to Atom Feed" />
+        </a>
+      </div>
+    </div>
+  </div>
+
+  
+</body>
+</html>
+

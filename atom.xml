@@ -3,13 +3,160 @@
  <title>Oliver Drotbohm</title>
  <link href="http://www.odrotbohm.de/atom.xml" rel="self"/>
  <link href="http://www.odrotbohm.de"/>
- <updated>2021-04-14T19:21:13+02:00</updated>
+ <updated>2021-07-02T13:55:06+02:00</updated>
  <id>http://www.odrotbohm.de</id>
  <author>
    <name>Oliver Drotbohm</name>
    <email>info@odrotbohm.de</email>
  </author>
 
+ 
+ <entry>
+   <title>Moduliths 1.1 released</title>
+   <link href="http://www.odrotbohm.de/2021/07/moduliths-1.1-released/"/>
+   <updated>2021-07-02T00:00:00+02:00</updated>
+   <id>http://www.odrotbohm.de/2021/07/moduliths-1.1-released</id>
+   <content type="html">
+&lt;p&gt;I’d like to announce the availability of Moduliths 1.1 GA.
+Moduliths is a toolkit to create modular, monolithic applications based on Spring Boot.
+The release ships with significant improvements and new features:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Module detection SPI - &lt;a href=&quot;https://github.com/odrotbohm/moduliths/issues/137&quot;&gt;#137&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;Improvements to Module Canvas
+    &lt;ul&gt;
+      &lt;li&gt;Custom component grouping - &lt;a href=&quot;https://github.com/odrotbohm/moduliths/issues/130&quot;&gt;#130&lt;/a&gt;&lt;/li&gt;
+      &lt;li&gt;Event listeners report type they’re interested in - &lt;a href=&quot;https://github.com/odrotbohm/moduliths/issues/132&quot;&gt;#132&lt;/a&gt;&lt;/li&gt;
+      &lt;li&gt;Origins of published events - &lt;a href=&quot;https://github.com/odrotbohm/moduliths/issues/139&quot;&gt;#139&lt;/a&gt;&lt;/li&gt;
+      &lt;li&gt;Javadoc of event listeners included - &lt;a href=&quot;https://github.com/odrotbohm/moduliths/issues/143&quot;&gt;#143&lt;/a&gt;&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;Spring &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;ApplicationListener&lt;/code&gt; implementations detected as event listeners - &lt;a href=&quot;https://github.com/odrotbohm/moduliths/issues/145&quot;&gt;#145&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;Support for jMolecules - &lt;a href=&quot;https://github.com/odrotbohm/moduliths/issues/127&quot;&gt;#127&lt;/a&gt;
+    &lt;ul&gt;
+      &lt;li&gt;Support for &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;@DomainEventHandler&lt;/code&gt; - &lt;a href=&quot;https://github.com/odrotbohm/moduliths/issues/159&quot;&gt;#159&lt;/a&gt;&lt;/li&gt;
+      &lt;li&gt;Support for jMolecules &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Repository&lt;/code&gt; interface - &lt;a href=&quot;https://github.com/odrotbohm/moduliths/issues/163&quot;&gt;#163&lt;/a&gt;&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;Improved &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;PublishedEvents&lt;/code&gt; API - &lt;a href=&quot;https://github.com/odrotbohm/moduliths/issues/124&quot;&gt;#124&lt;/a&gt;, &lt;a href=&quot;https://github.com/odrotbohm/moduliths/issues/125&quot;&gt;#125&lt;/a&gt;, &lt;a href=&quot;https://github.com/odrotbohm/moduliths/issues/126&quot;&gt;#126&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;Transactional event publication registry - &lt;a href=&quot;https://github.com/odrotbohm/moduliths/issues/121&quot;&gt;#121&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Let me walk you through the most significant additions in a bit more detail.&lt;/p&gt;
+
+&lt;h2 id=&quot;transaction-event-publication-registry&quot;&gt;Transaction event publication registry&lt;/h2&gt;
+
+&lt;p&gt;Probably the biggest feature of this release is the addition of an event publication registry for transactional events.
+By default, Spring’s transactional event listeners are invoked after transaction commit, which means that a listener failing to execute properly will have lost the event and there’s no way to recover from that.&lt;/p&gt;
+
+&lt;p&gt;The registry added in Moduliths 1.1 will write a publication log for all events to be consumed by transactional event listeners.
+It will write that log within the original business transaction.
+The execution of the transactional event listeners is then decorated to mark the publications as completed if they successfully execute.
+In case of a failure, the log entry will stay untouched and API is provided to access outstanding event publications for re-submission or escalation.
+I’ve discussed the topic in the “A Deep Dive into Spring Application Events” talk &lt;a href=&quot;https://speakerdeck.com/olivergierke/a-deep-dive-into-spring-application-events?slide=12&quot;&gt;here&lt;/a&gt; (recording &lt;a href=&quot;https://www.youtube.com/watch?v=4oBqCtdRIYo&quot;&gt;here&lt;/a&gt;).&lt;/p&gt;
+
+&lt;p&gt;To get started with the registry, all you need to do is adding the Moduliths Events Starter POM to you project:&lt;/p&gt;
+
+&lt;div class=&quot;language-xml highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nt&quot;&gt;&amp;lt;dependency&amp;gt;&lt;/span&gt;
+  &lt;span class=&quot;nt&quot;&gt;&amp;lt;groupId&amp;gt;&lt;/span&gt;org.moduliths&lt;span class=&quot;nt&quot;&gt;&amp;lt;/groupId&amp;gt;&lt;/span&gt;
+  &lt;span class=&quot;nt&quot;&gt;&amp;lt;artifactId&amp;gt;&lt;/span&gt;moduliths-events-starter&lt;span class=&quot;nt&quot;&gt;&amp;lt;/artifactId&amp;gt;&lt;/span&gt;
+  &lt;span class=&quot;nt&quot;&gt;&amp;lt;version&amp;gt;&lt;/span&gt;${moduliths.version}&lt;span class=&quot;nt&quot;&gt;&amp;lt;/version&amp;gt;&lt;/span&gt;
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;/dependency&amp;gt;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;It currently pulls in JPA for persistence and Jackson for serialization.
+Published events that are consumed by a transactional event listener will need to be serializable by Jackson to make this work out of the box.
+Both, persistence mechanism and serialization strategy are pluggable.
+If you fancy to contribute different implementations (JDBC, anyone?), please make yourself heard in the &lt;a href=&quot;https://github.com/odrotbohm/moduliths/issues&quot;&gt;bug tracker&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h2 id=&quot;improvements-to-the-module-canvas&quot;&gt;Improvements to the Module Canvas&lt;/h2&gt;
+
+&lt;p&gt;Moduliths’ Module Canvas tries to provide a canonical overview of entry points into a particular module.
+In case a developer asks: “What are the most interesing technical parts of a module?”, the Canvas is supposed to provide the answer.
+It’s obviously inspired by Chris Richardson’s &lt;a href=&quot;https://github.com/cer/microservice-canvas&quot;&gt;Microservice Canvas&lt;/a&gt; and the &lt;a href=&quot;https://github.com/ddd-crew/bounded-context-canvas&quot;&gt;Bounded Context Canvas&lt;/a&gt; primarily driven by Nick Tune.
+Here’s one taken from Salespoint, a POS library I am involved with developed by the TU Dresden:&lt;/p&gt;
+
+&lt;div style=&quot;text-align: center&quot;&gt;
+  &lt;img src=&quot;/assets/images/module-canvas.png&quot; /&gt;
+&lt;/div&gt;
+
+&lt;p&gt;On the very surface, the Canvas provides information about&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;The Spring components exposed by the module (either public or implementing an interface exposed publicly).&lt;/li&gt;
+  &lt;li&gt;The aggregate roots contained in the module.&lt;/li&gt;
+  &lt;li&gt;Events listened to and events published by the module.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;grouping-components&quot;&gt;Grouping components&lt;/h3&gt;
+
+&lt;p&gt;Moduliths 1.1 has added more details and smarts to the Canvas.
+The Spring components listed are now grouped and API was introduced to customize the groupings.
+If your application works with a custom stereotype, that is expressed in the code base, you can now create a custom group for it.
+Assume our web layer contained components named &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;…Representations&lt;/code&gt; that were responsible for mapping inbound and outbound JSON representations on our domain model.
+We could make those show up in a dedicated group by customizing the canvas creation like this:&lt;/p&gt;
+
+&lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;static&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;org&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;moduliths&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;docs&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;Documenter&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;CanvasOptions&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.*;&lt;/span&gt;
+
+&lt;span class=&quot;kt&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;representations&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Grouping&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;of&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;Representations&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt;
+  &lt;span class=&quot;s&quot;&gt;&quot;Components to map from domain types to DTOs and vice versa.&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt;
+  &lt;span class=&quot;nc&quot;&gt;Grouping&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;nameMatching&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;.*Representations&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;));&lt;/span&gt;
+
+&lt;span class=&quot;kt&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;documenter&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Documenter&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;modules&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;).&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;writeModuleCanvases&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;
+  &lt;span class=&quot;nc&quot;&gt;CanvasOptions&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;defaults&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;().&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;groupingBy&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;representations&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;));&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h3 id=&quot;more-details-about-events-and-event-listeners&quot;&gt;More details about events and event listeners&lt;/h3&gt;
+
+&lt;p&gt;The sections describing published and listened to events as been enriched to contain more detail about the listener and the publication.
+For the listeners, we now pull in the Javadoc on the listening method as description of the listener (not shown in the image above).&lt;/p&gt;
+
+&lt;p&gt;For that to work, you need to use &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;capital.scalable:spring-auto-restdocs-json-doclet&lt;/code&gt; in your Javadoc generation to extract the Javadoc into a JSON file that is then transparently picked up by the documentation generation.
+A request to extract that functionality into a separate project has been filed &lt;a href=&quot;https://github.com/ScaCap/spring-auto-restdocs/issues/435&quot;&gt;here&lt;/a&gt;.&lt;/p&gt;
+
+&lt;div class=&quot;language-xml highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nt&quot;&gt;&amp;lt;configuration&amp;gt;&lt;/span&gt;
+  &lt;span class=&quot;nt&quot;&gt;&amp;lt;doclet&amp;gt;&lt;/span&gt;c.s.r.jsondoclet.ExtractDocumentationAsJsonDoclet&lt;span class=&quot;nt&quot;&gt;&amp;lt;/doclet&amp;gt;&lt;/span&gt;
+  &lt;span class=&quot;nt&quot;&gt;&amp;lt;docletArtifact&amp;gt;&lt;/span&gt;
+    &lt;span class=&quot;nt&quot;&gt;&amp;lt;groupId&amp;gt;&lt;/span&gt;capital.scalable&lt;span class=&quot;nt&quot;&gt;&amp;lt;/groupId&amp;gt;&lt;/span&gt;
+    &lt;span class=&quot;nt&quot;&gt;&amp;lt;artifactId&amp;gt;&lt;/span&gt;spring-auto-restdocs-json-doclet&lt;span class=&quot;nt&quot;&gt;&amp;lt;/artifactId&amp;gt;&lt;/span&gt;
+    &lt;span class=&quot;nt&quot;&gt;&amp;lt;version&amp;gt;&lt;/span&gt;2.0.8&lt;span class=&quot;nt&quot;&gt;&amp;lt;/version&amp;gt;&lt;/span&gt;
+  &lt;span class=&quot;nt&quot;&gt;&amp;lt;/docletArtifact&amp;gt;&lt;/span&gt;
+  &lt;span class=&quot;nt&quot;&gt;&amp;lt;/doclet&amp;gt;&lt;/span&gt;
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;/configuration&amp;gt;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;The origin of an event publication is tracked by finding constructor and factory method invocations on the event type within the code base.
+If the method that call is coming from is part of the Javadoc created for the project, it gets linked to, just as all other publicly visible types.&lt;/p&gt;
+
+&lt;h2 id=&quot;support-for-jmolecules&quot;&gt;Support for jMolecules&lt;/h2&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://jmolecules.org&quot;&gt;jMolecules&lt;/a&gt; is a Java library within the &lt;a href=&quot;https://xmolecules.org/&quot;&gt;xMolecules&lt;/a&gt; family of projects that aims to provide programming language specific means to express architectural concepts in code.
+Moduliths 1.1 has added support for jMolecules’ &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;@DomainEventHandler&lt;/code&gt; as well as the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Repository&lt;/code&gt; interface.
+If used in code, methods and classes annotated with them will be recognized as event listener or repository respectfully.&lt;/p&gt;
+
+&lt;h2 id=&quot;module-detection-api&quot;&gt;Module detection API&lt;/h2&gt;
+
+&lt;p&gt;To be as little invasive as possible, Moduliths assumes a certain package structure to detect logical modules in a particular codebase.
+All packages, directly located under the one that contains the Spring Boot application class, are considered module packages.
+While this is a decent default when structuring new code bases, ones that haven’t been started with that model in mind usually deviate from that.
+To be able to accommodate customization needs, Moduliths 1.1 ships a &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;ModuleDetectionStrategy&lt;/code&gt; SPI, that allows users to return all module base packages given the root package of the application:&lt;/p&gt;
+
+&lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;interface&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;ModuleDetectionStrategy&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+  &lt;span class=&quot;nc&quot;&gt;Stream&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;JavaPackage&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;getModuleBasePackages&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;JavaPackage&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;basePackage&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;We ship two different strategies out of the box: the default one that returns the direct subpackages as described above, and one that considers packages explicitly annotated with &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;@Module&lt;/code&gt; only.&lt;/p&gt;
+
+&lt;p&gt;To customize the strategy to be used, register your custom implementation inside &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;META-INF/spring.factories&lt;/code&gt;:&lt;/p&gt;
+
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;org.moduliths.model.ModuleDetectionStrategy=\
+  com.acme.CustomModuleDetectionStrategy
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;The strategy will now be picked up, as soon as you create a &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Modules&lt;/code&gt; instance in your code.&lt;/p&gt;
+</content>
+ </entry>
  
  <entry>
    <title>Spring RESTBucks in 2021</title>
