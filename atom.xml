@@ -3,7 +3,7 @@
  <title>Oliver Drotbohm</title>
  <link href="http://www.odrotbohm.de/atom.xml" rel="self"/>
  <link href="http://www.odrotbohm.de"/>
- <updated>2023-07-25T14:45:41+02:00</updated>
+ <updated>2023-07-25T15:01:49+02:00</updated>
  <id>http://www.odrotbohm.de</id>
  <author>
    <name>Oliver Drotbohm</name>
@@ -51,7 +51,7 @@ While the strict interpretation of the approach suggests that a ring may only de
 It is likely a testament to the time of origin of these architectures that they all extensively focus on the separation of domain code from infrastructure code.
 Intermingling the two was the reason for significant code quality issues, especially in enterprises at that time, primarily due to the lack of ability to test code that does not separate these two aspects.&lt;/p&gt;
 
-&lt;p&gt;Still, the release of Eric Evans’ “Domain-Driven Design” in the early 2000s already pointed out — and it has become even more obvious in the last couple of years --: the primary source of quality issues within code bases is the lack of alignment with the business and the existence of a &lt;em&gt;functional&lt;/em&gt; separation of concerns reflecting that.
+&lt;p&gt;Still, the release of Eric Evans’ “Domain-Driven Design” in the early 2000s already pointed out — and it has become even more obvious in the last couple of years —: the primary source of quality issues within code bases is the lack of alignment with the business and the existence of a &lt;em&gt;functional&lt;/em&gt; separation of concerns reflecting that.
 This raises the question whether it is a good idea to follow an architectural approach to structuring your codebase that basically ignores your primary challenge.&lt;/p&gt;
 
 &lt;p&gt;A slightly more technical issue arises from the raise of abstraction compared to Hexagonal Architecture in the infrastructure ring.
