@@ -121,6 +121,10 @@ hr {
   border-bottom: 5px solid rgba(255, 255, 255, 1);
 }
 
+img {
+  width: 100%;
+}
+
 .continue {
   text-align: right;
 }
@@ -290,4 +294,12 @@ ul.posts {
 .gist-file {
   font-size: 0.8em;
   line-height: 1.2em;
+}
+
+.image-caption {
+  border-top: 1px solid #dddddd;
+  text-align: center;
+  font-size: 0.8em;
+  padding-top: 0.5em;
+  margin-bottom: 2em;
 }

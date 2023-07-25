@@ -3,13 +3,172 @@
  <title>Oliver Drotbohm</title>
  <link href="http://www.odrotbohm.de/atom.xml" rel="self"/>
  <link href="http://www.odrotbohm.de"/>
- <updated>2021-07-02T13:55:06+02:00</updated>
+ <updated>2023-07-25T14:20:44+02:00</updated>
  <id>http://www.odrotbohm.de</id>
  <author>
    <name>Oliver Drotbohm</name>
    <email>info@odrotbohm.de</email>
  </author>
 
+ 
+ <entry>
+   <title>Sliced Onion Architecture</title>
+   <link href="http://www.odrotbohm.de/2023/07/sliced-onion-architecture/"/>
+   <updated>2023-07-25T00:00:00+02:00</updated>
+   <id>http://www.odrotbohm.de/2023/07/sliced-onion-architecture</id>
+   <content type="html">
+&lt;p&gt;It has been almost exactly 15 years since Jeffrey Palermo posted the first blog of his series on the &lt;a href=&quot;https://jeffreypalermo.com/2008/07/the-onion-architecture-part-1/&quot;&gt;Onion Architecture&lt;/a&gt;.
+In that post, he summarized ideas that essentially form a continuation of the &lt;a href=&quot;https://alistair.cockburn.us/hexagonal-architecture/&quot;&gt;Hexagonal Architecture&lt;/a&gt; approach by Alistair Cockburn.
+Although I have always thought that both of these approaches to code organization do not necessarily form “architectures”, I’ve always found them helpful in shaping a mental model about how to structure a code base.
+Over the years, I have seen plenty of teams trying to follow those models and running into misconceptions and problems with those.
+In this blog post, I would like to summarize a few of those findings and present a refined way of looking at Onion Architecture.&lt;/p&gt;
+
+&lt;h1 id=&quot;onion-architecture&quot;&gt;Onion Architecture&lt;/h1&gt;
+
+&lt;p&gt;Let us start with a brief revisit of the original ideas of the approach first.
+Code is organized in concentric rings, with &lt;em&gt;the domain&lt;/em&gt; at the center of it all.
+That part of the code base is supposed to contain all fundamental domain abstractions.
+That core is then surrounded by an &lt;em&gt;application&lt;/em&gt; ring that — as the name suggests — contains application-specific code.
+Jeffrey’s original proposal even divided that ring up into “domain services” and “application services” which usually sparks a lot of discussion within teams which code belongs where.
+For now, I will stick to the simplified “application” ring Its purpose is to expose application logic in use cases or units of work to other code that form scopes of consistency.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/soa/onion-architecture-green.jpeg&quot; alt=&quot;Onion Architecture (simplified)&quot; /&gt;&lt;/p&gt;
+&lt;div class=&quot;image-caption&quot;&gt;Onion Architecture (simplified)&lt;/div&gt;
+
+&lt;p&gt;That ring in turn is surrounded by the &lt;em&gt;infrastructure&lt;/em&gt; ring that contains code that translates the application-specific interfaces into a particular technology.
+On the exposing side, this could be controllers rending a web page or producing representations suitable for a particular style of APIs, such as JSON.
+Furthermore, connectors to databases or message brokers reside in that ring.
+That way, Jeffrey abstracts away the different kinds of adapters (driving VS. driven) Alistair had introduced in Hexagonal architectures.&lt;/p&gt;
+
+&lt;p&gt;The final piece of the puzzle is the definition of dependency directions between the rings: outer rings depend on inner ones, exposing an interface for their dependents to either invoke (a controller working with an application service) or implement (a particular database implementation of a repository interface exposed by the application ring).
+While the strict interpretation of the approach suggests that a ring may only depend on the next inner one, in practice, skipping a ring is usually allowed as enforcing the strict layering would result in boilerplate code.&lt;/p&gt;
+
+&lt;h1 id=&quot;problems&quot;&gt;Problems&lt;/h1&gt;
+
+&lt;p&gt;Now that we have come to a common understanding of the situation, let us take a look at the challenges with this approach.&lt;/p&gt;
+
+&lt;p&gt;A core problem with Onion Architecture — and Hexagonal Architecture as well — is that it treats &lt;em&gt;the domain&lt;/em&gt; as a single, opaque block.
+It is likely a testament to the time of origin of these architectures that they all extensively focus on the separation of domain code from infrastructure code.
+Intermingling the two was the reason for significant code quality issues, especially in enterprises at that time, primarily due to the lack of ability to test code that does not separate these two aspects.&lt;/p&gt;
+
+&lt;p&gt;Still, the release of Eric Evans’ “Domain-Driven Design” in the early 2000s already pointed out — and it has become even more obvious in the last couple of years --: the primary source of quality issues within code bases is the lack of alignment with the business and the existence of a &lt;em&gt;functional&lt;/em&gt; separation of concerns reflecting that.
+This raises the question whether it is a good idea to follow an architectural approach to structuring your codebase that basically ignores your primary challenge.&lt;/p&gt;
+
+&lt;p&gt;A slightly more technical issue arises from the raise of abstraction compared to Hexagonal Architecture in the infrastructure ring.
+Both the API / web and database / message broker adapters residing in that ring suggests some kind of uniformity to the way they are implemented.
+This is often reflected in the approaches to decoupling from the target infrastructure by mapping different models onto each other.&lt;/p&gt;
+
+&lt;p&gt;On the database side, the domain model is supposed to be mapped onto a persistence model, which is in turn mapped to a database-specific structure.
+This is of course a valid approach in a context in which the target data store is shared by different applications and the team developing one application is exposed to changes to that store.
+A scenario pretty common in the mid-2000s.
+Nowadays, applications usually own their data store, and we can choose drastically simpler approaches to persistence.
+The need to map between different models is often out-prioritized by the desire to keep the model simple and have a model change to immediately reflected in the derived, other models.
+For example, we want that renaming a property in an aggregate in the domain model is ideally immediately reflected in the database migration, also renaming the column name to avoid cognitive overload going forward.&lt;/p&gt;
+
+&lt;p&gt;On the exposing side of the infrastructure, this is an entirely different discussion, as we cannot arbitrarily change the target model.
+It is likely that we don’t even know all our API consumers and would rather want to guard those from changes to our internals as much as possible.
+Being able to differentiate between these two scenarios can help to avoid a lot of boilerplate code, especially in the design of the persistence implementation.
+While, of course, nothing in Onion Architecture prevents us from making this distinction, putting all infrastructure into the same ring implies a uniformity that can be misleading.&lt;/p&gt;
+
+&lt;p&gt;Finally, to round the technical challenges off, assigning all infrastructure adapters to the same logical bucket exempts them from the constrained dependency directions defined between rings.
+Repository implementations might depend on controllers without the architectural approach capturing that.&lt;/p&gt;
+
+&lt;h1 id=&quot;structuring-the-domain&quot;&gt;Structuring the Domain&lt;/h1&gt;
+
+&lt;p&gt;As I have described above, a fundamental challenge to building maintainable software systems is a functional architecture that supports the needs of the business we build the application for.
+To keep things simple for now, let us use the term &lt;em&gt;domain&lt;/em&gt; for these individual elements of that functional architecture.
+If you followed Domain-Driven Design, that would map to a &lt;em&gt;Bounded Context&lt;/em&gt; or a &lt;em&gt;Module&lt;/em&gt; within those.
+If we are supposed to deal with multiple domains, what would an Onion Architecture working with those look like, and what would that mean for the interaction between the domains?&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/soa/onion-architecture-multiple-domains.jpeg&quot; alt=&quot;Onion Architecture — Multiple Domains&quot; /&gt;&lt;/p&gt;
+&lt;div class=&quot;image-caption&quot;&gt;Onion Architecture — Multiple Domains&lt;/div&gt;
+
+&lt;p&gt;One idea could be to apply the functional architecture solely to the domain core of our arrangement, as shown above.
+We could apply Domain-Driven Design to our overall domain, identify different parts within it, and define allowed dependency directions between those.&lt;/p&gt;
+
+&lt;p&gt;While that is certainly better than before, all our application and infrastructure code still would be an opaque whole that lacks the structure which we have now established at the core of our architecture.
+If we extend on that idea and repeat the structuring exercise for each other ring, we eventually end up with an Onion per domain.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/soa/onion-architecture-multiple.jpeg&quot; alt=&quot;Onion Architecture — Onion Per Domain&quot; /&gt;&lt;/p&gt;
+&lt;div class=&quot;image-caption&quot;&gt;Onion Architecture — Onion Per Domain&lt;/div&gt;
+
+&lt;p&gt;This is a step in the right direction.
+Each Onion is self-contained and focused on &lt;em&gt;one&lt;/em&gt; domain and owns their application interfaces and technical adapters.
+However, the interaction of the individual domains would now have to be established through the infrastructure.
+This might be a good fit if we decided to map the Onions onto individual applications, for example, in a microservices arrangement.&lt;/p&gt;
+
+&lt;p&gt;Depending on the level of granularity of the domains, this might not be the most optimal projection of our logical architecture into the “physical” world, it will also introduce a lot of complexity and cost in the interaction.
+To exchange a simple domain event between the systems, we would have to have the corresponding infrastructure in place (a message broker, for example), have to serialize the event on the sender side and deserialize it on the receiver side.&lt;/p&gt;
+
+&lt;p&gt;Summarizing, the lack of focus on the domain in the original Onion Architecture clearly shows, and approaches to address the problem within the realms of the original idea are either unsatisfying or introduce complexity and incentivize a particular deployment arrangement.
+Time to elevate this to a new level.&lt;/p&gt;
+
+&lt;h1 id=&quot;the-sliced-onion-architecture&quot;&gt;The Sliced Onion Architecture&lt;/h1&gt;
+
+&lt;p&gt;The fundamental augmentation I propose to Onion Architecture is to cut the sides of the Onion.
+While this might sound trivial at first, the idea has significant consequences on the precision of the definition of the concepts and the applicability in actual applications.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/soa/soa.jpeg&quot; alt=&quot;Sliced Onion Architecture&quot; /&gt;&lt;/p&gt;
+&lt;div class=&quot;image-caption&quot;&gt;Sliced Onion Architecture&lt;/div&gt;
+
+&lt;p&gt;First, by cutting the sides, the conceptual separation between code mapping application concepts to external clients (via APIs) and the code mapping to internal infrastructure (such as databases and message brokers) is re-established.
+We also implicitly establish the fact that each of these — by default — do not interact with each other at all.
+The application ring still protects an individual domain.&lt;/p&gt;
+
+&lt;p&gt;That in turn can be exposed to infrastructure in line with the original idea, but is also opened up on its sides for low-friction interaction with similarly shaped parties (see below) and tests.
+In the original Onion Architecture approach, they reside in the infrastructure layer, which I have always found a bit weird.
+For sure, they act as clients to the application ring.
+However, the adapters in the infrastructure ring need integration testing “from the outside” as well, which would lead to yet another ring surrounding the infrastructure one and does not fit the overall idea very well.
+With our refined approach, tests can connect to code from the side and align different kinds of testing depending on the part they primarily interact with.
+They could focus on fine-grained tests directly interacting with the APIs exposed by the application ring, or rather resort to more holistic approaches through the infrastructure adapters.&lt;/p&gt;
+
+&lt;p&gt;Fundamentally, the Sliced Onion approach is still a suitable arrangement for a deployment as an individual system.
+That said, the key benefit of the cut is that we can arrange multiple of these to interact with each other, also in other deployment arrangements.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/soa/soa-multiple.jpeg&quot; alt=&quot;Sliced Onion Architecture — Multiple Sliced Onions&quot; /&gt;&lt;/p&gt;
+&lt;div class=&quot;image-caption&quot;&gt;Sliced Onion Architecture — Multiple Sliced Onions&lt;/div&gt;
+
+&lt;p&gt;For example, we could place a set of Onions into a singular deployment unit, indicated by the light green box in the graphic above.
+This looks pretty similar to our Onion-per-domain approach.
+The core benefit of the exposed application ring sides is that we can leverage capabilities provided by the runtime environment to let the individual Sliced Onions interact with each other.
+Either through the publication of process-internal events (the light bulbs in hexagons in the graphic below) or the invocation of APIs (the beans in circles).&lt;/p&gt;
+
+&lt;p&gt;In the context of a Spring application, for example, that would map onto using its application event mechanism or direct references to a Spring bean exposed by another Sliced Onion.
+I usually recommend to favor asynchronous, event-based interaction between the Sliced Onions, as this naturally keeps the scopes of strong consistency within one Onion and thus emphasizes their self-contained nature.
+Furthermore, not referring to Spring beans exposed by a foreign Onion allows tests to run scoped to only the Onion under test.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/soa/soa-interaction.jpeg&quot; alt=&quot;Sliced Onion Architecture — Interaction Patterns&quot; /&gt;&lt;/p&gt;
+&lt;div class=&quot;image-caption&quot;&gt;Sliced Onion Architecture — Interaction Patterns&lt;/div&gt;
+
+&lt;h1 id=&quot;modules&quot;&gt;Modules&lt;/h1&gt;
+
+&lt;p&gt;Once we discuss the interaction between individual Sliced Onions, we can lift the architectural abstraction to &lt;em&gt;modules&lt;/em&gt;, as the module’s internal Onion structure does not actually matter anymore and becomes an implementation detail.
+Modules expose events or APIs for internal interaction and infrastructure adapters connecting each module to the outside world.
+They thus form self-contained elements within the overall application arrangement.
+This is, in fact, the core of a &lt;em&gt;modulithic&lt;/em&gt; application architecture.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/soa/soa-modules.jpeg&quot; alt=&quot;Sliced Onion Architecture — Modules&quot; /&gt;&lt;/p&gt;
+&lt;div class=&quot;image-caption&quot;&gt;Sliced Onion Architecture — Modules&lt;/div&gt;
+
+&lt;p&gt;Moduliths are a great starting point to evolve an application’s architecture as they have natural, low-cost seams built in, which are helpful in case we have to restructure the overall arrangement.
+For one, we can move code between the individual modules with manageable effort, as internal interaction is not exposed to third parties.
+Refactoring tools of our IDEs become powerful assistants.&lt;/p&gt;
+
+&lt;p&gt;Furthermore, those seams can be used to split up a system at a later stage if the actual organization or technical need arises.
+Especially, modules solely interacting via (asynchronous) events can be lifted into another deployable by moving the code into a new project.
+Events previously already published internally could be externalized into some messaging infrastructure, and the original application could integrate with the new arrangement by deploying the corresponding infrastructure adapters on the listening module.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/soa/soa-modules-split.jpeg&quot; alt=&quot;Sliced Onion Architecture — Split Up&quot; /&gt;&lt;/p&gt;
+&lt;div class=&quot;image-caption&quot;&gt;Sliced Onion Architecture — Split Up&lt;/div&gt;
+
+&lt;p&gt;That said, the fully modulithic arrangement we started from might just be enough to ensure evolvability of our system, and we might never actually get to a split up in the first place.&lt;/p&gt;
+
+&lt;h1 id=&quot;summary&quot;&gt;Summary&lt;/h1&gt;
+
+&lt;p&gt;The Sliced Onion Architecture augments the original approach’s idea by adding stronger focus to the domain and its functional structure.
+Slicing the Onion vertically allows applying the idea to a broader set of deployment options and forms a cornerstone of an evolvable architecture in the context of modulithic application arrangements.&lt;/p&gt;
+</content>
+ </entry>
  
  <entry>
    <title>Moduliths 1.1 released</title>
@@ -1464,7 +1623,7 @@ class MyComponent {
 
 &lt;p&gt;Quite an intro, right? Rest assured, the tone doesn’t get any less aggressive throughout the post. Having that said, what’s more important to me here is that it would’ve been tremendously helpful to what this ORM-style strictness is, that we impose onto users. Just to give you an impression, here’s what it looks like to persist a raw &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;String&lt;/code&gt; or MongoDB &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;DBObject&lt;/code&gt; using our &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;MongoTemplate&lt;/code&gt;:&lt;/p&gt;
 
-&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;String document = &quot;{'firstname' : 'Dave', 'lastname' : 'Matthews'}&quot;;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;String document = &quot;{&apos;firstname&apos; : &apos;Dave&apos;, &apos;lastname&apos; : &apos;Matthews&apos;}&quot;;
 template.save(document, &quot;myCollection&quot;);
 
 DBObject document = new BasicDBObject();
@@ -3253,7 +3412,7 @@ PluginRegistry&amp;lt;Plugin&amp;lt;String&amp;gt;, String&amp;gt; registry =
    <updated>2008-06-06T14:56:51+02:00</updated>
    <id>http://www.odrotbohm.de/2008/06/reading-domain-driven-design-again</id>
    <content type="html">&lt;p&gt;Currently I read Eric Evans’ “&lt;a href=&quot;http://www.amazon.com/Domain-Driven-Design-Tackling-Complexity-Software/dp/0321125215/ref=sr_1_1?ie=UTF8&amp;amp;s=books-intl-de&amp;amp;qid=1212756929&amp;amp;sr=8-1&quot;&gt;Domain Driven Design&lt;/a&gt;” once again. Having done so 3 times already, I discovered a paragraph that reminded me of a &lt;a href=&quot;http://dlinsin.blogspot.com/2008/05/do-you-care-about-your-code.html&quot;&gt;blog post&lt;/a&gt; written by David Linsin a while ago. Eric writes as follows:&lt;/p&gt;
-&lt;blockquote&gt;&quot;Well-written code ca be very communicative, but the message it communicates isnot guaranteed to be accurate. Oh, the reality of the **behaviour** caused by a section of code is inescapeable. but a method name can be ambiguous, misleading, or out of date compared to the internals of the method. The assertions in a test are rigorous, but the story told byvariable names and the organization of the code is not. Good programming style keeps this connection as direct as possible, but it is still an exercise in self-discipline. It takes fastidiousness to write code that doesn't just **do** the right thing but also **says** the right thing&quot;&lt;/blockquote&gt;
+&lt;blockquote&gt;&quot;Well-written code ca be very communicative, but the message it communicates isnot guaranteed to be accurate. Oh, the reality of the **behaviour** caused by a section of code is inescapeable. but a method name can be ambiguous, misleading, or out of date compared to the internals of the method. The assertions in a test are rigorous, but the story told byvariable names and the organization of the code is not. Good programming style keeps this connection as direct as possible, but it is still an exercise in self-discipline. It takes fastidiousness to write code that doesn&apos;t just **do** the right thing but also **says** the right thing&quot;&lt;/blockquote&gt;
 &lt;p&gt;This states that well written code is not about just to look nice in your IDE - it’s about communicating. I e.g. favour an EmailAddress class over a simple String property in a User type cause this simple change distills so much more semantics.&lt;/p&gt;
 
 &lt;p&gt;“Domain Driven Design” is a book you can actually start reading from the front if you have reached the end. From time to time I reiterate over the book just to find new influences or judge new knowledge I gained in projects. I can only recommend to take a glance at it. For those of you that shy digging through over 500 pages there is a distilled version at infoq.com that nicely wraps up the book.&lt;/p&gt;
@@ -3632,7 +3791,7 @@ Insgesamt bot der erste Teil für mich nicht wahnsinnig viel neues, hier und da 
 &lt;ul&gt;
 	&lt;li&gt;[Springwebsite](http://www.springframework.org)&lt;/li&gt;
 	&lt;li&gt;[Springbuch](http://www.amazon.de/Spring-Frameworks-f%fcr-die-Java-Entwicklung/dp/3898643654/sr=8-1/qid=1161463255/ref=pd_bbs_sr_1/028-5102242-3789349?ie=UTF8) von Eberhard Wolff&lt;/li&gt;
-	&lt;li&gt;[What's new in Spring 2.0](http://static.springframework.org/spring/docs/2.0.x/reference/new-in-2.html)&lt;/li&gt;
+	&lt;li&gt;[What&apos;s new in Spring 2.0](http://static.springframework.org/spring/docs/2.0.x/reference/new-in-2.html)&lt;/li&gt;
 &lt;/ul&gt;
 </content>
  </entry>

@@ -8,6 +8,7 @@ http://www.odrotbohm.de/sitemap.txt
 http://www.odrotbohm.de/tags/
 http://www.odrotbohm.de/robots.txt
 
+http://www.odrotbohm.de/2023/07/sliced-onion-architecture/
 http://www.odrotbohm.de/2021/07/moduliths-1.1-released/
 http://www.odrotbohm.de/2021/04/Spring-RESTBucks-in-2021/
 http://www.odrotbohm.de/2021/02/Architecturally-evident-code-with-jMolecules/
