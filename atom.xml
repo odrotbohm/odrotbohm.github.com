@@ -3,7 +3,7 @@
  <title>Oliver Drotbohm</title>
  <link href="http://www.odrotbohm.de/atom.xml" rel="self"/>
  <link href="http://www.odrotbohm.de"/>
- <updated>2023-07-25T15:01:49+02:00</updated>
+ <updated>2023-07-27T12:37:48+02:00</updated>
  <id>http://www.odrotbohm.de</id>
  <author>
    <name>Oliver Drotbohm</name>
@@ -19,8 +19,8 @@
    <content type="html">
 &lt;p&gt;It has been almost exactly 15 years since Jeffrey Palermo posted the first blog of his series on the &lt;a href=&quot;https://jeffreypalermo.com/2008/07/the-onion-architecture-part-1/&quot;&gt;Onion Architecture&lt;/a&gt;.
 In that post, he summarized ideas that essentially form a continuation of the &lt;a href=&quot;https://alistair.cockburn.us/hexagonal-architecture/&quot;&gt;Hexagonal Architecture&lt;/a&gt; approach by Alistair Cockburn.
-Although I have always thought that both of these approaches to code organization do not necessarily form “architectures”, I’ve always found them helpful in shaping a mental model about how to structure a code base.
-Over the years, I have seen plenty of teams trying to follow those models and running into misconceptions and problems with those.
+Although I have always thought that both of these approaches to code organization do not necessarily constitute “architectures”, I find them helpful in shaping a mental model about how to structure a code base.
+Over the years, I have seen plenty of teams trying to follow those models and running into problems with them.
 In this blog post, I would like to summarize a few of those findings and present a refined way of looking at Onion Architecture.&lt;/p&gt;
 
 &lt;h1 id=&quot;onion-architecture&quot;&gt;Onion Architecture&lt;/h1&gt;
@@ -30,7 +30,8 @@ Code is organized in concentric rings, with &lt;em&gt;the domain&lt;/em&gt; at t
 That part of the code base is supposed to contain all fundamental domain abstractions.
 That core is then surrounded by an &lt;em&gt;application&lt;/em&gt; ring that — as the name suggests — contains application-specific code.
 Jeffrey’s original proposal even divided that ring up into “domain services” and “application services” which usually sparks a lot of discussion within teams which code belongs where.
-For now, I will stick to the simplified “application” ring Its purpose is to expose application logic in use cases or units of work to other code that form scopes of consistency.&lt;/p&gt;
+For now, I will stick to the simplified “application” ring.
+Its purpose is to expose application logic in use cases or units of work to other code that form scopes of consistency.&lt;/p&gt;
 
 &lt;p&gt;&lt;img src=&quot;/assets/images/soa/onion-architecture-green.jpeg&quot; alt=&quot;Onion Architecture (simplified)&quot; /&gt;&lt;/p&gt;
 &lt;div class=&quot;image-caption&quot;&gt;Onion Architecture (simplified)&lt;/div&gt;
@@ -95,7 +96,7 @@ If we extend on that idea and repeat the structuring exercise for each other rin
 &lt;p&gt;This is a step in the right direction.
 Each Onion is self-contained and focused on &lt;em&gt;one&lt;/em&gt; domain and owns their application interfaces and technical adapters.
 However, the interaction of the individual domains would now have to be established through the infrastructure.
-This might be a good fit if we decided to map the Onions onto individual applications, for example, in a microservices arrangement.&lt;/p&gt;
+This might be a good fit if we decided to map the Onions onto individual applications, for example, in a microservices’ arrangement.&lt;/p&gt;
 
 &lt;p&gt;Depending on the level of granularity of the domains, this might not be the most optimal projection of our logical architecture into the “physical” world, it will also introduce a lot of complexity and cost in the interaction.
 To exchange a simple domain event between the systems, we would have to have the corresponding infrastructure in place (a message broker, for example), have to serialize the event on the sender side and deserialize it on the receiver side.&lt;/p&gt;
@@ -117,7 +118,7 @@ The application ring still protects an individual domain.&lt;/p&gt;
 
 &lt;p&gt;That in turn can be exposed to infrastructure in line with the original idea, but is also opened up on its sides for low-friction interaction with similarly shaped parties (see below) and tests.
 In the original Onion Architecture approach, they reside in the infrastructure layer, which I have always found a bit weird.
-For sure, they act as clients to the application ring.
+Definitely, they act as clients to the application ring.
 However, the adapters in the infrastructure ring need integration testing “from the outside” as well, which would lead to yet another ring surrounding the infrastructure one and does not fit the overall idea very well.
 With our refined approach, tests can connect to code from the side and align different kinds of testing depending on the part they primarily interact with.
 They could focus on fine-grained tests directly interacting with the APIs exposed by the application ring, or rather resort to more holistic approaches through the infrastructure adapters.&lt;/p&gt;
@@ -166,7 +167,7 @@ Events previously already published internally could be externalized into some m
 &lt;h1 id=&quot;summary&quot;&gt;Summary&lt;/h1&gt;
 
 &lt;p&gt;The Sliced Onion Architecture augments the original approach’s idea by adding stronger focus to the domain and its functional structure.
-Slicing the Onion vertically allows applying the idea to a broader set of deployment options and forms a cornerstone of an evolvable architecture in the context of modulithic application arrangements.&lt;/p&gt;
+Slicing the Onion vertically allows applying the idea to a broader set of deployment options, and forms a cornerstone of an evolvable architecture in the context of modulithic application arrangements.&lt;/p&gt;
 </content>
  </entry>
  

@@ -41,8 +41,8 @@
   
 <p>It has been almost exactly 15 years since Jeffrey Palermo posted the first blog of his series on the <a href="https://jeffreypalermo.com/2008/07/the-onion-architecture-part-1/">Onion Architecture</a>.
 In that post, he summarized ideas that essentially form a continuation of the <a href="https://alistair.cockburn.us/hexagonal-architecture/">Hexagonal Architecture</a> approach by Alistair Cockburn.
-Although I have always thought that both of these approaches to code organization do not necessarily form “architectures”, I’ve always found them helpful in shaping a mental model about how to structure a code base.
-Over the years, I have seen plenty of teams trying to follow those models and running into misconceptions and problems with those.
+Although I have always thought that both of these approaches to code organization do not necessarily constitute “architectures”, I find them helpful in shaping a mental model about how to structure a code base.
+Over the years, I have seen plenty of teams trying to follow those models and running into problems with them.
 In this blog post, I would like to summarize a few of those findings and present a refined way of looking at Onion Architecture.</p>
 
 <h1 id="onion-architecture">Onion Architecture</h1>
@@ -52,7 +52,8 @@ Code is organized in concentric rings, with <em>the domain</em> at the center of
 That part of the code base is supposed to contain all fundamental domain abstractions.
 That core is then surrounded by an <em>application</em> ring that — as the name suggests — contains application-specific code.
 Jeffrey’s original proposal even divided that ring up into “domain services” and “application services” which usually sparks a lot of discussion within teams which code belongs where.
-For now, I will stick to the simplified “application” ring Its purpose is to expose application logic in use cases or units of work to other code that form scopes of consistency.</p>
+For now, I will stick to the simplified “application” ring.
+Its purpose is to expose application logic in use cases or units of work to other code that form scopes of consistency.</p>
 
 <p><img src="/assets/images/soa/onion-architecture-green.jpeg" alt="Onion Architecture (simplified)" /></p>
 <div class="image-caption">Onion Architecture (simplified)</div>
@@ -117,7 +118,7 @@ If we extend on that idea and repeat the structuring exercise for each other rin
 <p>This is a step in the right direction.
 Each Onion is self-contained and focused on <em>one</em> domain and owns their application interfaces and technical adapters.
 However, the interaction of the individual domains would now have to be established through the infrastructure.
-This might be a good fit if we decided to map the Onions onto individual applications, for example, in a microservices arrangement.</p>
+This might be a good fit if we decided to map the Onions onto individual applications, for example, in a microservices’ arrangement.</p>
 
 <p>Depending on the level of granularity of the domains, this might not be the most optimal projection of our logical architecture into the “physical” world, it will also introduce a lot of complexity and cost in the interaction.
 To exchange a simple domain event between the systems, we would have to have the corresponding infrastructure in place (a message broker, for example), have to serialize the event on the sender side and deserialize it on the receiver side.</p>
@@ -139,7 +140,7 @@ The application ring still protects an individual domain.</p>
 
 <p>That in turn can be exposed to infrastructure in line with the original idea, but is also opened up on its sides for low-friction interaction with similarly shaped parties (see below) and tests.
 In the original Onion Architecture approach, they reside in the infrastructure layer, which I have always found a bit weird.
-For sure, they act as clients to the application ring.
+Definitely, they act as clients to the application ring.
 However, the adapters in the infrastructure ring need integration testing “from the outside” as well, which would lead to yet another ring surrounding the infrastructure one and does not fit the overall idea very well.
 With our refined approach, tests can connect to code from the side and align different kinds of testing depending on the part they primarily interact with.
 They could focus on fine-grained tests directly interacting with the APIs exposed by the application ring, or rather resort to more holistic approaches through the infrastructure adapters.</p>
@@ -188,7 +189,7 @@ Events previously already published internally could be externalized into some m
 <h1 id="summary">Summary</h1>
 
 <p>The Sliced Onion Architecture augments the original approach’s idea by adding stronger focus to the domain and its functional structure.
-Slicing the Onion vertically allows applying the idea to a broader set of deployment options and forms a cornerstone of an evolvable architecture in the context of modulithic application arrangements.</p>
+Slicing the Onion vertically allows applying the idea to a broader set of deployment options, and forms a cornerstone of an evolvable architecture in the context of modulithic application arrangements.</p>
 
 </div>
 
@@ -216,12 +217,12 @@ Slicing the Onion vertically allows applying the idea to a broader set of deploy
     /* * * DON'T EDIT BELOW THIS LINE * * */
     (function() {
         var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
-        dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
+        dsq.src = 'https://' + disqus_shortname + '.disqus.com/embed.js';
         (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
     })();
 </script>
-<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
-<a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
 
 
 
