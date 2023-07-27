@@ -69,7 +69,14 @@ h3 {
 
 p {
   margin: 0.5em 0 1em 0;
-  letter-spacing: -0.1px;
+  hyphens: auto;
+  line-height: 1.5;
+}
+
+@media screen and (max-width: 540px) {
+  p {
+    line-height: 1.3;
+  }
 }
 
 p.teaser {
