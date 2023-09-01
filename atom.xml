@@ -3,13 +3,39 @@
  <title>Oliver Drotbohm</title>
  <link href="http://www.odrotbohm.de/atom.xml" rel="self"/>
  <link href="http://www.odrotbohm.de"/>
- <updated>2023-07-27T12:37:48+02:00</updated>
+ <updated>2023-09-01T22:57:59+02:00</updated>
  <id>http://www.odrotbohm.de</id>
  <author>
    <name>Oliver Drotbohm</name>
    <email>info@odrotbohm.de</email>
  </author>
 
+ 
+ <entry>
+   <title>Conference Autumn</title>
+   <link href="http://www.odrotbohm.de/2023/09/conference-autumn/"/>
+   <updated>2023-09-01T00:00:00+02:00</updated>
+   <id>http://www.odrotbohm.de/2023/09/conference-autumn</id>
+   <content type="html">
+&lt;p&gt;I’m currently busy booking travel for quite a few conference and JUG appearances that have been in the pipeline for a while.
+It’s gonna be a wild mix of &lt;a href=&quot;https://devoxx.be/talk/?id=20287&quot;&gt;Spring Modulith&lt;/a&gt; talks and workshops, Domain-Driven Design, &lt;a href=&quot;jmolecules.org&quot;&gt;jMolecules&lt;/a&gt; and a Spring get together with members of the core team.
+Some of these events are commercial, but others are free to attend.
+Be sure to sign up, I would love to see you!&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;28.09. BedCon, Berlin — &lt;a href=&quot;https://bed-con.org/2023/programm&quot;&gt;Architecturally Evident Java Applications with jMolecules&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;28.09. BedCon, Berlin — &lt;a href=&quot;https://bed-con.org/2023/programm&quot;&gt;Spring for the Architecturally Curious Developer&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;02.10. Devoxx Belgium, Antwerp — &lt;a href=&quot;https://devoxx.be/talk/?id=6753&quot;&gt;Spring Modulith – A Deep Dive (3 hour workshop)&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;03.10. Devoxx Belgium, Antwerp — &lt;a href=&quot;https://devoxx.be/talk/?id=20287&quot;&gt;The Spring BOF&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;07.10. Unkonf, Mannheim — All things jMolecules, Spring, Moduliths and Spring Modulith&lt;/li&gt;
+  &lt;li&gt;24.10. Accento.dev, Karlsruhe — &lt;a href=&quot;https://2023.accento.dev/talks/spring-modulith/&quot;&gt;Spring for the Architecturally Curious Developer&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;25.10. Accento.dev, Karlsruhe — &lt;a href=&quot;https://2023.accento.dev/trainings/domain-driven-design-java-spring/&quot;&gt;Tactical DDD with Java &amp;amp; Spring (1 day workshop)&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;25.10. JUG Karlsruhe — &lt;a href=&quot;https://jug-karlsruhe.de/content/architekturexplizite-java-applikationen-mit-jmolecules/&quot;&gt;Architecturally Evident Java Applications with jMolecules&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;26.10. JUG Dortmund (tba) — Spring for the Architecturally Curious Developer&lt;/li&gt;
+&lt;/ul&gt;
+
+</content>
+ </entry>
  
  <entry>
    <title>Sliced Onion Architecture</title>
