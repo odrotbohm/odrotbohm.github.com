@@ -1,0 +1,188 @@
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+   <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+   <title>Oliver Drotbohm - The Instability-Abstractness-Relationship — An Alternative View</title>
+   <meta name="author" content="Oliver Drotbohm" />
+   <meta name="google-site-verification" content="jK1GPyjzTp269nR-GMzfjkdcdR0Y-b3gHHWUIgebv8M" />
+   <link href="/atom.xml" rel="alternate" title="Blog Atom Feed" type="application/atom+xml" />
+
+   <!-- syntax highlighting CSS -->
+   <link rel="stylesheet" href="/assets/themes/tom/css/syntax.css" type="text/css" />
+
+   <!-- Homepage CSS -->
+   <link rel="stylesheet" href="/assets/themes/tom/css/screen.css" type="text/css" media="screen, projection" />
+
+</head>
+<body>
+
+  <div class="site">
+    <div class="title">
+      <a href="/">Oliver Drotbohm</a>
+
+      <a class="extra" href="/archive">Archive</a>
+      <a class="extra" href="/about">About</a>
+      <a class="extra" href="/tags">Tags</a>
+    </div>
+
+    
+<div id="post">
+  <h1>The Instability-Abstractness-Relationship — An Alternative View</h1>
+  <p class="meta">
+    <!-- Whitespace added for readability -->
+    
+    September
+    16th,
+    
+    2024
+    
+  </p>
+  
+<p>One of the most favorite topics of mine is improving software quality — and software maintainability in particular — through the means of decomposition.
+A problem associated with that, of course, is how to measure the success of a particular strategy chosen.
+Software metrics are a common means used to project the current state of a system into something seemingly measurable.
+In today’s blog post, I would like to take a closer look at the Instability-Abstractness-Relationship and whether it can help us to objectively measure the quality of a particular system design.</p>
+
+<p>The <em>Instability-Abstractness-Relationship</em> is a software metric to measure the design quality of Java packages, originally introduced in “Agile Software Development — Principles, Patterns, and Practices” by Robert C. Martin.
+If you search the internet for the topic you find a gazillion of blog posts all summarizing the idea (we will, too, in a second).
+But hardly any of them critically discuss the ideas, goals, and assumptions made by the author to get to a clear picture of what we are actually dealing with.
+It is a software quality metric, the author is (in)famous, so it has got to be good, right?
+Let’s see.</p>
+
+<h2 id="the-metric">The metric</h2>
+
+<p>In short, the instability of a package — or any other encapsulation unit of the system — is supposed to be inversely proportional to its abstractness.
+For those who have not heard about these terms yet, here is a short description of what they describe.
+<em>Instability</em> describes the ratio of efferent (outgoing) dependencies of a package in relation to the afferent (incoming) ones.
+A package without any outgoing dependencies is considered stable.
+On the contrary, the more incoming dependencies are targeting a package, the less stable it is considered.
+<em>Abstractness</em>, on the other hand, is supposed to express how “abstract” — and we are about to get to what that means in a second — a package is.
+The fundamental idea of combining these two metrics is that the more stable a package is, the more abstract it is supposed to be.</p>
+
+<p>Martin defines formulas for how to calculate values for each of the metrics and combines them into a quality metric in terms of the distance from an assumed ideal.
+It is described as the main line that parts the different zones of the chart.
+Numeric values for each of the metrics can be calculated for every package in the application, and the resulting distance from the main line is considered an indicator of a package’s design quality.</p>
+
+<p><img src="/assets/images/iar/diagram.jpg" alt="The Instability-Abstractness-Relationship" /></p>
+<div class="image-caption">The Instability-Abstractness-Relationship</div>
+
+<p>In fact, the combined metric is assigned a negative quality value by assigning areas in the diagram which a package is not supposed to live.
+One of these areas is defined as the “Zone of Pain” which entails stable packages that are not abstract.
+The other is the “Zone of Uselessness”, that combines an unstable package (virtually no incoming dependencies) with a lot of abstraction.</p>
+
+<p>This metric and its alleged proposition about a package’s design have been around for more than two decades.
+Software architecture quality tools have provided these metrics, and millions of developers have looked at these numbers to “optimize” their code base or at least evaluate its quality.</p>
+
+<h2 id="what-are-we-even-doing-here">What are we even doing here?</h2>
+
+<p>If you zoom out of all the mathematics a bit, problems with the approach become pretty obvious immediately.
+Let us start by benevolently assuming the metric measures what it is supposed to measure.
+As a developer of an individual package, the primary means of influencing the overall metric is increasing or decreasing the abstractness part of the equation.
+Let us say we find ourselves in the “Zone of Pain”, meaning we face many afferent dependencies but are primarily exposing concrete types.</p>
+
+<p>While we surely cannot cut any of the incoming dependencies (the depending packages will need access to our functionality), we can certainly introduce a few more interfaces, can we not?
+Start your most favorite IDE’s refactoring tools, for each class depended on, extract an interface, and let the client code be adapted to refer to those interfaces where possible.
+Job done, code base improved, correct?
+Unfortunately, not a bit.</p>
+
+<h2 id="abstractness-vs-abstraction">Abstractness VS. Abstraction</h2>
+
+<p>The mistake that Martin makes is equating abstractness with abstraction and that problem is hidden in plain sight.
+The relevant section is titled “Measuring <em>Abstraction</em>” and it immediately starts with “The <em>A</em> metric is a measurement of the <em>abstractness</em> of a package.” (page 265)
+So, what is the difference?
+Just because we extract an interface from a class — and by that, raise the abstractness of the package — the interface is not semantically more abstract than the implementation was before.
+And it is just as susceptible to consequences of changes to it.</p>
+
+<p>Let us move on to the anticipated effect of the allegedly higher abstraction.
+Martin writes: “Consider a package in the area of (0, 0). … Such a package is not desirable because it is rigid. It cannot be <em>extended</em> because it is not abstract.”
+The goal he sets out for stable code is extensibility.
+But why?
+What kind of extension to a codebase becomes easier if you deal with an abstract type versus a concrete one?
+Correct!
+It is easier to provide a new implementation for a particular, logical interface if it is technically an interface, too.
+Now, here is the crucial question: are the changes that we need to make to a code base in arbitrary business applications really primarily adding new implementations of already existing interfaces?</p>
+
+<h2 id="change-patterns">Change patterns</h2>
+
+<p>What might work in a theoretical example of, let us say, the collection library.
+It is of course easier to add a new implementation of <code class="language-plaintext highlighter-rouge">List</code> if client code depends on that interface and not an already existing implementation like <code class="language-plaintext highlighter-rouge">ArrayList</code>.
+We still might have to deal with cases in which that code still has to refer to the concrete type to create instances of it.
+Modern Java versions allow to define static factory methods on interfaces to mitigate that problem.
+That said, at least in my experience change patterns in business applications usually either require the introduction of completely new abstractions or the modification of existing types to introduce new methods etc.
+For those kinds of changes, it is mostly irrelevant if you need to introduce them on an interface or an implementation.
+Some might even consider the extra interface primarily causing additional work.</p>
+
+<p>So while an interface on a different level of abstraction might indeed allow to shield client code from implementation details it does not have to know about, simply calculating abstract versus concrete types of a particular programming language is misleading at best and harmful at worst.
+Developers feel incentivized to either remove or add interfaces for no other reason than meeting metric numbers without positively affecting a code base’s design.
+To the contrary, introducing new interfaces for the sake of meeting some metric results in more code that we will have to adapt to implement new features.</p>
+
+<h2 id="summary">Summary</h2>
+
+<p>The Abstractness-Instability-Relationship defines a code quality metric that does not support change patterns of modern applications.
+By both missing the actual quality goal and misinterpreting abstractness as level of abstraction, it does not form a good metric to judge the quality of a package design.</p>
+
+</div>
+
+<div id="related">
+  <h2>Related Posts</h2>
+  <ul class="posts">
+    
+      <li><span>01 Sep 2023</span> &raquo; <a href="/2023/09/conference-autumn/">Conference Autumn</a></li>
+    
+      <li><span>25 Jul 2023</span> &raquo; <a href="/2023/07/sliced-onion-architecture/">Sliced Onion Architecture</a></li>
+    
+      <li><span>02 Jul 2021</span> &raquo; <a href="/2021/07/moduliths-1.1-released/">Moduliths 1.1 released</a></li>
+    
+  </ul>
+</div>
+
+
+
+
+  <div id="disqus_thread"></div>
+<script type="text/javascript">
+    var disqus_developer = 1;
+    var disqus_shortname = 'olivergierke'; // required: replace example with your forum shortname
+    
+    /* * * DON'T EDIT BELOW THIS LINE * * */
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = 'https://' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+
+
+
+
+
+
+    <div class="footer">
+      <div class="contact">
+        <p>
+          Oliver Drotbohm<br />
+          Soul Power!<br />
+        </p>
+      </div>
+      <div class="contact">
+        <p>
+          <a href="http://github.com/odrotbohm/">github.com/odrotbohm</a><br />
+          <a href="http://twitter.com/odrotbohm/">twitter.com/odrotbohm</a><br />
+          <a href='mailto:info@odrotbohm.de'>info@odrotbohm.de</a>
+        </p>
+      </div>
+      <div class="rss">
+        <a href="/atom.xml">
+          <img src="/assets/themes/tom/images/rss.png" alt="Subscribe to Atom Feed" />
+        </a>
+      </div>
+    </div>
+  </div>
+
+  
+</body>
+</html>
+

@@ -8,6 +8,7 @@ http://www.odrotbohm.de/sitemap.txt
 http://www.odrotbohm.de/tags/
 http://www.odrotbohm.de/robots.txt
 
+http://www.odrotbohm.de/2024/09/the-instability-abstractness-relationsship-an-alternative-view/
 http://www.odrotbohm.de/2023/09/conference-autumn/
 http://www.odrotbohm.de/2023/07/sliced-onion-architecture/
 http://www.odrotbohm.de/2021/07/moduliths-1.1-released/
