@@ -3,13 +3,155 @@
  <title>Oliver Drotbohm</title>
  <link href="http://www.odrotbohm.de/atom.xml" rel="self"/>
  <link href="http://www.odrotbohm.de"/>
- <updated>2024-09-16T22:54:25+02:00</updated>
+ <updated>2025-11-14T17:18:24+01:00</updated>
  <id>http://www.odrotbohm.de</id>
  <author>
    <name>Oliver Drotbohm</name>
    <email>info@odrotbohm.de</email>
  </author>
 
+ 
+ <entry>
+   <title>jMolecules 2.0 – Stereotypical</title>
+   <link href="http://www.odrotbohm.de/2025/11/jmolecules-2.0-stereotypical/"/>
+   <updated>2025-11-14T09:00:00+01:00</updated>
+   <id>http://www.odrotbohm.de/2025/11/jmolecules-2.0-stereotypical</id>
+   <content type="html">
+&lt;p&gt;On behalf of the community and all contributors to the release, I am excited to announce the availability of &lt;a href=&quot;https://github.com/xmolecules/jmolecules/releases/tag/2.0.0&quot;&gt;jMolecules 2.0&lt;/a&gt;. Five years after its first major version, we now ship the second generation, marking an important step in our vision to empower developers to write architecturally evident code and ultimately produce more understandable and thus better software. I would like to spend a few lines on jMolecules 2.0’s primary new feature: its stereotype metamodel.&lt;/p&gt;
+
+&lt;p&gt;As described in &lt;a href=&quot;https://odrotbohm.de/2020/03/Implementing-DDD-Building-Blocks-in-Java/&quot;&gt;previous&lt;/a&gt; &lt;a href=&quot;https://odrotbohm.de/2021/02/Architecturally-evident-code-with-jMolecules/&quot;&gt;articles&lt;/a&gt;, &lt;a href=&quot;https://github.com/xmolecules/jmolecules&quot;&gt;jMolecules&lt;/a&gt; mission is to provide Java developers with the means to assign elements of their code bases to design and architecture concepts. Up until now, jMolecules has provided well-defined concepts originating in Domain-Driven Design and various architecture definitions, such as Layered-, Hexagonal- and Onion-Architecture.&lt;/p&gt;
+
+&lt;p&gt;Moreover, its companion project &lt;a href=&quot;https://github.com/xmolecules/jmolecules-integrations&quot;&gt;jMolecules Integrations&lt;/a&gt; connects the logical concept assigned to various technologies in the broader Java ecosystem, ranging from conceptual verification via ArchUnit and integration into Spring and Jackson to sophisticated byte-code generation to avoid boilerplate persistence mappings and generating developer documentation.&lt;/p&gt;
+
+&lt;h2 id=&quot;stereotypes&quot;&gt;Stereotypes&lt;/h2&gt;
+
+&lt;p&gt;Interacting with various stakeholders over the last five years made us realize that the defined set of stereotypes jMolecules ships itself significantly helps developers to produce easier-to-understand code. That said, we also learned about a few aspects that users thought we should improve on:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Developers wanted to come up with their own stereotypes that emerge in their applications’ contexts. A particular domain or architectural style might make it worthwhile, defining custom concepts and attaching rules to those. While one could, of course, always define one’s own annotations or interfaces and define a custom ArchUnit rule, such definitions always felt different from the core jMolecules because…&lt;/li&gt;
+  &lt;li&gt;Tooling would refer to the predefined concepts explicitly. Custom stereotypes would not seamlessly blend into support of downstream integrations, such as the Spring Modulith documentation generation. Furthermore, any integration would have to implement “an aggregate root is a type either annotated with &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;@AggregateRoot&lt;/code&gt; or implementing &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;AggregateRoot&lt;/code&gt;” themselves.&lt;/li&gt;
+  &lt;li&gt;If developers make the effort to put all that design and architecture information in their code bases, wouldn’t it be nice if IDEs were able to present their projects to them on exactly that level of abstraction?&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Combining all these ideas, we realized that the design and architecture concepts we deal with essentially form &lt;em&gt;stereotypes&lt;/em&gt;. They assign a role to an element of the code base, whether that’s a method (in the case of an event listener), a type (an entity or service), or even a package (Hexagonal Architecture adapters).&lt;/p&gt;
+
+&lt;p&gt;With jMolecules 2.0, we explicitly introduce that concept in the form of configuration metadata located in a file &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;META-INF/jmolecules-stereotypes.json&lt;/code&gt; within our artifacts. The general schema definition can be found &lt;a href=&quot;https://schemas.jmolecules.org/jmolecules-catalog.json&quot;&gt;here&lt;/a&gt;.
+A Domain-Driven Design Aggregate Root, for example, is defined like this (source &lt;a href=&quot;https://github.com/xmolecules/jmolecules/blob/2.0.0/jmolecules-ddd/src/main/resources/META-INF/jmolecules-stereotypes.json&quot;&gt;here&lt;/a&gt;):&lt;/p&gt;
+
+&lt;div class=&quot;language-javascript highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+  &lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;stereotypes&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;ddd.AggregateRoot&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+      &lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;assignments&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;
+        &lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;@org.jmolecules.ddd.annotation.AggregateRoot&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+        &lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;org.jmolecules.ddd.types.AggregateRoot&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;
+      &lt;span class=&quot;p&quot;&gt;],&lt;/span&gt;
+      &lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;groups&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;
+        &lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;ddd&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;
+      &lt;span class=&quot;p&quot;&gt;],&lt;/span&gt;
+      &lt;span class=&quot;err&quot;&gt;…&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;},&lt;/span&gt;
+    &lt;span class=&quot;err&quot;&gt;…&lt;/span&gt;
+  &lt;span class=&quot;p&quot;&gt;},&lt;/span&gt;
+  &lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;groups&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;ddd&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+      &lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;displayName&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;Domain-Driven Design&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+      &lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;type&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;design&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+  &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;The &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;stereotype&lt;/code&gt; object takes keyed stereotype definitions. In this case, we express that we assign the stereotype &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;ddd.AggregateRoot&lt;/code&gt; to all types that are either annotated (the assignment starting with &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;@&lt;/code&gt;) or implementing the fully qualified type. Furthermore, the concept is assigned to stereotype group &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;ddd&lt;/code&gt;. We are going to further discuss the groups below.&lt;/p&gt;
+
+&lt;p&gt;These definitions now allow a new jMolecules Integrations artifact &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;jmolecules-stereotype&lt;/code&gt; to provide an API to inspect a project for all the stereotypes available and detect which stereotypes are assigned to elements of the codebase.&lt;/p&gt;
+
+&lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kt&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;source&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;CatalogSource&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;ofClassLoader&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;…&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+&lt;span class=&quot;kt&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;catalog&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;JsonPathStereotypeCatalog&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;source&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+&lt;span class=&quot;kt&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;factory&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;ReflectionStereotypeFactory&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;catalog&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+
+&lt;span class=&quot;kt&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;metadata&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;factory&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;fromType&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;MyClass&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;class&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;First we set up a &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;CatalogSource&lt;/code&gt; that can inspect the classpath for the jMolecules stereotype configuration files described above. That source is then handed into a &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;StereotypeCatalog&lt;/code&gt; implementation that parses these files using JSONPath and ultimately enables a &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;StereotypeFactory&lt;/code&gt; working reflection to find the registered stereotypes.&lt;/p&gt;
+
+&lt;p&gt;The latter abstraction is the most important one, as it allows tooling providers operating on top of different APIs abstracting Java code to implement the assignment detection. We ship one based on Java reflection and another one on top of &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;ArchUnit&lt;/code&gt;. In &lt;a href=&quot;#bringing-stereotypes-to-life-in-ides&quot;&gt;Bringing Stereotypes to Life in IDEs&lt;/a&gt;, we will see how development environments will use that API to portray a Java project on the level of design and architecture stereotypes.&lt;/p&gt;
+
+&lt;h2 id=&quot;jmolecules-out-of-the-box-stereotypes&quot;&gt;jMolecules Out-of-The-Box Stereotypes&lt;/h2&gt;
+
+&lt;p&gt;As of version 2.0, all of our jMolecules artifacts ship the stereotype metadata in their artifacts. To make use of that, all you need to do is bump the version number, ideally, &lt;a href=&quot;https://github.com/xmolecules/jmolecules-bom/tree/2025.0.0?tab=readme-ov-file#usage&quot;&gt;the BOM&lt;/a&gt;:&lt;/p&gt;
+
+&lt;div class=&quot;language-xml highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nt&quot;&gt;&amp;lt;dependencyManagement&amp;gt;&lt;/span&gt;
+  &lt;span class=&quot;nt&quot;&gt;&amp;lt;dependencies&amp;gt;&lt;/span&gt;
+    &lt;span class=&quot;nt&quot;&gt;&amp;lt;dependency&amp;gt;&lt;/span&gt;
+      &lt;span class=&quot;nt&quot;&gt;&amp;lt;groupId&amp;gt;&lt;/span&gt;org.jmolecules&lt;span class=&quot;nt&quot;&gt;&amp;lt;/groupId&amp;gt;&lt;/span&gt;
+      &lt;span class=&quot;nt&quot;&gt;&amp;lt;artifactId&amp;gt;&lt;/span&gt;jmolecules-bom&lt;span class=&quot;nt&quot;&gt;&amp;lt;/artifactId&amp;gt;&lt;/span&gt;
+      &lt;span class=&quot;nt&quot;&gt;&amp;lt;version&amp;gt;&lt;/span&gt;2025.0.0&lt;span class=&quot;nt&quot;&gt;&amp;lt;/version&amp;gt;&lt;/span&gt;
+      &lt;span class=&quot;nt&quot;&gt;&amp;lt;type&amp;gt;&lt;/span&gt;pom&lt;span class=&quot;nt&quot;&gt;&amp;lt;/type&amp;gt;&lt;/span&gt;
+      &lt;span class=&quot;nt&quot;&gt;&amp;lt;scope&amp;gt;&lt;/span&gt;import&lt;span class=&quot;nt&quot;&gt;&amp;lt;/scope&amp;gt;&lt;/span&gt;
+    &lt;span class=&quot;nt&quot;&gt;&amp;lt;/dependency&amp;gt;&lt;/span&gt;
+  &lt;span class=&quot;nt&quot;&gt;&amp;lt;/dependencies&amp;gt;&lt;/span&gt;
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;/dependencyManagement&amp;gt;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;Aside from the design and architecture stereotypes, the jMolecules Integration artifacts additionally ship with technical stereotype descriptions for third-party libraries such as &lt;a href=&quot;https://github.com/xmolecules/jmolecules-integrations/blob/0.31.0/jmolecules-spring/src/main/resources/META-INF/jmolecules-stereotypes.json&quot;&gt;Spring&lt;/a&gt; or &lt;a href=&quot;https://github.com/xmolecules/jmolecules-integrations/blob/0.31.0/jmolecules-jackson3/src/main/resources/META-INF/jmolecules-stereotypes.json&quot;&gt;Jackson&lt;/a&gt;. Note how the Spring stereotype definitions allow us to generalize the concept of a &lt;a href=&quot;https://github.com/xmolecules/jmolecules-integrations/blob/addcee4b7151d97d2c42aad551d57bcc2290bb3b/jmolecules-spring/src/main/resources/META-INF/jmolecules-stereotypes.json#L61&quot;&gt;message listener&lt;/a&gt; and summarize the marker annotations of the Kafka, Rabbit and simple messaging libraries. The list of stereotypes is, of course, not exhaustive yet, and we are going to add new ones in upcoming releases. If you find a concept particularly interesting to you missing, please open &lt;a href=&quot;https://github.com/xmolecules/jmolecules-integrations/issues&quot;&gt;a ticket&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h2 id=&quot;custom-stereotypes&quot;&gt;Custom Stereotypes&lt;/h2&gt;
+
+&lt;p&gt;To define a custom stereotype, all we need to do is create a description file following the jMolecules stereotypes schema in &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;META-INF/jmolecules-stereotypes.json&lt;/code&gt;. We further simplify this process by providing an &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;@Stereotype&lt;/code&gt; annotation located in the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;org.jmolecules:jstereotype&lt;/code&gt; artifact. The &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;org.jmolecules.integrations:jmolecules-apt&lt;/code&gt; annotation processor picks up that annotation on arbitrary annotations and types, creating a stereotype definition file according to the configuration of the annotation. In Spring RESTBucks, you find the definition of a data transfer object in the form of the &lt;a href=&quot;https://github.com/odrotbohm/spring-restbucks/blob/29ed80d3f1bf3dda8ad9cea51248773accb3c527/server/src/main/java/de/odrotbohm/restbucks/DTO.java#L23-L24&quot;&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;DTO&lt;/code&gt; interface&lt;/a&gt;:&lt;/p&gt;
+
+&lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kn&quot;&gt;package&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;de.odrotbohm.restbucks&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+
+&lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;org.jmolecules.stereotype.Stereotype&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+
+&lt;span class=&quot;nd&quot;&gt;@Stereotype&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;groups&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;restbucks&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;interface&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;DTO&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;The interface is then used to mark the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;PaymentForm&lt;/code&gt; as a DTO:&lt;/p&gt;
+
+&lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kd&quot;&gt;record&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;PaymentForm&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;CreditCardNumber&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;number&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;implements&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;DTO&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;Compiling the code will cause the following &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;jmolecules-stereotypes.json&lt;/code&gt; to be created:&lt;/p&gt;
+
+&lt;div class=&quot;language-javascript highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+  &lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;stereotypes&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;restbucks.DTO&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+      &lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;assignments&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;de.odrotbohm.restbucks.DTO&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;],&lt;/span&gt;
+      &lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;groups&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;restbucks&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;],&lt;/span&gt;
+      &lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;priority&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+  &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;This would now reveal the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;restbucks.DTO&lt;/code&gt; stereotype for the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;PaymentForm&lt;/code&gt; when using the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;StereotypeFactory&lt;/code&gt; described above.&lt;/p&gt;
+
+&lt;h2 id=&quot;bringing-stereotypes-to-life-in-ides&quot;&gt;Bringing Stereotypes to Life in IDEs&lt;/h2&gt;
+
+&lt;p&gt;Now that we have seen the fundamentals of stereotype assignment and how to inspect that information in reverse, it’s time to explore actual use cases for the assignment. Traditionally, IDEs have presented Java projects to developers as a very thin layer of abstraction over the file system. They know about the general concepts of a Java project, source folders, packages, etc., and carry that abstraction into their UI.&lt;/p&gt;
+
+&lt;p&gt;But now that our mental model about our codebase operates on a higher level of abstractions and we think about entities, aggregates, ports, and adapters, wouldn’t it be nice if our project was presented to us on the same level of abstraction? To support that, the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;jmolecules-stereotype&lt;/code&gt; artifact contains an API to process a &lt;a href=&quot;https://github.com/xmolecules/jmolecules-integrations/blob/addcee4b7151d97d2c42aad551d57bcc2290bb3b/jmolecules-stereotype/src/main/java/org/jmolecules/stereotype/tooling/ProjectTree.java#L51&quot;&gt;project tree&lt;/a&gt;. It takes the inverted approach to “What stereotype does a type adhere to?” by operating on all stereotypes available to the project and assigning the source elements to those in a hierarchical way.&lt;/p&gt;
+
+&lt;p&gt;The Spring Tools team around &lt;a href=&quot;https://spring.io/authors/martinlippert&quot;&gt;Martin Lippert&lt;/a&gt; and &lt;a href=&quot;https://spring.io/authors/BoykoAlex&quot;&gt;Alex Boyko&lt;/a&gt; have taken the time to integrate a custom &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;StereotypeFactory&lt;/code&gt; operating within the language server backing the Spring Tools in VSCode and Eclipse.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/jm-stereotypes/project-tree.png&quot; alt=&quot;The Logical Structure View in Spring Tools&quot; style=&quot;width: 75%; display: block; margin: 0 auto;&quot; /&gt;&lt;/p&gt;
+&lt;div class=&quot;image-caption&quot;&gt;The Logical Structure View in Spring Tools&lt;/div&gt;
+
+&lt;p&gt;Note how the Logical Structure view completely abstracts from the physical arrangement of source code elements in the file system. On the very first level, Spring Tools detects that the project is a Spring Modulith one, evaluates the application’s module structure, and partitions the source code elements based on that.&lt;/p&gt;
+
+&lt;p&gt;All nested groupings are driven by jMolecules stereotypes. The &lt;a href=&quot;https://github.com/odrotbohm/spring-restbucks/tree/hacking/hexagonal&quot;&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;hacking/hexagonal&lt;/code&gt;&lt;/a&gt; branch of RESTBucks assigns types in the code base to the concepts of Hexagonal Architecture, subdividing them into Application, Ports, and Adapters. The final nesting level applies stereotype groups of type “design” and “technology”, as visible from the presence of both Domain-Driven Design concepts, such as aggregate roots, and technical stereotypes, such as Spring configuration classes or Spring MVC controllers. Our custom DTO stereotype appears as a first-class citizen in that tree.&lt;/p&gt;
+
+&lt;p&gt;Developers can select which stereotype groups they would like to see applied in the tree by clicking on an icon that is revealed when hovering over the project root. It will display a selection window looking as follows.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/jm-stereotypes/stereotype-group-selection.png&quot; alt=&quot;Selecting Stereotype Groups&quot; /&gt;&lt;/p&gt;
+&lt;div class=&quot;image-caption&quot;&gt;Selecting Stereotype Groups&lt;/div&gt;
+
+&lt;p&gt;Note how that would allow you to disable, for example, the Hexagonal Architecture grouping layer entirely.&lt;/p&gt;
+
+&lt;p&gt;The logical project navigation will be part of the upcoming Spring Tools release and can already be used in VSCode by flipping the Spring Boot plugin to use the preview version. In Eclipse you’d need to register the Spring Tools snapshot update site. I’m also already in touch with the IDEA team at JetBrains to make use of our APIs as well, to provide a similar project browsing experience.&lt;/p&gt;
+</content>
+ </entry>
  
  <entry>
    <title>The Instability-Abstractness-Relationship — An Alternative View</title>
