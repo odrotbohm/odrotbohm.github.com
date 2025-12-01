@@ -3,7 +3,7 @@
  <title>Oliver Drotbohm</title>
  <link href="http://www.odrotbohm.de/atom.xml" rel="self"/>
  <link href="http://www.odrotbohm.de"/>
- <updated>2025-12-01T19:48:03+01:00</updated>
+ <updated>2025-12-01T19:56:28+01:00</updated>
  <id>http://www.odrotbohm.de</id>
  <author>
    <name>Oliver Drotbohm</name>
@@ -21,7 +21,7 @@
 &lt;ul&gt;
   &lt;li&gt;When writing integration tests for Spring applications, align them with your functional decomposition approach, because that means you will test more cohesive elements of your code base.&lt;/li&gt;
   &lt;li&gt;That orientation produces tests better aligned with the “Four Pillars of a Good Test” (from &lt;a href=&quot;https://www.manning.com/books/unit-testing&quot;&gt;“Unit Testing—Principles, Practices, and Patterns”&lt;/a&gt;) than the traditional, horizontally-sliced approach.&lt;/li&gt;
-  &lt;li&gt;Spring Modulith’s &lt;a href=&quot;https://docs.spring.io/spring-modulith/reference/testing.html&quot;&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;@ApplicationTest&lt;/code&gt;&lt;/a&gt; annotation provides first-class support for these kind of integration tests.&lt;/li&gt;
+  &lt;li&gt;Spring Modulith’s &lt;a href=&quot;https://docs.spring.io/spring-modulith/reference/testing.html&quot;&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;@ApplicationModuleTest&lt;/code&gt;&lt;/a&gt; annotation provides first-class support for these kinds of integration tests.&lt;/li&gt;
 &lt;/ul&gt;
 
 &lt;p&gt;Ever since its inception, testing application code has been a core concern of the Spring Framework. In this blog post, I would like to take a look at the ways that it has shaped the way that developers approach testing their applications, the evolution of the different ways it supports them, and how the different approaches compare to each other.&lt;/p&gt;
