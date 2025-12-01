@@ -30,6 +30,34 @@
   
 
     
+    <h1 class="entry-title">Rethinking Spring Application Integration Testing</h1>
+    <p class="meta">
+      <!-- Whitespace added for readability -->
+    
+    December
+    1st,
+      
+    2025 - <a href="/2025/12/rethinking-spring-application-integration-testing/">Permalink</a>
+      
+    </p>
+    
+
+    
+        
+<h2 id="tldr">tl;dr</h2>
+<ul>
+  <li>When writing integration tests for Spring applications, align them with your functional decomposition approach, because that means you will test more cohesive elements of your code base.</li>
+  <li>That orientation produces tests better aligned with the “Four Pillars of a Good Test” (from <a href="https://www.manning.com/books/unit-testing">“Unit Testing—Principles, Practices, and Patterns”</a>) than the traditional, horizontally-sliced approach.</li>
+  <li>Spring Modulith’s <a href="https://docs.spring.io/spring-modulith/reference/testing.html"><code class="language-plaintext highlighter-rouge">@ApplicationTest</code></a> annotation provides first-class support for these kind of integration tests.</li>
+</ul>
+
+        <p class="meta continue">
+          <a href="/2025/12/rethinking-spring-application-integration-testing/">… continue reading.</a>
+        </p>
+    
+  
+
+    
     <h1 class="entry-title">jMolecules 2.0 – Stereotypical</h1>
     <p class="meta">
       <!-- Whitespace added for readability -->
@@ -141,55 +169,6 @@ In this blog post, I would like to summarize a few of those findings and present
 
         <p class="meta continue">
           <a href="/2023/07/sliced-onion-architecture/">… continue reading.</a>
-        </p>
-    
-  
-
-    
-    <h1 class="entry-title">Moduliths 1.1 released</h1>
-    <p class="meta">
-      <!-- Whitespace added for readability -->
-    
-    July
-    2nd,
-      
-    2021 - <a href="/2021/07/moduliths-1.1-released/">Permalink</a>
-      
-    </p>
-    
-
-    
-        
-<p>I’d like to announce the availability of Moduliths 1.1 GA.
-Moduliths is a toolkit to create modular, monolithic applications based on Spring Boot.
-The release ships with significant improvements and new features:</p>
-
-<ul>
-  <li>Module detection SPI - <a href="https://github.com/odrotbohm/moduliths/issues/137">#137</a></li>
-  <li>Improvements to Module Canvas
-    <ul>
-      <li>Custom component grouping - <a href="https://github.com/odrotbohm/moduliths/issues/130">#130</a></li>
-      <li>Event listeners report type they’re interested in - <a href="https://github.com/odrotbohm/moduliths/issues/132">#132</a></li>
-      <li>Origins of published events - <a href="https://github.com/odrotbohm/moduliths/issues/139">#139</a></li>
-      <li>Javadoc of event listeners included - <a href="https://github.com/odrotbohm/moduliths/issues/143">#143</a></li>
-    </ul>
-  </li>
-  <li>Spring <code class="language-plaintext highlighter-rouge">ApplicationListener</code> implementations detected as event listeners - <a href="https://github.com/odrotbohm/moduliths/issues/145">#145</a></li>
-  <li>Support for jMolecules - <a href="https://github.com/odrotbohm/moduliths/issues/127">#127</a>
-    <ul>
-      <li>Support for <code class="language-plaintext highlighter-rouge">@DomainEventHandler</code> - <a href="https://github.com/odrotbohm/moduliths/issues/159">#159</a></li>
-      <li>Support for jMolecules <code class="language-plaintext highlighter-rouge">Repository</code> interface - <a href="https://github.com/odrotbohm/moduliths/issues/163">#163</a></li>
-    </ul>
-  </li>
-  <li>Improved <code class="language-plaintext highlighter-rouge">PublishedEvents</code> API - <a href="https://github.com/odrotbohm/moduliths/issues/124">#124</a>, <a href="https://github.com/odrotbohm/moduliths/issues/125">#125</a>, <a href="https://github.com/odrotbohm/moduliths/issues/126">#126</a></li>
-  <li>Transactional event publication registry - <a href="https://github.com/odrotbohm/moduliths/issues/121">#121</a></li>
-</ul>
-
-<p>Let me walk you through the most significant additions in a bit more detail.</p>
-
-
-        <p class="meta continue">
-          <a href="/2021/07/moduliths-1.1-released/">… continue reading.</a>
         </p>
     
   

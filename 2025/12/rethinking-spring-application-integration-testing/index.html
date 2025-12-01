@@ -1,0 +1,165 @@
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+   <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+   <title>Oliver Drotbohm - Rethinking Spring Application Integration Testing</title>
+   <meta name="author" content="Oliver Drotbohm" />
+   <meta name="google-site-verification" content="jK1GPyjzTp269nR-GMzfjkdcdR0Y-b3gHHWUIgebv8M" />
+   <link href="/atom.xml" rel="alternate" title="Blog Atom Feed" type="application/atom+xml" />
+
+   <!-- syntax highlighting CSS -->
+   <link rel="stylesheet" href="/assets/themes/tom/css/syntax.css" type="text/css" />
+
+   <!-- Homepage CSS -->
+   <link rel="stylesheet" href="/assets/themes/tom/css/screen.css" type="text/css" media="screen, projection" />
+
+</head>
+<body>
+
+  <div class="site">
+    <div class="title">
+      <a href="/">Oliver Drotbohm</a>
+
+      <a class="extra" href="/archive">Archive</a>
+      <a class="extra" href="/about">About</a>
+      <a class="extra" href="/tags">Tags</a>
+    </div>
+
+    
+<div id="post">
+  <h1>Rethinking Spring Application Integration Testing</h1>
+  <p class="meta">
+    <!-- Whitespace added for readability -->
+    
+    December
+    1st,
+      
+    2025
+    
+  </p>
+  
+<h2 id="tldr">tl;dr</h2>
+<ul>
+  <li>When writing integration tests for Spring applications, align them with your functional decomposition approach, because that means you will test more cohesive elements of your code base.</li>
+  <li>That orientation produces tests better aligned with the “Four Pillars of a Good Test” (from <a href="https://www.manning.com/books/unit-testing">“Unit Testing—Principles, Practices, and Patterns”</a>) than the traditional, horizontally-sliced approach.</li>
+  <li>Spring Modulith’s <a href="https://docs.spring.io/spring-modulith/reference/testing.html"><code class="language-plaintext highlighter-rouge">@ApplicationTest</code></a> annotation provides first-class support for these kind of integration tests.</li>
+</ul>
+
+<p>Ever since its inception, testing application code has been a core concern of the Spring Framework. In this blog post, I would like to take a look at the ways that it has shaped the way that developers approach testing their applications, the evolution of the different ways it supports them, and how the different approaches compare to each other.</p>
+
+<p>To be able to do that, let’s agree on a few characteristics we want to evaluate various test approaches against. In “Unit Testing—Principles, Practices, and Patterns” (2020), Vladimir Khorikov defines “Four Pillars of a Good Test” that can help us here:</p>
+
+<ol>
+  <li><em>Protection Against Regressions</em> – This pillar ensures that tests catch bugs and prevent previously fixed issues from reoccurring. A test that effectively identifies regressions provides significant value to the development process.</li>
+  <li><em>Resistance to refactoring</em> – This one refers to a test’s ability to remain valid and pass even when the underlying code is refactored or improved. Tests that are tightly coupled to implementation details are brittle and break easily during refactoring, which reduces their value. This effect is often referred to as structure re-enforcing.</li>
+  <li><em>Fast Feedback</em> – Tests must execute quickly to provide immediate feedback to the developer. Fast-running tests enable developers to run them frequently, shortening the feedback loop and allowing bugs to be detected and fixed early, which reduces the cost of development.</li>
+  <li><em>Maintainability</em> – It evaluates the ease with which a test can be understood, modified, and updated. An aspect of that is what I refer to as test precision, describing the relationship between the amount of code we bring to execution overall and which code we actually execute in our test cases.</li>
+</ol>
+
+<h2 id="early-days">Early Days</h2>
+
+<p>In the early 2000s, developers were used to packaging up their apps and deploying them into an application server to bring their code to execution. This caused long feedback cycles and many teams to not exhaustively test at all. Back then, Spring popularized the use of dependency injection, leading to application code that is naturally easy to unit test. Those tests rank high on the <em>Fast Feedback</em> pillar, as they only need a running JVM and usually execute in milliseconds. They’re also very precise, as bringing code to execution usually means getting classes loaded and only a reasonable amount of objects being created. Those benefits are countered by unit tests’ nature of being severely structured, reinforcing on a very low level. They regularly require refactorings if the structure of the code under test changes.</p>
+
+<p>The Spring Test Context Framework, a part of Spring since its early days, acknowledged that with all the technical services, such as transactions and security, that Spring provides, an integration-style way of testing would be needed as well. It consists of an extension for JUnit (older versions also supported TestNG) that bootstraps <code class="language-plaintext highlighter-rouge">ApplicationContext</code> instances and allows test code to consume Spring beans from that. To avoid having to recreate those instances for every test method or class, the test context cache is at the heart of that support. Various aspects of a Spring application (enabled profiles, property sources, included configuration types, and many more) create a cache key, which allows that—for test classes executed with the same setup—an <code class="language-plaintext highlighter-rouge">ApplicationContext</code> instance is reused.</p>
+
+<p>Application-scoped integrations score particularly well in the <em>Resistance to Refactoring</em> category, as tests usually refer to a few Spring beans and structural changes to their surroundings are opaque, as the container is likely to pick up those changes transparently. Running a single test is, of course, more expensive than a unit test, as the bootstrap usually includes interaction with resources and the instantiation of abstractions of third-party libraries. That means the <code class="language-plaintext highlighter-rouge">ApplicationContext</code> caching mechanism primarily caters to the <em>Fast Feedback</em> pillar during the execution of a test suite. It helps to keep the execution times of the tests overall low. A downside of the cache is that extra care has to be taken, as test cases might now implicitly share bean instances and thus influence each other’s behavior.</p>
+
+<h2 id="simplified-integration-tests-with-spring-boot">Simplified Integration Tests with Spring Boot</h2>
+
+<p>While Spring Framework provides low-level annotations to customize the creation of such <code class="language-plaintext highlighter-rouge">ApplicationContext</code>s, the approach is typically used through Spring Boot’s <code class="language-plaintext highlighter-rouge">@SpringBootTest</code>, conveniently setting up test executions based on defaults and conventions. This makes <code class="language-plaintext highlighter-rouge">@SpringBootTest</code>-based integration tests rank slightly higher in the <em>Maintenance</em> pillar, but ultimately they share the same characteristics as the ones based on Frameworks core infrastructure.</p>
+
+<p>Boot 1.4 introduced a feature called <a href="https://docs.spring.io/spring-boot/reference/testing/spring-boot-applications.html#testing.spring-boot-applications.autoconfigured-tests">“sliced testing”</a>. It allows developers to carve out <em>horizontal</em> slices from a codebase and only bring code to execution that belongs to these slices. <code class="language-plaintext highlighter-rouge">@DataJpaTest</code> would solely bootstrap repositories and their underlying infrastructure. <code class="language-plaintext highlighter-rouge">@WebMvcTest</code> would only bootstrap elements of the code base that interact with Spring MVC. The primary effect of said carving is a significant reduction in the amount of code that needs to be brought to execution to actually run the test case. Thus, individual integration tests are likely to execute quite a bit faster as we avoid unnecessary work.</p>
+
+<p>At the same time, each of these annotations causes a slightly different application context configuration, which negatively affects the <code class="language-plaintext highlighter-rouge">ApplicationContext</code> caching. A test case that could have been served by an already bootstrapped context would now require an additional, more specialized <code class="language-plaintext highlighter-rouge">ApplicationContext</code> instance to be created. That means that the effect on the execution time of an entire test suite could even be negative. I would still rank horizontal slice tests slightly better in the <em>Fast Feedback</em> category, as the primary focus of them is the local developer experience. They also rank higher regarding the aspect of <em>Precision</em>. Avoiding bootstrapping unrelated code causes the tests to be less susceptible to problems in that unrelated code breaking them. An integration test verifying persistence operations would not be impacted by a bootstrap problem caused in web-related code.</p>
+
+<h2 id="architecturally-understanding-slice-tests">Architecturally Understanding Slice Tests</h2>
+
+<p>The technical details aside, it is worth looking at the slice tests approach from a higher-level perspective. Spring developers—usually without explicitly realizing it—logically assign elements of their code base to architectural elements by marking them using annotations such as <code class="language-plaintext highlighter-rouge">@Controller</code> or by implementing interfaces, such as Spring Data’s <code class="language-plaintext highlighter-rouge">Repository</code>. Those markers, provided by Spring Framework itself or by projects from within the ecosystem, have one thing in common: they often originate in a technical decomposition approach. A controller logically belongs to the presentation layer in a Layered Architecture, forms a Primary Adapter in Hexagonal Architecture and belongs to the Infrastructure Ring in Onion Architecture. In turn, a repository belongs to the persistence layer, constitutes a Secondary Adapter or belongs to the Infrastructure Ring, too. The primary reason for this is that Spring Framework in particular provides technical services to exactly these decomposition elements: URI mapping for controllers via Spring MVC, transactions on a service layer or logical equivalent, and resource management as well as exception translation on the persistence abstraction. Thus, it makes perfect sense for Spring Boot’s horizontal slice testing to attach to these markers in the code base, too.</p>
+
+<p>Unfortunately, that horizontal alignment introduces a couple of drawbacks. Technical decomposition arrangements such as Layered, Hexagonal or Onion Architecture produce abstraction categories that usually do not possess any kind of cohesion. Controllers typically do not depend on each other, and neither do repositories. Bringing these categories of code to execution causes two main problems. First, carving out the web layer requires an extensive amount of replacing vertical dependencies, as those are the natural connections within a codebase. While this can be countered with more specialized Spring Boot testing features, such as the ability to even bootstrap individual controller instances, it feels suboptimal to try to cut a direction that naturally implies way more relationships than the (vertical) alternative. The second challenge is that a bootstrap problem in unrelated database functionality (some broken Hibernate mappings or query definitions) might cause tests to fail that shouldn’t fail in the first place. Why should an integration test for the <code class="language-plaintext highlighter-rouge">CustomerRepository</code> fail because of an invalid query definition in <code class="language-plaintext highlighter-rouge">OrderRepository</code>? Both of these concerns are detrimental to the <code class="language-plaintext highlighter-rouge">Precision</code> and <code class="language-plaintext highlighter-rouge">Maintenance</code> pillars.</p>
+
+<h2 id="testing-vertical-slices">Testing vertical slices</h2>
+
+<p>Now what if we fundamentally changed our approach? What if there was a way to establish <em>vertical</em> slices in our application and we were able to align our integration testing approach with that instead of the horizontal ones?</p>
+
+<p>Spring Modulith introduced the concept of application modules, a mechanism to primarily decompose an application functionally. It essentially allows developers to define such <em>vertical</em> slices in their applications. Logic that deals with order placement can cleanly be separated from invoicing, and that in turn from shipment logic.</p>
+
+<blockquote>
+  <p>An application module forms a cohesive unit of code as its contained elements strongly relate to each other.</p>
+</blockquote>
+
+<p>Relationships between the technical abstractions of a code base are almost a given. Controllers depend on services, services depend on domain types and repositories, no matter which architectural style you prefer to implement. A functional decomposition, hoewever, usually implies much fewer, (hopefully) deliberately selected dependency arrangements. Most importantly, that structure and the relationships between these application modules are inspectable at test time. Piggybacking on Spring Boot’s generic functionality to bootstrap parts of an application, this allows Spring Modulith’s <code class="language-plaintext highlighter-rouge">@ApplicationModuleTest</code> to run top-to-bottom integration tests (usually in the form of so-called <a href="https://martinfowler.com/bliki/SubcutaneousTest.html">subcutaneous tests</a>, a term coined by Martin Fowler). Application modules can be bootstrapped in isolation, requiring the replacement of dependencies by either mocks or stubs. Alternatively, we can instruct the test execution infrastructure to include all upstream application modules in the bootstrap.</p>
+
+<p>While the change in orientation might look like a minor detail, let’s take a look at the change in characteristics of the resulting tests. In <em>Protecting Against Regressions</em> we achieve a quite high rank considering such an integration test is supposed to reveal regressions in the same application module. They also score well in <em>Resistance Against Refactoring</em> assuming that a refactoring can be contained within an application module. While that may not be true in all cases, chances are higher for application modules over layers, adapters, and rings, as the former contain cohesive elements.</p>
+
+<p>Application module tests also rank high in the <em>Maintainability</em> pillar, in particular the test precision aspect. Because we cut in a dimension of fewer dependencies, they are not only easier to manage, they also act as architectural fitness functions. When running a standalone application module test, a newly introduced dependency to a module previously not depended on will cause the test to fail. While one could argue this lowers the rank in <em>Resistance Against Refactoring</em>, such a failure constitutes a checkpoint to discuss and decide whether such a change to the application module relationship arrangement is warranted or not.</p>
+
+<h1 id="summary">Summary</h1>
+
+<p>When trying to optimize integration tests with your Spring application, align the tests with your functional, domain-based decomposition strategy. This will lead to tests that rank higher across the “Four Pillars of a Good Test,” as functional decomposition leads to creating cohesive elements in a code base that are more precise, effective, and easier to maintain than elements originating from any kind of technical decomposition. Spring Modulith’s <code class="language-plaintext highlighter-rouge">@ApplicationModuleTests</code> allows you to easily bootstrap vertical slices of your application in isolation or in combination with others.</p>
+
+</div>
+
+<div id="related">
+  <h2>Related Posts</h2>
+  <ul class="posts">
+    
+      <li><span>14 Nov 2025</span> &raquo; <a href="/2025/11/jmolecules-2.0-stereotypical/">jMolecules 2.0 – Stereotypical</a></li>
+    
+      <li><span>16 Sep 2024</span> &raquo; <a href="/2024/09/the-instability-abstractness-relationsship-an-alternative-view/">The Instability-Abstractness-Relationship — An Alternative View</a></li>
+    
+      <li><span>01 Sep 2023</span> &raquo; <a href="/2023/09/conference-autumn/">Conference Autumn</a></li>
+    
+  </ul>
+</div>
+
+
+
+
+  <div id="disqus_thread"></div>
+<script type="text/javascript">
+    var disqus_developer = 1;
+    var disqus_shortname = 'olivergierke'; // required: replace example with your forum shortname
+    
+    /* * * DON'T EDIT BELOW THIS LINE * * */
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = 'https://' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+
+
+
+
+
+
+    <div class="footer">
+      <div class="contact">
+        <p>
+          Oliver Drotbohm<br />
+          Soul Power!<br />
+        </p>
+      </div>
+      <div class="contact">
+        <p>
+          <a href="http://github.com/odrotbohm/">github.com/odrotbohm</a><br />
+          <a href="http://twitter.com/odrotbohm/">twitter.com/odrotbohm</a><br />
+          <a href='mailto:info@odrotbohm.de'>info@odrotbohm.de</a>
+        </p>
+      </div>
+      <div class="rss">
+        <a href="/atom.xml">
+          <img src="/assets/themes/tom/images/rss.png" alt="Subscribe to Atom Feed" />
+        </a>
+      </div>
+    </div>
+  </div>
+
+  
+</body>
+</html>
+
