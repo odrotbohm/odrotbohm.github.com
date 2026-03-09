@@ -1,0 +1,1606 @@
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.4.1">Jekyll</generator><link href="https://www.odrotbohm.de/feed.xml" rel="self" type="application/atom+xml" /><link href="https://www.odrotbohm.de/" rel="alternate" type="text/html" /><updated>2026-03-09T15:59:32+01:00</updated><id>https://www.odrotbohm.de/feed.xml</id><title type="html">Oliver Drotbohm</title><author><name>Oliver Drotbohm</name><email>info@odrotbohm.de</email></author><entry><title type="html">Rethinking Spring Application Integration Testing</title><link href="https://www.odrotbohm.de/2025/12/rethinking-spring-application-integration-testing/" rel="alternate" type="text/html" title="Rethinking Spring Application Integration Testing" /><published>2025-12-01T19:00:00+01:00</published><updated>2025-12-01T19:00:00+01:00</updated><id>https://www.odrotbohm.de/2025/12/rethinking-spring-application-integration-testing</id><content type="html" xml:base="https://www.odrotbohm.de/2025/12/rethinking-spring-application-integration-testing/"><![CDATA[<h2 id="tldr">tl;dr</h2>
+<ul>
+  <li>When writing integration tests for Spring applications, align them with your functional decomposition approach, because that means you will test more cohesive elements of your code base.</li>
+  <li>That orientation produces tests better aligned with the “Four Pillars of a Good Test” (from <a href="https://www.manning.com/books/unit-testing">“Unit Testing—Principles, Practices, and Patterns”</a>) than the traditional, horizontally-sliced approach.</li>
+  <li>Spring Modulith’s <a href="https://docs.spring.io/spring-modulith/reference/testing.html"><code class="language-plaintext highlighter-rouge">@ApplicationModuleTest</code></a> annotation provides first-class support for these kinds of integration tests.</li>
+</ul>
+
+<p>Ever since its inception, testing application code has been a core concern of the Spring Framework. In this blog post, I would like to take a look at the ways that it has shaped the way that developers approach testing their applications, the evolution of the different ways it supports them, and how the different approaches compare to each other.</p>
+
+<p>To be able to do that, let’s agree on a few characteristics we want to evaluate various test approaches against. In “Unit Testing—Principles, Practices, and Patterns” (2020), Vladimir Khorikov defines “Four Pillars of a Good Test” that can help us here:</p>
+
+<ol>
+  <li><em>Protection Against Regressions</em> – This pillar ensures that tests catch bugs and prevent previously fixed issues from reoccurring. A test that effectively identifies regressions provides significant value to the development process.</li>
+  <li><em>Resistance to refactoring</em> – This one refers to a test’s ability to remain valid and pass even when the underlying code is refactored or improved. Tests that are tightly coupled to implementation details are brittle and break easily during refactoring, which reduces their value. This effect is often referred to as structure re-enforcing.</li>
+  <li><em>Fast Feedback</em> – Tests must execute quickly to provide immediate feedback to the developer. Fast-running tests enable developers to run them frequently, shortening the feedback loop and allowing bugs to be detected and fixed early, which reduces the cost of development.</li>
+  <li><em>Maintainability</em> – It evaluates the ease with which a test can be understood, modified, and updated. An aspect of that is what I refer to as test precision, describing the relationship between the amount of code we bring to execution overall and which code we actually execute in our test cases.</li>
+</ol>
+
+<h2 id="early-days">Early Days</h2>
+
+<p>In the early 2000s, developers were used to packaging up their apps and deploying them into an application server to bring their code to execution. This caused long feedback cycles and many teams to not exhaustively test at all. Back then, Spring popularized the use of dependency injection, leading to application code that is naturally easy to unit test. Those tests rank high on the <em>Fast Feedback</em> pillar, as they only need a running JVM and usually execute in milliseconds. They’re also very precise, as bringing code to execution usually means getting classes loaded and only a reasonable amount of objects being created. Those benefits are countered by unit tests’ nature of being severely structured, reinforcing on a very low level. They regularly require refactorings if the structure of the code under test changes.</p>
+
+<p>The Spring Test Context Framework, a part of Spring since its early days, acknowledged that with all the technical services, such as transactions and security, that Spring provides, an integration-style way of testing would be needed as well. It consists of an extension for JUnit (older versions also supported TestNG) that bootstraps <code class="language-plaintext highlighter-rouge">ApplicationContext</code> instances and allows test code to consume Spring beans from that. To avoid having to recreate those instances for every test method or class, the test context cache is at the heart of that support. Various aspects of a Spring application (enabled profiles, property sources, included configuration types, and many more) create a cache key, which allows that—for test classes executed with the same setup—an <code class="language-plaintext highlighter-rouge">ApplicationContext</code> instance is reused.</p>
+
+<p>Application-scoped integrations score particularly well in the <em>Resistance to Refactoring</em> category, as tests usually refer to a few Spring beans and structural changes to their surroundings are opaque, as the container is likely to pick up those changes transparently. Running a single test is, of course, more expensive than a unit test, as the bootstrap usually includes interaction with resources and the instantiation of abstractions of third-party libraries. That means the <code class="language-plaintext highlighter-rouge">ApplicationContext</code> caching mechanism primarily caters to the <em>Fast Feedback</em> pillar during the execution of a test suite. It helps to keep the execution times of the tests overall low. A downside of the cache is that extra care has to be taken, as test cases might now implicitly share bean instances and thus influence each other’s behavior.</p>
+
+<h2 id="simplified-integration-tests-with-spring-boot">Simplified Integration Tests with Spring Boot</h2>
+
+<p>While Spring Framework provides low-level annotations to customize the creation of such <code class="language-plaintext highlighter-rouge">ApplicationContext</code>s, the approach is typically used through Spring Boot’s <code class="language-plaintext highlighter-rouge">@SpringBootTest</code>, conveniently setting up test executions based on defaults and conventions. This makes <code class="language-plaintext highlighter-rouge">@SpringBootTest</code>-based integration tests rank slightly higher in the <em>Maintenance</em> pillar, but ultimately they share the same characteristics as the ones based on Frameworks core infrastructure.</p>
+
+<p>Boot 1.4 introduced a feature called <a href="https://docs.spring.io/spring-boot/reference/testing/spring-boot-applications.html#testing.spring-boot-applications.autoconfigured-tests">“sliced testing”</a>. It allows developers to carve out <em>horizontal</em> slices from a codebase and only bring code to execution that belongs to these slices. <code class="language-plaintext highlighter-rouge">@DataJpaTest</code> would solely bootstrap repositories and their underlying infrastructure. <code class="language-plaintext highlighter-rouge">@WebMvcTest</code> would only bootstrap elements of the code base that interact with Spring MVC. The primary effect of said carving is a significant reduction in the amount of code that needs to be brought to execution to actually run the test case. Thus, individual integration tests are likely to execute quite a bit faster as we avoid unnecessary work.</p>
+
+<p>At the same time, each of these annotations causes a slightly different application context configuration, which negatively affects the <code class="language-plaintext highlighter-rouge">ApplicationContext</code> caching. A test case that could have been served by an already bootstrapped context would now require an additional, more specialized <code class="language-plaintext highlighter-rouge">ApplicationContext</code> instance to be created. That means that the effect on the execution time of an entire test suite could even be negative. I would still rank horizontal slice tests slightly better in the <em>Fast Feedback</em> category, as the primary focus of them is the local developer experience. They also rank higher regarding the aspect of <em>Precision</em>. Avoiding bootstrapping unrelated code causes the tests to be less susceptible to problems in that unrelated code breaking them. An integration test verifying persistence operations would not be impacted by a bootstrap problem caused in web-related code.</p>
+
+<h2 id="architecturally-understanding-slice-tests">Architecturally Understanding Slice Tests</h2>
+
+<p>The technical details aside, it is worth looking at the slice tests approach from a higher-level perspective. Spring developers—usually without explicitly realizing it—logically assign elements of their code base to architectural elements by marking them using annotations such as <code class="language-plaintext highlighter-rouge">@Controller</code> or by implementing interfaces, such as Spring Data’s <code class="language-plaintext highlighter-rouge">Repository</code>. Those markers, provided by Spring Framework itself or by projects from within the ecosystem, have one thing in common: they often originate in a technical decomposition approach. A controller logically belongs to the presentation layer in a Layered Architecture, forms a Primary Adapter in Hexagonal Architecture and belongs to the Infrastructure Ring in Onion Architecture. In turn, a repository belongs to the persistence layer, constitutes a Secondary Adapter or belongs to the Infrastructure Ring, too. The primary reason for this is that Spring Framework in particular provides technical services to exactly these decomposition elements: URI mapping for controllers via Spring MVC, transactions on a service layer or logical equivalent, and resource management as well as exception translation on the persistence abstraction. Thus, it makes perfect sense for Spring Boot’s horizontal slice testing to attach to these markers in the code base, too.</p>
+
+<p>Unfortunately, that horizontal alignment introduces a couple of drawbacks. Technical decomposition arrangements such as Layered, Hexagonal or Onion Architecture produce abstraction categories that usually do not possess any kind of cohesion. Controllers typically do not depend on each other, and neither do repositories. Bringing these categories of code to execution causes two main problems. First, carving out the web layer requires an extensive amount of replacing vertical dependencies, as those are the natural connections within a codebase. While this can be countered with more specialized Spring Boot testing features, such as the ability to even bootstrap individual controller instances, it feels suboptimal to try to cut a direction that naturally implies way more relationships than the (vertical) alternative. The second challenge is that a bootstrap problem in unrelated database functionality (some broken Hibernate mappings or query definitions) might cause tests to fail that shouldn’t fail in the first place. Why should an integration test for the <code class="language-plaintext highlighter-rouge">CustomerRepository</code> fail because of an invalid query definition in <code class="language-plaintext highlighter-rouge">OrderRepository</code>? Both of these concerns are detrimental to the <em>Precision</em> and <em>Maintenance</em> pillars.</p>
+
+<h2 id="testing-vertical-slices">Testing vertical slices</h2>
+
+<p>Now what if we fundamentally changed our approach? What if there was a way to establish <em>vertical</em> slices in our application and we were able to align our integration testing approach with that instead of the horizontal ones?</p>
+
+<p>Spring Modulith introduced the concept of application modules, a mechanism to primarily decompose an application functionally. It essentially allows developers to define such <em>vertical</em> slices in their applications. Logic that deals with order placement can cleanly be separated from invoicing, and that in turn from shipment logic.</p>
+
+<blockquote>
+  <p>An application module forms a cohesive unit of code as its contained elements strongly relate to each other.</p>
+</blockquote>
+
+<p>Relationships between the technical abstractions of a code base are almost a given. Controllers depend on services, services depend on domain types and repositories, no matter which architectural style you prefer to implement. A functional decomposition, hoewever, usually implies much fewer, (hopefully) deliberately selected dependency arrangements. Most importantly, that structure and the relationships between these application modules are inspectable at test time. Piggybacking on Spring Boot’s generic functionality to bootstrap parts of an application, this allows Spring Modulith’s <code class="language-plaintext highlighter-rouge">@ApplicationModuleTest</code> to run top-to-bottom integration tests (usually in the form of so-called <a href="https://martinfowler.com/bliki/SubcutaneousTest.html">subcutaneous tests</a>, a term coined by Martin Fowler). Application modules can be bootstrapped in isolation, requiring the replacement of dependencies by either mocks or stubs. Alternatively, we can instruct the test execution infrastructure to include all upstream application modules in the bootstrap.</p>
+
+<p>While the change in orientation might look like a minor detail, let’s take a look at the change in characteristics of the resulting tests. In <em>Protecting Against Regressions</em> we achieve a quite high rank considering such an integration test is supposed to reveal regressions in the same application module. They also score well in <em>Resistance Against Refactoring</em> assuming that a refactoring can be contained within an application module. While that may not be true in all cases, chances are higher for application modules over layers, adapters, and rings, as the former contain cohesive elements.</p>
+
+<p>Application module tests also rank high in the <em>Maintainability</em> pillar, in particular the test precision aspect. Because we cut in a dimension of fewer dependencies, they are not only easier to manage, they also act as architectural fitness functions. When running a standalone application module test, a newly introduced dependency to a module previously not depended on will cause the test to fail. While one could argue this lowers the rank in <em>Resistance Against Refactoring</em>, such a failure constitutes a checkpoint to discuss and decide whether such a change to the application module relationship arrangement is warranted or not.</p>
+
+<h1 id="summary">Summary</h1>
+
+<p>When trying to optimize integration tests with your Spring application, align the tests with your functional, domain-based decomposition strategy. This will lead to tests that rank higher across the “Four Pillars of a Good Test,” as functional decomposition leads to creating cohesive elements in a code base that are more precise, effective, and easier to maintain than elements originating from any kind of technical decomposition. Spring Modulith’s <code class="language-plaintext highlighter-rouge">@ApplicationModuleTests</code> allows you to easily bootstrap vertical slices of your application in isolation or in combination with others.</p>]]></content><author><name>Oliver Drotbohm</name><email>info@odrotbohm.de</email></author><category term="spring" /><category term="testing" /><category term="spring-modulith" /></entry><entry><title type="html">jMolecules 2.0 – Stereotypical</title><link href="https://www.odrotbohm.de/2025/11/jmolecules-2.0-stereotypical/" rel="alternate" type="text/html" title="jMolecules 2.0 – Stereotypical" /><published>2025-11-14T09:00:00+01:00</published><updated>2025-11-14T09:00:00+01:00</updated><id>https://www.odrotbohm.de/2025/11/jmolecules-2.0-stereotypical</id><content type="html" xml:base="https://www.odrotbohm.de/2025/11/jmolecules-2.0-stereotypical/"><![CDATA[<p>On behalf of the community and all contributors to the release, I am excited to announce the availability of <a href="https://github.com/xmolecules/jmolecules/releases/tag/2.0.0">jMolecules 2.0</a>. Five years after its first major version, we now ship the second generation, marking an important step in our vision to empower developers to write architecturally evident code and ultimately produce more understandable and thus better software. I would like to spend a few lines on jMolecules 2.0’s primary new feature: its stereotype metamodel.</p>
+
+<p>As described in <a href="https://odrotbohm.de/2020/03/Implementing-DDD-Building-Blocks-in-Java/">previous</a> <a href="https://odrotbohm.de/2021/02/Architecturally-evident-code-with-jMolecules/">articles</a>, <a href="https://github.com/xmolecules/jmolecules">jMolecules</a> mission is to provide Java developers with the means to assign elements of their code bases to design and architecture concepts. Up until now, jMolecules has provided well-defined concepts originating in Domain-Driven Design and various architecture definitions, such as Layered-, Hexagonal- and Onion-Architecture.</p>
+
+<p>Moreover, its companion project <a href="https://github.com/xmolecules/jmolecules-integrations">jMolecules Integrations</a> connects the logical concept assigned to various technologies in the broader Java ecosystem, ranging from conceptual verification via ArchUnit and integration into Spring and Jackson to sophisticated byte-code generation to avoid boilerplate persistence mappings and generating developer documentation.</p>
+
+<h2 id="stereotypes">Stereotypes</h2>
+
+<p>Interacting with various stakeholders over the last five years made us realize that the defined set of stereotypes jMolecules ships itself significantly helps developers to produce easier-to-understand code. That said, we also learned about a few aspects that users thought we should improve on:</p>
+
+<ul>
+  <li>Developers wanted to come up with their own stereotypes that emerge in their applications’ contexts. A particular domain or architectural style might make it worthwhile, defining custom concepts and attaching rules to those. While one could, of course, always define one’s own annotations or interfaces and define a custom ArchUnit rule, such definitions always felt different from the core jMolecules because…</li>
+  <li>Tooling would refer to the predefined concepts explicitly. Custom stereotypes would not seamlessly blend into support of downstream integrations, such as the Spring Modulith documentation generation. Furthermore, any integration would have to implement “an aggregate root is a type either annotated with <code class="language-plaintext highlighter-rouge">@AggregateRoot</code> or implementing <code class="language-plaintext highlighter-rouge">AggregateRoot</code>” themselves.</li>
+  <li>If developers make the effort to put all that design and architecture information in their code bases, wouldn’t it be nice if IDEs were able to present their projects to them on exactly that level of abstraction?</li>
+</ul>
+
+<p>Combining all these ideas, we realized that the design and architecture concepts we deal with essentially form <em>stereotypes</em>. They assign a role to an element of the code base, whether that’s a method (in the case of an event listener), a type (an entity or service), or even a package (Hexagonal Architecture adapters).</p>
+
+<p>With jMolecules 2.0, we explicitly introduce that concept in the form of configuration metadata located in a file <code class="language-plaintext highlighter-rouge">META-INF/jmolecules-stereotypes.json</code> within our artifacts. The general schema definition can be found <a href="https://schemas.jmolecules.org/jmolecules-catalog.json">here</a>.
+A Domain-Driven Design Aggregate Root, for example, is defined like this (source <a href="https://github.com/xmolecules/jmolecules/blob/2.0.0/jmolecules-ddd/src/main/resources/META-INF/jmolecules-stereotypes.json">here</a>):</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span>
+  <span class="dl">"</span><span class="s2">stereotypes</span><span class="dl">"</span> <span class="p">:</span> <span class="p">{</span>
+    <span class="dl">"</span><span class="s2">ddd.AggregateRoot</span><span class="dl">"</span> <span class="p">:</span> <span class="p">{</span>
+      <span class="dl">"</span><span class="s2">assignments</span><span class="dl">"</span><span class="p">:</span> <span class="p">[</span>
+        <span class="dl">"</span><span class="s2">@org.jmolecules.ddd.annotation.AggregateRoot</span><span class="dl">"</span><span class="p">,</span>
+        <span class="dl">"</span><span class="s2">org.jmolecules.ddd.types.AggregateRoot</span><span class="dl">"</span>
+      <span class="p">],</span>
+      <span class="dl">"</span><span class="s2">groups</span><span class="dl">"</span><span class="p">:</span> <span class="p">[</span>
+        <span class="dl">"</span><span class="s2">ddd</span><span class="dl">"</span>
+      <span class="p">],</span>
+      <span class="err">…</span>
+    <span class="p">},</span>
+    <span class="err">…</span>
+  <span class="p">},</span>
+  <span class="dl">"</span><span class="s2">groups</span><span class="dl">"</span><span class="p">:</span> <span class="p">{</span>
+    <span class="dl">"</span><span class="s2">ddd</span><span class="dl">"</span> <span class="p">:</span> <span class="p">{</span>
+      <span class="dl">"</span><span class="s2">displayName</span><span class="dl">"</span><span class="p">:</span> <span class="dl">"</span><span class="s2">Domain-Driven Design</span><span class="dl">"</span><span class="p">,</span>
+      <span class="dl">"</span><span class="s2">type</span><span class="dl">"</span> <span class="p">:</span> <span class="dl">"</span><span class="s2">design</span><span class="dl">"</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>The <code class="language-plaintext highlighter-rouge">stereotype</code> object takes keyed stereotype definitions. In this case, we express that we assign the stereotype <code class="language-plaintext highlighter-rouge">ddd.AggregateRoot</code> to all types that are either annotated (the assignment starting with <code class="language-plaintext highlighter-rouge">@</code>) or implementing the fully qualified type. Furthermore, the concept is assigned to stereotype group <code class="language-plaintext highlighter-rouge">ddd</code>. We are going to further discuss the groups below.</p>
+
+<p>These definitions now allow a new jMolecules Integrations artifact <code class="language-plaintext highlighter-rouge">jmolecules-stereotype</code> to provide an API to inspect a project for all the stereotypes available and detect which stereotypes are assigned to elements of the codebase.</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">var</span> <span class="n">source</span> <span class="o">=</span> <span class="nc">CatalogSource</span><span class="o">.</span><span class="na">ofClassLoader</span><span class="o">(</span><span class="err">…</span><span class="o">);</span>
+<span class="kt">var</span> <span class="n">catalog</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">JsonPathStereotypeCatalog</span><span class="o">(</span><span class="n">source</span><span class="o">);</span>
+<span class="kt">var</span> <span class="n">factory</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">ReflectionStereotypeFactory</span><span class="o">(</span><span class="n">catalog</span><span class="o">);</span>
+
+<span class="kt">var</span> <span class="n">metadata</span> <span class="o">=</span> <span class="n">factory</span><span class="o">.</span><span class="na">fromType</span><span class="o">(</span><span class="nc">MyClass</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+</code></pre></div></div>
+
+<p>First we set up a <code class="language-plaintext highlighter-rouge">CatalogSource</code> that can inspect the classpath for the jMolecules stereotype configuration files described above. That source is then handed into a <code class="language-plaintext highlighter-rouge">StereotypeCatalog</code> implementation that parses these files using JSONPath and ultimately enables a <code class="language-plaintext highlighter-rouge">StereotypeFactory</code> working reflection to find the registered stereotypes.</p>
+
+<p>The latter abstraction is the most important one, as it allows tooling providers operating on top of different APIs abstracting Java code to implement the assignment detection. We ship one based on Java reflection and another one on top of <code class="language-plaintext highlighter-rouge">ArchUnit</code>. In <a href="#bringing-stereotypes-to-life-in-ides">Bringing Stereotypes to Life in IDEs</a>, we will see how development environments will use that API to portray a Java project on the level of design and architecture stereotypes.</p>
+
+<h2 id="jmolecules-out-of-the-box-stereotypes">jMolecules Out-of-The-Box Stereotypes</h2>
+
+<p>As of version 2.0, all of our jMolecules artifacts ship the stereotype metadata in their artifacts. To make use of that, all you need to do is bump the version number, ideally, <a href="https://github.com/xmolecules/jmolecules-bom/tree/2025.0.0?tab=readme-ov-file#usage">the BOM</a>:</p>
+
+<div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;dependencyManagement&gt;</span>
+  <span class="nt">&lt;dependencies&gt;</span>
+    <span class="nt">&lt;dependency&gt;</span>
+      <span class="nt">&lt;groupId&gt;</span>org.jmolecules<span class="nt">&lt;/groupId&gt;</span>
+      <span class="nt">&lt;artifactId&gt;</span>jmolecules-bom<span class="nt">&lt;/artifactId&gt;</span>
+      <span class="nt">&lt;version&gt;</span>2025.0.0<span class="nt">&lt;/version&gt;</span>
+      <span class="nt">&lt;type&gt;</span>pom<span class="nt">&lt;/type&gt;</span>
+      <span class="nt">&lt;scope&gt;</span>import<span class="nt">&lt;/scope&gt;</span>
+    <span class="nt">&lt;/dependency&gt;</span>
+  <span class="nt">&lt;/dependencies&gt;</span>
+<span class="nt">&lt;/dependencyManagement&gt;</span>
+</code></pre></div></div>
+
+<p>Aside from the design and architecture stereotypes, the jMolecules Integration artifacts additionally ship with technical stereotype descriptions for third-party libraries such as <a href="https://github.com/xmolecules/jmolecules-integrations/blob/0.31.0/jmolecules-spring/src/main/resources/META-INF/jmolecules-stereotypes.json">Spring</a> or <a href="https://github.com/xmolecules/jmolecules-integrations/blob/0.31.0/jmolecules-jackson3/src/main/resources/META-INF/jmolecules-stereotypes.json">Jackson</a>. Note how the Spring stereotype definitions allow us to generalize the concept of a <a href="https://github.com/xmolecules/jmolecules-integrations/blob/addcee4b7151d97d2c42aad551d57bcc2290bb3b/jmolecules-spring/src/main/resources/META-INF/jmolecules-stereotypes.json#L61">message listener</a> and summarize the marker annotations of the Kafka, Rabbit and simple messaging libraries. The list of stereotypes is, of course, not exhaustive yet, and we are going to add new ones in upcoming releases. If you find a concept particularly interesting to you missing, please open <a href="https://github.com/xmolecules/jmolecules-integrations/issues">a ticket</a>.</p>
+
+<h2 id="custom-stereotypes">Custom Stereotypes</h2>
+
+<p>To define a custom stereotype, all we need to do is create a description file following the jMolecules stereotypes schema in <code class="language-plaintext highlighter-rouge">META-INF/jmolecules-stereotypes.json</code>. We further simplify this process by providing an <code class="language-plaintext highlighter-rouge">@Stereotype</code> annotation located in the <code class="language-plaintext highlighter-rouge">org.jmolecules:jstereotype</code> artifact. The <code class="language-plaintext highlighter-rouge">org.jmolecules.integrations:jmolecules-apt</code> annotation processor picks up that annotation on arbitrary annotations and types, creating a stereotype definition file according to the configuration of the annotation. In Spring RESTBucks, you find the definition of a data transfer object in the form of the <a href="https://github.com/odrotbohm/spring-restbucks/blob/29ed80d3f1bf3dda8ad9cea51248773accb3c527/server/src/main/java/de/odrotbohm/restbucks/DTO.java#L23-L24"><code class="language-plaintext highlighter-rouge">DTO</code> interface</a>:</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">package</span> <span class="nn">de.odrotbohm.restbucks</span><span class="o">;</span>
+
+<span class="kn">import</span> <span class="nn">org.jmolecules.stereotype.Stereotype</span><span class="o">;</span>
+
+<span class="nd">@Stereotype</span><span class="o">(</span><span class="n">groups</span> <span class="o">=</span> <span class="s">"restbucks"</span><span class="o">)</span>
+<span class="kd">public</span> <span class="kd">interface</span> <span class="nc">DTO</span> <span class="o">{}</span>
+</code></pre></div></div>
+
+<p>The interface is then used to mark the <code class="language-plaintext highlighter-rouge">PaymentForm</code> as a DTO:</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">record</span> <span class="nf">PaymentForm</span><span class="o">(</span><span class="nc">CreditCardNumber</span> <span class="n">number</span><span class="o">)</span> <span class="kd">implements</span> <span class="no">DTO</span> <span class="o">{}</span>
+</code></pre></div></div>
+
+<p>Compiling the code will cause the following <code class="language-plaintext highlighter-rouge">jmolecules-stereotypes.json</code> to be created:</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span>
+  <span class="dl">"</span><span class="s2">stereotypes</span><span class="dl">"</span><span class="p">:</span> <span class="p">{</span>
+    <span class="dl">"</span><span class="s2">restbucks.DTO</span><span class="dl">"</span><span class="p">:</span> <span class="p">{</span>
+      <span class="dl">"</span><span class="s2">assignments</span><span class="dl">"</span><span class="p">:</span> <span class="p">[</span><span class="dl">"</span><span class="s2">de.odrotbohm.restbucks.DTO</span><span class="dl">"</span><span class="p">],</span>
+      <span class="dl">"</span><span class="s2">groups</span><span class="dl">"</span><span class="p">:</span> <span class="p">[</span><span class="dl">"</span><span class="s2">restbucks</span><span class="dl">"</span><span class="p">],</span>
+      <span class="dl">"</span><span class="s2">priority</span><span class="dl">"</span><span class="p">:</span> <span class="mi">0</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>This would now reveal the <code class="language-plaintext highlighter-rouge">restbucks.DTO</code> stereotype for the <code class="language-plaintext highlighter-rouge">PaymentForm</code> when using the <code class="language-plaintext highlighter-rouge">StereotypeFactory</code> described above.</p>
+
+<h2 id="bringing-stereotypes-to-life-in-ides">Bringing Stereotypes to Life in IDEs</h2>
+
+<p>Now that we have seen the fundamentals of stereotype assignment and how to inspect that information in reverse, it’s time to explore actual use cases for the assignment. Traditionally, IDEs have presented Java projects to developers as a very thin layer of abstraction over the file system. They know about the general concepts of a Java project, source folders, packages, etc., and carry that abstraction into their UI.</p>
+
+<p>But now that our mental model about our codebase operates on a higher level of abstractions and we think about entities, aggregates, ports, and adapters, wouldn’t it be nice if our project was presented to us on the same level of abstraction? To support that, the <code class="language-plaintext highlighter-rouge">jmolecules-stereotype</code> artifact contains an API to process a <a href="https://github.com/xmolecules/jmolecules-integrations/blob/addcee4b7151d97d2c42aad551d57bcc2290bb3b/jmolecules-stereotype/src/main/java/org/jmolecules/stereotype/tooling/ProjectTree.java#L51">project tree</a>. It takes the inverted approach to “What stereotype does a type adhere to?” by operating on all stereotypes available to the project and assigning the source elements to those in a hierarchical way.</p>
+
+<p>The Spring Tools team around <a href="https://spring.io/authors/martinlippert">Martin Lippert</a> and <a href="https://spring.io/authors/BoykoAlex">Alex Boyko</a> have taken the time to integrate a custom <code class="language-plaintext highlighter-rouge">StereotypeFactory</code> operating within the language server backing the Spring Tools in VSCode and Eclipse.</p>
+
+<p><img src="/assets/images/jm-stereotypes/project-tree.png" alt="The Logical Structure View in Spring Tools" style="width: 75%; display: block; margin: 0 auto;" /></p>
+<div class="image-caption">The Logical Structure View in Spring Tools</div>
+
+<p>Note how the Logical Structure view completely abstracts from the physical arrangement of source code elements in the file system. On the very first level, Spring Tools detects that the project is a Spring Modulith one, evaluates the application’s module structure, and partitions the source code elements based on that.</p>
+
+<p>All nested groupings are driven by jMolecules stereotypes. The <a href="https://github.com/odrotbohm/spring-restbucks/tree/hacking/hexagonal"><code class="language-plaintext highlighter-rouge">hacking/hexagonal</code></a> branch of RESTBucks assigns types in the code base to the concepts of Hexagonal Architecture, subdividing them into Application, Ports, and Adapters. The final nesting level applies stereotype groups of type “design” and “technology”, as visible from the presence of both Domain-Driven Design concepts, such as aggregate roots, and technical stereotypes, such as Spring configuration classes or Spring MVC controllers. Our custom DTO stereotype appears as a first-class citizen in that tree.</p>
+
+<p>Developers can select which stereotype groups they would like to see applied in the tree by clicking on an icon that is revealed when hovering over the project root. It will display a selection window looking as follows.</p>
+
+<p><img src="/assets/images/jm-stereotypes/stereotype-group-selection.png" alt="Selecting Stereotype Groups" /></p>
+<div class="image-caption">Selecting Stereotype Groups</div>
+
+<p>Note how that would allow you to disable, for example, the Hexagonal Architecture grouping layer entirely.</p>
+
+<p>The logical project navigation will be part of the upcoming Spring Tools release and can already be used in VSCode by flipping the Spring Boot plugin to use the preview version. In Eclipse you’d need to register the Spring Tools snapshot update site. I’m also already in touch with the IDEA team at JetBrains to make use of our APIs as well, to provide a similar project browsing experience.</p>]]></content><author><name>Oliver Drotbohm</name><email>info@odrotbohm.de</email></author><category term="java" /><category term="ddd" /><category term="jmolecules" /></entry><entry><title type="html">The Instability-Abstractness-Relationship — An Alternative View</title><link href="https://www.odrotbohm.de/2024/09/the-instability-abstractness-relationsship-an-alternative-view/" rel="alternate" type="text/html" title="The Instability-Abstractness-Relationship — An Alternative View" /><published>2024-09-16T00:00:00+02:00</published><updated>2024-09-16T00:00:00+02:00</updated><id>https://www.odrotbohm.de/2024/09/the-instability-abstractness-relationsship-an-alternative-view</id><content type="html" xml:base="https://www.odrotbohm.de/2024/09/the-instability-abstractness-relationsship-an-alternative-view/"><![CDATA[<p>One of the most favorite topics of mine is improving software quality — and software maintainability in particular — through the means of decomposition.
+A problem associated with that, of course, is how to measure the success of a particular strategy chosen.
+Software metrics are a common means used to project the current state of a system into something seemingly measurable.
+In today’s blog post, I would like to take a closer look at the Instability-Abstractness-Relationship and whether it can help us to objectively measure the quality of a particular system design.</p>
+
+<p>The <em>Instability-Abstractness-Relationship</em> is a software metric to measure the design quality of Java packages, originally introduced in “Agile Software Development — Principles, Patterns, and Practices” by Robert C. Martin.
+If you search the internet for the topic you find a gazillion of blog posts all summarizing the idea (we will, too, in a second).
+But hardly any of them critically discuss the ideas, goals, and assumptions made by the author to get to a clear picture of what we are actually dealing with.
+It is a software quality metric, the author is (in)famous, so it has got to be good, right?
+Let’s see.</p>
+
+<h2 id="the-metric">The metric</h2>
+
+<p>In short, the instability of a package — or any other encapsulation unit of the system — is supposed to be inversely proportional to its abstractness.
+For those who have not heard about these terms yet, here is a short description of what they describe.
+<em>Instability</em> describes the ratio of efferent (outgoing) dependencies of a package in relation to the afferent (incoming) ones.
+A package without any outgoing dependencies is considered stable.
+On the contrary, the more incoming dependencies are targeting a package, the less stable it is considered.
+<em>Abstractness</em>, on the other hand, is supposed to express how “abstract” — and we are about to get to what that means in a second — a package is.
+The fundamental idea of combining these two metrics is that the more stable a package is, the more abstract it is supposed to be.</p>
+
+<p>Martin defines formulas for how to calculate values for each of the metrics and combines them into a quality metric in terms of the distance from an assumed ideal.
+It is described as the main line that parts the different zones of the chart.
+Numeric values for each of the metrics can be calculated for every package in the application, and the resulting distance from the main line is considered an indicator of a package’s design quality.</p>
+
+<p><img src="/assets/images/iar/diagram.jpg" alt="The Instability-Abstractness-Relationship" /></p>
+<div class="image-caption">The Instability-Abstractness-Relationship</div>
+
+<p>In fact, the combined metric is assigned a negative quality value by assigning areas in the diagram which a package is not supposed to live.
+One of these areas is defined as the “Zone of Pain” which entails stable packages that are not abstract.
+The other is the “Zone of Uselessness”, that combines an unstable package (virtually no incoming dependencies) with a lot of abstraction.</p>
+
+<p>This metric and its alleged proposition about a package’s design have been around for more than two decades.
+Software architecture quality tools have provided these metrics, and millions of developers have looked at these numbers to “optimize” their code base or at least evaluate its quality.</p>
+
+<h2 id="what-are-we-even-doing-here">What are we even doing here?</h2>
+
+<p>If you zoom out of all the mathematics a bit, problems with the approach become pretty obvious immediately.
+Let us start by benevolently assuming the metric measures what it is supposed to measure.
+As a developer of an individual package, the primary means of influencing the overall metric is increasing or decreasing the abstractness part of the equation.
+Let us say we find ourselves in the “Zone of Pain”, meaning we face many afferent dependencies but are primarily exposing concrete types.</p>
+
+<p>While we surely cannot cut any of the incoming dependencies (the depending packages will need access to our functionality), we can certainly introduce a few more interfaces, can we not?
+Start your most favorite IDE’s refactoring tools, for each class depended on, extract an interface, and let the client code be adapted to refer to those interfaces where possible.
+Job done, code base improved, correct?
+Unfortunately, not a bit.</p>
+
+<h2 id="abstractness-vs-abstraction">Abstractness VS. Abstraction</h2>
+
+<p>The mistake that Martin makes is equating abstractness with abstraction and that problem is hidden in plain sight.
+The relevant section is titled “Measuring <em>Abstraction</em>” and it immediately starts with “The <em>A</em> metric is a measurement of the <em>abstractness</em> of a package.” (page 265)
+So, what is the difference?
+Just because we extract an interface from a class — and by that, raise the abstractness of the package — the interface is not semantically more abstract than the implementation was before.
+And it is just as susceptible to consequences of changes to it.</p>
+
+<p>Let us move on to the anticipated effect of the allegedly higher abstraction.
+Martin writes: “Consider a package in the area of (0, 0). … Such a package is not desirable because it is rigid. It cannot be <em>extended</em> because it is not abstract.”
+The goal he sets out for stable code is extensibility.
+But why?
+What kind of extension to a codebase becomes easier if you deal with an abstract type versus a concrete one?
+Correct!
+It is easier to provide a new implementation for a particular, logical interface if it is technically an interface, too.
+Now, here is the crucial question: are the changes that we need to make to a code base in arbitrary business applications really primarily adding new implementations of already existing interfaces?</p>
+
+<h2 id="change-patterns">Change patterns</h2>
+
+<p>What might work in a theoretical example of, let us say, the collection library.
+It is of course easier to add a new implementation of <code class="language-plaintext highlighter-rouge">List</code> if client code depends on that interface and not an already existing implementation like <code class="language-plaintext highlighter-rouge">ArrayList</code>.
+We still might have to deal with cases in which that code still has to refer to the concrete type to create instances of it.
+Modern Java versions allow to define static factory methods on interfaces to mitigate that problem.
+That said, at least in my experience change patterns in business applications usually either require the introduction of completely new abstractions or the modification of existing types to introduce new methods etc.
+For those kinds of changes, it is mostly irrelevant if you need to introduce them on an interface or an implementation.
+Some might even consider the extra interface primarily causing additional work.</p>
+
+<p>So while an interface on a different level of abstraction might indeed allow to shield client code from implementation details it does not have to know about, simply calculating abstract versus concrete types of a particular programming language is misleading at best and harmful at worst.
+Developers feel incentivized to either remove or add interfaces for no other reason than meeting metric numbers without positively affecting a code base’s design.
+To the contrary, introducing new interfaces for the sake of meeting some metric results in more code that we will have to adapt to implement new features.</p>
+
+<h2 id="summary">Summary</h2>
+
+<p>The Abstractness-Instability-Relationship defines a code quality metric that does not support change patterns of modern applications.
+By both missing the actual quality goal and misinterpreting abstractness as level of abstraction, it does not form a good metric to judge the quality of a package design.</p>]]></content><author><name>Oliver Drotbohm</name><email>info@odrotbohm.de</email></author><category term="architecture" /><category term="metrics" /></entry><entry><title type="html">Conference Autumn</title><link href="https://www.odrotbohm.de/2023/09/conference-autumn/" rel="alternate" type="text/html" title="Conference Autumn" /><published>2023-09-01T00:00:00+02:00</published><updated>2023-09-01T00:00:00+02:00</updated><id>https://www.odrotbohm.de/2023/09/conference-autumn</id><content type="html" xml:base="https://www.odrotbohm.de/2023/09/conference-autumn/"><![CDATA[<p>I’m currently busy booking travel for quite a few conference and JUG appearances that have been in the pipeline for a while.
+It’s gonna be a wild mix of <a href="https://devoxx.be/talk/?id=20287">Spring Modulith</a> talks and workshops, Domain-Driven Design, <a href="jmolecules.org">jMolecules</a> and a Spring get together with members of the core team.
+Some of these events are commercial, but others are free to attend.
+Be sure to sign up, I would love to see you!</p>
+
+<ul>
+  <li>28.09. BedCon, Berlin — <a href="https://bed-con.org/2023/programm">Architecturally Evident Java Applications with jMolecules</a></li>
+  <li>28.09. BedCon, Berlin — <a href="https://bed-con.org/2023/programm">Spring for the Architecturally Curious Developer</a></li>
+  <li>02.10. Devoxx Belgium, Antwerp — <a href="https://devoxx.be/talk/?id=6753">Spring Modulith – A Deep Dive (3 hour workshop)</a></li>
+  <li>03.10. Devoxx Belgium, Antwerp — <a href="https://devoxx.be/talk/?id=20287">The Spring BOF</a></li>
+  <li>05.10. JUG Saarland, Saarbrücken — <a href="https://www.meetup.com/de-DE/java-user-group-saarland-jugsaar/events/296097005/">Spring for the Architecturally Curious Developer</a></li>
+  <li>07.10. Unkonf, Mannheim — All things jMolecules, Spring, Moduliths and Spring Modulith</li>
+  <li>19.10. VMware Tanzu Webinar — <a href="https://tanzu.vmware.com/content/webinars/oct-19-emea-spring-boot-3-and-beyond">Spring Boot 3 And Beyond (online)</a></li>
+  <li>24.10. Accento.dev, Karlsruhe — <a href="https://2023.accento.dev/talks/spring-modulith/">Spring for the Architecturally Curious Developer</a></li>
+  <li>25.10. Accento.dev, Karlsruhe — <a href="https://2023.accento.dev/trainings/domain-driven-design-java-spring/">Tactical DDD with Java &amp; Spring (1 day workshop)</a></li>
+  <li>25.10. JUG Karlsruhe — <a href="https://jug-karlsruhe.de/content/architekturexplizite-java-applikationen-mit-jmolecules/">Architecturally Evident Java Applications with jMolecules</a></li>
+  <li>26.10. JUG Dortmund (tba) — Spring for the Architecturally Curious Developer</li>
+</ul>]]></content><author><name>Oliver Drotbohm</name><email>info@odrotbohm.de</email></author><category term="conferences" /><category term="talks" /><category term="spring" /><category term="ddd" /><category term="jmolecules" /><category term="modulith" /></entry><entry><title type="html">Sliced Onion Architecture</title><link href="https://www.odrotbohm.de/2023/07/sliced-onion-architecture/" rel="alternate" type="text/html" title="Sliced Onion Architecture" /><published>2023-07-25T00:00:00+02:00</published><updated>2023-07-25T00:00:00+02:00</updated><id>https://www.odrotbohm.de/2023/07/sliced-onion-architecture</id><content type="html" xml:base="https://www.odrotbohm.de/2023/07/sliced-onion-architecture/"><![CDATA[<p>It has been almost exactly 15 years since Jeffrey Palermo posted the first blog of his series on the <a href="https://jeffreypalermo.com/2008/07/the-onion-architecture-part-1/">Onion Architecture</a>.
+In that post, he summarized ideas that essentially form a continuation of the <a href="https://alistair.cockburn.us/hexagonal-architecture/">Hexagonal Architecture</a> approach by Alistair Cockburn.
+Although I have always thought that both of these approaches to code organization do not necessarily constitute “architectures”, I find them helpful in shaping a mental model about how to structure a code base.
+Over the years, I have seen plenty of teams trying to follow those models and running into problems with them.
+In this blog post, I would like to summarize a few of those findings and present a refined way of looking at Onion Architecture.</p>
+
+<h1 id="onion-architecture">Onion Architecture</h1>
+
+<p>Let us start with a brief revisit of the original ideas of the approach first.
+Code is organized in concentric rings, with <em>the domain</em> at the center of it all.
+That part of the code base is supposed to contain all fundamental domain abstractions.
+That core is then surrounded by an <em>application</em> ring that — as the name suggests — contains application-specific code.
+Jeffrey’s original proposal even divided that ring up into “domain services” and “application services” which usually sparks a lot of discussion within teams which code belongs where.
+For now, I will stick to the simplified “application” ring.
+Its purpose is to expose application logic in use cases or units of work to other code that form scopes of consistency.</p>
+
+<p><img src="/assets/images/soa/onion-architecture-green.jpeg" alt="Onion Architecture (simplified)" /></p>
+<div class="image-caption">Onion Architecture (simplified)</div>
+
+<p>That ring in turn is surrounded by the <em>infrastructure</em> ring that contains code that translates the application-specific interfaces into a particular technology.
+On the exposing side, this could be controllers rending a web page or producing representations suitable for a particular style of APIs, such as JSON.
+Furthermore, connectors to databases or message brokers reside in that ring.
+That way, Jeffrey abstracts away the different kinds of adapters (driving VS. driven) Alistair had introduced in Hexagonal architectures.</p>
+
+<p>The final piece of the puzzle is the definition of dependency directions between the rings: outer rings depend on inner ones, exposing an interface for their dependents to either invoke (a controller working with an application service) or implement (a particular database implementation of a repository interface exposed by the application ring).
+While the strict interpretation of the approach suggests that a ring may only depend on the next inner one, in practice, skipping a ring is usually allowed as enforcing the strict layering would result in boilerplate code.</p>
+
+<h1 id="problems">Problems</h1>
+
+<p>Now that we have come to a common understanding of the situation, let us take a look at the challenges with this approach.</p>
+
+<p>A core problem with Onion Architecture — and Hexagonal Architecture as well — is that it treats <em>the domain</em> as a single, opaque block.
+It is likely a testament to the time of origin of these architectures that they all extensively focus on the separation of domain code from infrastructure code.
+Intermingling the two was the reason for significant code quality issues, especially in enterprises at that time, primarily due to the lack of ability to test code that does not separate these two aspects.</p>
+
+<p>Still, the release of Eric Evans’ “Domain-Driven Design” in the early 2000s already pointed out — and it has become even more obvious in the last couple of years —: the primary source of quality issues within code bases is the lack of alignment with the business and the existence of a <em>functional</em> separation of concerns reflecting that.
+This raises the question whether it is a good idea to follow an architectural approach to structuring your codebase that basically ignores your primary challenge.</p>
+
+<p>A slightly more technical issue arises from the raise of abstraction compared to Hexagonal Architecture in the infrastructure ring.
+Both the API / web and database / message broker adapters residing in that ring suggests some kind of uniformity to the way they are implemented.
+This is often reflected in the approaches to decoupling from the target infrastructure by mapping different models onto each other.</p>
+
+<p>On the database side, the domain model is supposed to be mapped onto a persistence model, which is in turn mapped to a database-specific structure.
+This is of course a valid approach in a context in which the target data store is shared by different applications and the team developing one application is exposed to changes to that store.
+A scenario pretty common in the mid-2000s.
+Nowadays, applications usually own their data store, and we can choose drastically simpler approaches to persistence.
+The need to map between different models is often out-prioritized by the desire to keep the model simple and have a model change to immediately reflected in the derived, other models.
+For example, we want that renaming a property in an aggregate in the domain model is ideally immediately reflected in the database migration, also renaming the column name to avoid cognitive overload going forward.</p>
+
+<p>On the exposing side of the infrastructure, this is an entirely different discussion, as we cannot arbitrarily change the target model.
+It is likely that we don’t even know all our API consumers and would rather want to guard those from changes to our internals as much as possible.
+Being able to differentiate between these two scenarios can help to avoid a lot of boilerplate code, especially in the design of the persistence implementation.
+While, of course, nothing in Onion Architecture prevents us from making this distinction, putting all infrastructure into the same ring implies a uniformity that can be misleading.</p>
+
+<p>Finally, to round the technical challenges off, assigning all infrastructure adapters to the same logical bucket exempts them from the constrained dependency directions defined between rings.
+Repository implementations might depend on controllers without the architectural approach capturing that.</p>
+
+<h1 id="structuring-the-domain">Structuring the Domain</h1>
+
+<p>As I have described above, a fundamental challenge to building maintainable software systems is a functional architecture that supports the needs of the business we build the application for.
+To keep things simple for now, let us use the term <em>domain</em> for these individual elements of that functional architecture.
+If you followed Domain-Driven Design, that would map to a <em>Bounded Context</em> or a <em>Module</em> within those.
+If we are supposed to deal with multiple domains, what would an Onion Architecture working with those look like, and what would that mean for the interaction between the domains?</p>
+
+<p><img src="/assets/images/soa/onion-architecture-multiple-domains.jpeg" alt="Onion Architecture — Multiple Domains" /></p>
+<div class="image-caption">Onion Architecture — Multiple Domains</div>
+
+<p>One idea could be to apply the functional architecture solely to the domain core of our arrangement, as shown above.
+We could apply Domain-Driven Design to our overall domain, identify different parts within it, and define allowed dependency directions between those.</p>
+
+<p>While that is certainly better than before, all our application and infrastructure code still would be an opaque whole that lacks the structure which we have now established at the core of our architecture.
+If we extend on that idea and repeat the structuring exercise for each other ring, we eventually end up with an Onion per domain.</p>
+
+<p><img src="/assets/images/soa/onion-architecture-multiple.jpeg" alt="Onion Architecture — Onion Per Domain" /></p>
+<div class="image-caption">Onion Architecture — Onion Per Domain</div>
+
+<p>This is a step in the right direction.
+Each Onion is self-contained and focused on <em>one</em> domain and owns their application interfaces and technical adapters.
+However, the interaction of the individual domains would now have to be established through the infrastructure.
+This might be a good fit if we decided to map the Onions onto individual applications, for example, in a microservices’ arrangement.</p>
+
+<p>Depending on the level of granularity of the domains, this might not be the most optimal projection of our logical architecture into the “physical” world, it will also introduce a lot of complexity and cost in the interaction.
+To exchange a simple domain event between the systems, we would have to have the corresponding infrastructure in place (a message broker, for example), have to serialize the event on the sender side and deserialize it on the receiver side.</p>
+
+<p>Summarizing, the lack of focus on the domain in the original Onion Architecture clearly shows, and approaches to address the problem within the realms of the original idea are either unsatisfying or introduce complexity and incentivize a particular deployment arrangement.
+Time to elevate this to a new level.</p>
+
+<h1 id="the-sliced-onion-architecture">The Sliced Onion Architecture</h1>
+
+<p>The fundamental augmentation I propose to Onion Architecture is to cut the sides of the Onion.
+While this might sound trivial at first, the idea has significant consequences on the precision of the definition of the concepts and the applicability in actual applications.</p>
+
+<p><img src="/assets/images/soa/soa.jpeg" alt="Sliced Onion Architecture" /></p>
+<div class="image-caption">Sliced Onion Architecture</div>
+
+<p>First, by cutting the sides, the conceptual separation between code mapping application concepts to external clients (via APIs) and the code mapping to internal infrastructure (such as databases and message brokers) is re-established.
+We also implicitly establish the fact that each of these — by default — do not interact with each other at all.
+The application ring still protects an individual domain.</p>
+
+<p>That in turn can be exposed to infrastructure in line with the original idea, but is also opened up on its sides for low-friction interaction with similarly shaped parties (see below) and tests.
+In the original Onion Architecture approach, they reside in the infrastructure layer, which I have always found a bit weird.
+Definitely, they act as clients to the application ring.
+However, the adapters in the infrastructure ring need integration testing “from the outside” as well, which would lead to yet another ring surrounding the infrastructure one and does not fit the overall idea very well.
+With our refined approach, tests can connect to code from the side and align different kinds of testing depending on the part they primarily interact with.
+They could focus on fine-grained tests directly interacting with the APIs exposed by the application ring, or rather resort to more holistic approaches through the infrastructure adapters.</p>
+
+<p>Fundamentally, the Sliced Onion approach is still a suitable arrangement for a deployment as an individual system.
+That said, the key benefit of the cut is that we can arrange multiple of these to interact with each other, also in other deployment arrangements.</p>
+
+<p><img src="/assets/images/soa/soa-multiple.jpeg" alt="Sliced Onion Architecture — Multiple Sliced Onions" /></p>
+<div class="image-caption">Sliced Onion Architecture — Multiple Sliced Onions</div>
+
+<p>For example, we could place a set of Onions into a singular deployment unit, indicated by the light green box in the graphic above.
+This looks pretty similar to our Onion-per-domain approach.
+The core benefit of the exposed application ring sides is that we can leverage capabilities provided by the runtime environment to let the individual Sliced Onions interact with each other.
+Either through the publication of process-internal events (the light bulbs in hexagons in the graphic below) or the invocation of APIs (the beans in circles).</p>
+
+<p>In the context of a Spring application, for example, that would map onto using its application event mechanism or direct references to a Spring bean exposed by another Sliced Onion.
+I usually recommend to favor asynchronous, event-based interaction between the Sliced Onions, as this naturally keeps the scopes of strong consistency within one Onion and thus emphasizes their self-contained nature.
+Furthermore, not referring to Spring beans exposed by a foreign Onion allows tests to run scoped to only the Onion under test.</p>
+
+<p><img src="/assets/images/soa/soa-interaction.jpeg" alt="Sliced Onion Architecture — Interaction Patterns" /></p>
+<div class="image-caption">Sliced Onion Architecture — Interaction Patterns</div>
+
+<h1 id="modules">Modules</h1>
+
+<p>Once we discuss the interaction between individual Sliced Onions, we can lift the architectural abstraction to <em>modules</em>, as the module’s internal Onion structure does not actually matter anymore and becomes an implementation detail.
+Modules expose events or APIs for internal interaction and infrastructure adapters connecting each module to the outside world.
+They thus form self-contained elements within the overall application arrangement.
+This is, in fact, the core of a <em>modulithic</em> application architecture.</p>
+
+<p><img src="/assets/images/soa/soa-modules.jpeg" alt="Sliced Onion Architecture — Modules" /></p>
+<div class="image-caption">Sliced Onion Architecture — Modules</div>
+
+<p>Moduliths are a great starting point to evolve an application’s architecture as they have natural, low-cost seams built in, which are helpful in case we have to restructure the overall arrangement.
+For one, we can move code between the individual modules with manageable effort, as internal interaction is not exposed to third parties.
+Refactoring tools of our IDEs become powerful assistants.</p>
+
+<p>Furthermore, those seams can be used to split up a system at a later stage if the actual organization or technical need arises.
+Especially, modules solely interacting via (asynchronous) events can be lifted into another deployable by moving the code into a new project.
+Events previously already published internally could be externalized into some messaging infrastructure, and the original application could integrate with the new arrangement by deploying the corresponding infrastructure adapters on the listening module.</p>
+
+<p><img src="/assets/images/soa/soa-modules-split.jpeg" alt="Sliced Onion Architecture — Split Up" /></p>
+<div class="image-caption">Sliced Onion Architecture — Split Up</div>
+
+<p>That said, the fully modulithic arrangement we started from might just be enough to ensure evolvability of our system, and we might never actually get to a split up in the first place.</p>
+
+<h1 id="summary">Summary</h1>
+
+<p>The Sliced Onion Architecture augments the original approach’s idea by adding stronger focus to the domain and its functional structure.
+Slicing the Onion vertically allows applying the idea to a broader set of deployment options, and forms a cornerstone of an evolvable architecture in the context of modulithic application arrangements.</p>]]></content><author><name>Oliver Drotbohm</name><email>info@odrotbohm.de</email></author><category term="onion-architecture" /><category term="architecture" /><category term="spring" /><category term="ddd" /></entry><entry><title type="html">Moduliths 1.1 released</title><link href="https://www.odrotbohm.de/2021/07/moduliths-1.1-released/" rel="alternate" type="text/html" title="Moduliths 1.1 released" /><published>2021-07-02T00:00:00+02:00</published><updated>2021-07-02T00:00:00+02:00</updated><id>https://www.odrotbohm.de/2021/07/moduliths-1.1-released</id><content type="html" xml:base="https://www.odrotbohm.de/2021/07/moduliths-1.1-released/"><![CDATA[<p>I’d like to announce the availability of Moduliths 1.1 GA.
+Moduliths is a toolkit to create modular, monolithic applications based on Spring Boot.
+The release ships with significant improvements and new features:</p>
+
+<ul>
+  <li>Module detection SPI - <a href="https://github.com/odrotbohm/moduliths/issues/137">#137</a></li>
+  <li>Improvements to Module Canvas
+    <ul>
+      <li>Custom component grouping - <a href="https://github.com/odrotbohm/moduliths/issues/130">#130</a></li>
+      <li>Event listeners report type they’re interested in - <a href="https://github.com/odrotbohm/moduliths/issues/132">#132</a></li>
+      <li>Origins of published events - <a href="https://github.com/odrotbohm/moduliths/issues/139">#139</a></li>
+      <li>Javadoc of event listeners included - <a href="https://github.com/odrotbohm/moduliths/issues/143">#143</a></li>
+    </ul>
+  </li>
+  <li>Spring <code class="language-plaintext highlighter-rouge">ApplicationListener</code> implementations detected as event listeners - <a href="https://github.com/odrotbohm/moduliths/issues/145">#145</a></li>
+  <li>Support for jMolecules - <a href="https://github.com/odrotbohm/moduliths/issues/127">#127</a>
+    <ul>
+      <li>Support for <code class="language-plaintext highlighter-rouge">@DomainEventHandler</code> - <a href="https://github.com/odrotbohm/moduliths/issues/159">#159</a></li>
+      <li>Support for jMolecules <code class="language-plaintext highlighter-rouge">Repository</code> interface - <a href="https://github.com/odrotbohm/moduliths/issues/163">#163</a></li>
+    </ul>
+  </li>
+  <li>Improved <code class="language-plaintext highlighter-rouge">PublishedEvents</code> API - <a href="https://github.com/odrotbohm/moduliths/issues/124">#124</a>, <a href="https://github.com/odrotbohm/moduliths/issues/125">#125</a>, <a href="https://github.com/odrotbohm/moduliths/issues/126">#126</a></li>
+  <li>Transactional event publication registry - <a href="https://github.com/odrotbohm/moduliths/issues/121">#121</a></li>
+</ul>
+
+<p>Let me walk you through the most significant additions in a bit more detail.</p>
+
+<h2 id="transaction-event-publication-registry">Transaction event publication registry</h2>
+
+<p>Probably the biggest feature of this release is the addition of an event publication registry for transactional events.
+By default, Spring’s transactional event listeners are invoked after transaction commit, which means that a listener failing to execute properly will have lost the event and there’s no way to recover from that.</p>
+
+<p>The registry added in Moduliths 1.1 will write a publication log for all events to be consumed by transactional event listeners.
+It will write that log within the original business transaction.
+The execution of the transactional event listeners is then decorated to mark the publications as completed if they successfully execute.
+In case of a failure, the log entry will stay untouched and API is provided to access outstanding event publications for re-submission or escalation.
+I’ve discussed the topic in the “A Deep Dive into Spring Application Events” talk <a href="https://speakerdeck.com/olivergierke/a-deep-dive-into-spring-application-events?slide=12">here</a> (recording <a href="https://www.youtube.com/watch?v=4oBqCtdRIYo">here</a>).</p>
+
+<p>To get started with the registry, all you need to do is adding the Moduliths Events Starter POM to you project:</p>
+
+<div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
+  <span class="nt">&lt;groupId&gt;</span>org.moduliths<span class="nt">&lt;/groupId&gt;</span>
+  <span class="nt">&lt;artifactId&gt;</span>moduliths-events-starter<span class="nt">&lt;/artifactId&gt;</span>
+  <span class="nt">&lt;version&gt;</span>${moduliths.version}<span class="nt">&lt;/version&gt;</span>
+<span class="nt">&lt;/dependency&gt;</span>
+</code></pre></div></div>
+
+<p>It currently pulls in JPA for persistence and Jackson for serialization.
+Published events that are consumed by a transactional event listener will need to be serializable by Jackson to make this work out of the box.
+Both, persistence mechanism and serialization strategy are pluggable.
+If you fancy to contribute different implementations (JDBC, anyone?), please make yourself heard in the <a href="https://github.com/odrotbohm/moduliths/issues">bug tracker</a>.</p>
+
+<h2 id="improvements-to-the-module-canvas">Improvements to the Module Canvas</h2>
+
+<p>Moduliths’ Module Canvas tries to provide a canonical overview of entry points into a particular module.
+In case a developer asks: “What are the most interesing technical parts of a module?”, the Canvas is supposed to provide the answer.
+It’s obviously inspired by Chris Richardson’s <a href="https://github.com/cer/microservice-canvas">Microservice Canvas</a> and the <a href="https://github.com/ddd-crew/bounded-context-canvas">Bounded Context Canvas</a> primarily driven by Nick Tune.
+Here’s one taken from Salespoint, a POS library I am involved with developed by the TU Dresden:</p>
+
+<div style="text-align: center">
+  <img src="/assets/images/module-canvas.png" />
+</div>
+
+<p>On the very surface, the Canvas provides information about</p>
+
+<ul>
+  <li>The Spring components exposed by the module (either public or implementing an interface exposed publicly).</li>
+  <li>The aggregate roots contained in the module.</li>
+  <li>Events listened to and events published by the module.</li>
+</ul>
+
+<h3 id="grouping-components">Grouping components</h3>
+
+<p>Moduliths 1.1 has added more details and smarts to the Canvas.
+The Spring components listed are now grouped and API was introduced to customize the groupings.
+If your application works with a custom stereotype, that is expressed in the code base, you can now create a custom group for it.
+Assume our web layer contained components named <code class="language-plaintext highlighter-rouge">…Representations</code> that were responsible for mapping inbound and outbound JSON representations on our domain model.
+We could make those show up in a dedicated group by customizing the canvas creation like this:</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">static</span> <span class="n">org</span><span class="o">.</span><span class="na">moduliths</span><span class="o">.</span><span class="na">docs</span><span class="o">.</span><span class="na">Documenter</span><span class="o">.</span><span class="na">CanvasOptions</span><span class="o">.*;</span>
+
+<span class="kt">var</span> <span class="n">representations</span> <span class="o">=</span> <span class="nc">Grouping</span><span class="o">.</span><span class="na">of</span><span class="o">(</span><span class="s">"Representations"</span><span class="o">,</span>
+  <span class="s">"Components to map from domain types to DTOs and vice versa."</span><span class="o">,</span>
+  <span class="nc">Grouping</span><span class="o">.</span><span class="na">nameMatching</span><span class="o">(</span><span class="s">".*Representations"</span><span class="o">));</span>
+
+<span class="kt">var</span> <span class="n">documenter</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">Documenter</span><span class="o">(</span><span class="n">modules</span><span class="o">).</span><span class="na">writeModuleCanvases</span><span class="o">(</span>
+  <span class="nc">CanvasOptions</span><span class="o">.</span><span class="na">defaults</span><span class="o">().</span><span class="na">groupingBy</span><span class="o">(</span><span class="n">representations</span><span class="o">));</span>
+</code></pre></div></div>
+
+<h3 id="more-details-about-events-and-event-listeners">More details about events and event listeners</h3>
+
+<p>The sections describing published and listened to events as been enriched to contain more detail about the listener and the publication.
+For the listeners, we now pull in the Javadoc on the listening method as description of the listener (not shown in the image above).</p>
+
+<p>For that to work, you need to use <code class="language-plaintext highlighter-rouge">capital.scalable:spring-auto-restdocs-json-doclet</code> in your Javadoc generation to extract the Javadoc into a JSON file that is then transparently picked up by the documentation generation.
+A request to extract that functionality into a separate project has been filed <a href="https://github.com/ScaCap/spring-auto-restdocs/issues/435">here</a>.</p>
+
+<div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;configuration&gt;</span>
+  <span class="nt">&lt;doclet&gt;</span>c.s.r.jsondoclet.ExtractDocumentationAsJsonDoclet<span class="nt">&lt;/doclet&gt;</span>
+  <span class="nt">&lt;docletArtifact&gt;</span>
+    <span class="nt">&lt;groupId&gt;</span>capital.scalable<span class="nt">&lt;/groupId&gt;</span>
+    <span class="nt">&lt;artifactId&gt;</span>spring-auto-restdocs-json-doclet<span class="nt">&lt;/artifactId&gt;</span>
+    <span class="nt">&lt;version&gt;</span>2.0.8<span class="nt">&lt;/version&gt;</span>
+  <span class="nt">&lt;/docletArtifact&gt;</span>
+  <span class="nt">&lt;/doclet&gt;</span>
+<span class="nt">&lt;/configuration&gt;</span>
+</code></pre></div></div>
+
+<p>The origin of an event publication is tracked by finding constructor and factory method invocations on the event type within the code base.
+If the method that call is coming from is part of the Javadoc created for the project, it gets linked to, just as all other publicly visible types.</p>
+
+<h2 id="support-for-jmolecules">Support for jMolecules</h2>
+
+<p><a href="https://jmolecules.org">jMolecules</a> is a Java library within the <a href="https://xmolecules.org/">xMolecules</a> family of projects that aims to provide programming language specific means to express architectural concepts in code.
+Moduliths 1.1 has added support for jMolecules’ <code class="language-plaintext highlighter-rouge">@DomainEventHandler</code> as well as the <code class="language-plaintext highlighter-rouge">Repository</code> interface.
+If used in code, methods and classes annotated with them will be recognized as event listener or repository respectfully.</p>
+
+<h2 id="module-detection-api">Module detection API</h2>
+
+<p>To be as little invasive as possible, Moduliths assumes a certain package structure to detect logical modules in a particular codebase.
+All packages, directly located under the one that contains the Spring Boot application class, are considered module packages.
+While this is a decent default when structuring new code bases, ones that haven’t been started with that model in mind usually deviate from that.
+To be able to accommodate customization needs, Moduliths 1.1 ships a <code class="language-plaintext highlighter-rouge">ModuleDetectionStrategy</code> SPI, that allows users to return all module base packages given the root package of the application:</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">interface</span> <span class="nc">ModuleDetectionStrategy</span> <span class="o">{</span>
+  <span class="nc">Stream</span><span class="o">&lt;</span><span class="nc">JavaPackage</span><span class="o">&gt;</span> <span class="nf">getModuleBasePackages</span><span class="o">(</span><span class="nc">JavaPackage</span> <span class="n">basePackage</span><span class="o">);</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>We ship two different strategies out of the box: the default one that returns the direct subpackages as described above, and one that considers packages explicitly annotated with <code class="language-plaintext highlighter-rouge">@Module</code> only.</p>
+
+<p>To customize the strategy to be used, register your custom implementation inside <code class="language-plaintext highlighter-rouge">META-INF/spring.factories</code>:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>org.moduliths.model.ModuleDetectionStrategy=\
+  com.acme.CustomModuleDetectionStrategy
+</code></pre></div></div>
+
+<p>The strategy will now be picked up, as soon as you create a <code class="language-plaintext highlighter-rouge">Modules</code> instance in your code.</p>]]></content><author><name>Oliver Drotbohm</name><email>info@odrotbohm.de</email></author><category term="moduliths" /><category term="spring-boot" /><category term="java" /><category term="ddd" /><category term="jmolecules" /></entry><entry><title type="html">Spring RESTBucks in 2021</title><link href="https://www.odrotbohm.de/2021/04/Spring-RESTBucks-in-2021/" rel="alternate" type="text/html" title="Spring RESTBucks in 2021" /><published>2021-04-14T19:21:00+02:00</published><updated>2021-04-14T19:21:00+02:00</updated><id>https://www.odrotbohm.de/2021/04/Spring-RESTBucks-in-2021</id><content type="html" xml:base="https://www.odrotbohm.de/2021/04/Spring-RESTBucks-in-2021/"><![CDATA[<p>The <a href="https://github.com/odrotbohm/spring-restbucks">RESTBucks sample project</a> has served as showcase for various Spring related technologies in the context of building a hypermedia based API implementing a high-level business process for almost a decade.
+It has evolved significantly since then and – in the last couple of months – accumulated quite a batch of changes.
+I think that it’s worthwhile to have a look at them and how new libraries, specs, and their integration into Spring projects shape the sample.</p>
+
+<p><a name="jmolecules"></a></p>
+<h1 id="jmolecules">jMolecules</h1>
+
+<p>I’ve written about the <a href="https://github.com/xmolecules/jmolecules">jMolecules project</a> in a <a href="../../02/Architecturally-evident-code-with-jMolecules">previous post</a>.
+Its general idea is to allow user code to express architectural concepts in code, and a lot of the boilerplate code that’s needed, if – for example – the model shall be persisted with JPA.
+I know that whether to persist a domain model using JPA directly is a topic for debate, but I’d like to leave that for another post for now.
+<a href="https://github.com/odrotbohm/spring-restbucks/commit/0a42f07ebed87eb777b633ae861fcb494339afa6">This commit</a> moved Spring RESTBucks domain model to jMolecules and essentially consist of the following steps:</p>
+
+<ul>
+  <li>Aggregates, entities, and value objects now implement jMolecules’ <code class="language-plaintext highlighter-rouge">AggregateRoot</code>, <code class="language-plaintext highlighter-rouge">Entity</code> and are annotated with <code class="language-plaintext highlighter-rouge">@Value</code>.</li>
+  <li>Entities and aggregates now all use identifier types that implement <code class="language-plaintext highlighter-rouge">Identifier</code> backed by <code class="language-plaintext highlighter-rouge">UUID</code> strings.</li>
+  <li>Associations are now explicitly modeled through jMolecules <code class="language-plaintext highlighter-rouge">Association</code> interface.</li>
+</ul>
+
+<p>All JPA annotations and customizations that were necessary could be removed in favor of the <a href="https://github.com/xmolecules/jmolecules-integrations/tree/main/jmolecules-bytebuddy">jMolecules ByteBuddy plugin</a> to generate the mappings and boilerplate derived from the jMolecules annotations.</p>
+
+<ul>
+  <li>Identifier fields and types do not need any kind of technical mapping and customizations anymore.</li>
+  <li>Entity relationships like <code class="language-plaintext highlighter-rouge">Order.lineItems</code> get default mappings applied, considering the default composition nature of aggregates, i.e. the aggregate lifecycle governing the lifecycle of the contained entities.</li>
+  <li>Persisting <code class="language-plaintext highlighter-rouge">Association</code> instances works out of the box due to the ByteBuddy plugin generating the necessary boilerplate <code class="language-plaintext highlighter-rouge">AttributeConverter</code> and field mapping.</li>
+</ul>
+
+<p><a name="spring-data-rest"></a></p>
+<h2 id="spring-data-rest">Spring Data REST</h2>
+
+<p>The <a href="https://spring.io/blog/2021/04/14/spring-data-2021-0-goes-ga">Spring Data Pascal release</a> train ships fundamental integration with jMolecules, like the ability to convert <code class="language-plaintext highlighter-rouge">Identifier</code> instances into primitives and properly integrate <code class="language-plaintext highlighter-rouge">Association</code> into the object mapping.
+Also, Spring Data REST now picks up <code class="language-plaintext highlighter-rouge">Converter</code> implementations shipped by the jMolecules Integrations project.
+All of that causes RESTBucks just to work seamlessly with the DDD building blocks expressed via jMolecules abstractions.</p>
+
+<p><a name="jackson"></a></p>
+<h2 id="jackson">Jackson</h2>
+
+<p>Another piece of the puzzle is the jMolecules Jackson support that automatically customizes the serialization, deserialization of both <code class="language-plaintext highlighter-rouge">Identifier</code> types and value objects declared through jMolecules <code class="language-plaintext highlighter-rouge">@ValueObject</code> annotation.
+This can be seen in effect on <code class="language-plaintext highlighter-rouge">CreditCardNumber</code> that’s a value object in the domain model wrapping a <code class="language-plaintext highlighter-rouge">String</code> to apply rules of the domain concept to it.
+Despite the nesting, it serializes as plain <code class="language-plaintext highlighter-rouge">String</code> and also seamlessly deserializes <code class="language-plaintext highlighter-rouge">String</code>s into a <code class="language-plaintext highlighter-rouge">CreditCardNumber</code>.
+You can find more details about the jMolecules Jackson integration <a href="https://github.com/xmolecules/jmolecules-integrations/tree/main/jmolecules-jackson">here</a>.</p>
+
+<p><a name="advanced-metadata"></a></p>
+<h1 id="advanced-metadata-for-state-transitions">Advanced metadata for state transitions</h1>
+
+<p>The very start of a significant improvement in the API was to realize that the way the sample handled order submission wasn’t really a representation of the real-life process.
+The standard Spring Data REST export of the <code class="language-plaintext highlighter-rouge">Order</code> domain type assumed that an order was created by <code class="language-plaintext highlighter-rouge">POST</code>ing line items to the server, including prices.
+That is not quite how it works in the real world at best.
+To be blunt: it’s been wrong from day one, but I effectively didn’t care about this as the example project’s focus was on the general use of hypermedia in APIs, not taking every part of the process and implement it perfectly to the very end.</p>
+
+<p>This step of the process has now changed to be rather implemented by a custom Spring MVC controller as Spring Data REST allows us to hook into the URI space it exposes and selectively override individual resources and mappings.
+We start by introducing a dedicated data transfer object (DTO) to capture all information necessary for placing an order.
+In our case it’s the location the drink is supposed to be consumed at, as well as a list of drinks.
+Also, we add a method to create a new <code class="language-plaintext highlighter-rouge">Order</code> from that information to the DTO:</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">@Data</span>
+<span class="kd">class</span> <span class="nc">LocationAndDrinks</span> <span class="o">{</span>
+
+  <span class="nd">@NotNull</span> <span class="c1">//</span>
+  <span class="kd">private</span> <span class="nc">Location</span> <span class="n">location</span><span class="o">;</span>
+  <span class="kd">private</span> <span class="nc">List</span><span class="o">&lt;</span><span class="nc">Drink</span><span class="o">&gt;</span> <span class="n">drinks</span><span class="o">;</span>
+
+  <span class="nc">Order</span> <span class="nf">toOrder</span><span class="o">()</span> <span class="o">{</span>
+
+    <span class="nc">Order</span> <span class="n">order</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">Order</span><span class="o">(</span><span class="nc">Collections</span><span class="o">.</span><span class="na">emptyList</span><span class="o">(),</span> <span class="n">location</span><span class="o">);</span>
+    <span class="n">drinks</span><span class="o">.</span><span class="na">forEach</span><span class="o">(</span><span class="nl">order:</span><span class="o">:</span><span class="n">add</span><span class="o">);</span>
+
+    <span class="k">return</span> <span class="n">order</span><span class="o">;</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>We now use that type in our controller method to map the <code class="language-plaintext highlighter-rouge">@RequestBody</code>.
+That process makes use of a new feature just introduced in Spring Data REST, that allows to bind aggregate instances from URIs of resources exposed by it.
+<code class="language-plaintext highlighter-rouge">Drink</code> is a Spring Data REST managed aggregate, and thus, we have to submit a list of URIs pointing to drinks:</p>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"drinks"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="s2">"…/drinks/3322ac99-…"</span><span class="w"> </span><span class="p">],</span><span class="w">
+  </span><span class="nl">"location"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Zum mitnehmen"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<p>Spring Data REST will take care of resolving the URI to the <code class="language-plaintext highlighter-rouge">Drink</code> instance with identifier <code class="language-plaintext highlighter-rouge">3322ac99-…</code> automatically for us.
+This leaves the question of how the client will know about that structure and how to populate the fields.
+We will this discuss this in detail below.
+Before we do that, let’s have a look at the controller method implementation as it’s quite interesting as well:</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">@BasePathAwareController</span>
+<span class="nd">@RequiredArgsConstructor</span>
+<span class="kd">class</span> <span class="nc">OrderController</span> <span class="o">{</span>
+
+  <span class="kd">private</span> <span class="kd">final</span> <span class="nc">Orders</span> <span class="n">orders</span><span class="o">;</span>
+
+  <span class="nd">@PostMapping</span><span class="o">(</span><span class="n">path</span> <span class="o">=</span> <span class="s">"/orders"</span><span class="o">)</span>
+  <span class="nc">HttpEntity</span><span class="o">&lt;?&gt;</span> <span class="n">placeOrder</span><span class="o">(</span><span class="nd">@RequestBody</span> <span class="nc">LocationAndDrinks</span> <span class="n">payload</span><span class="o">,</span>
+    <span class="nc">Errors</span> <span class="n">errors</span><span class="o">,</span> <span class="nc">PersistentEntityResourceAssembler</span> <span class="n">assembler</span><span class="o">)</span> <span class="o">{</span>
+
+    <span class="k">return</span> <span class="nc">MappedPayloads</span><span class="o">.</span><span class="na">of</span><span class="o">(</span><span class="n">payload</span><span class="o">,</span> <span class="n">errors</span><span class="o">)</span>
+        <span class="o">.</span><span class="na">mapIfValid</span><span class="o">(</span><span class="nl">LocationAndDrinks:</span><span class="o">:</span><span class="n">toOrder</span><span class="o">)</span>
+        <span class="o">.</span><span class="na">mapIfValid</span><span class="o">(</span><span class="nl">orders:</span><span class="o">:</span><span class="n">save</span><span class="o">)</span>
+        <span class="o">.</span><span class="na">mapIfValid</span><span class="o">(</span><span class="nl">assembler:</span><span class="o">:</span><span class="n">toFullResource</span><span class="o">)</span>
+        <span class="o">.</span><span class="na">concludeIfValid</span><span class="o">(</span><span class="n">it</span> <span class="o">-&gt;</span> <span class="o">{</span>
+
+          <span class="kt">var</span> <span class="n">uri</span> <span class="o">=</span> <span class="n">it</span><span class="o">.</span><span class="na">getRequiredLink</span><span class="o">(</span><span class="nc">IanaLinkRelations</span><span class="o">.</span><span class="na">SELF</span><span class="o">).</span><span class="na">toUri</span><span class="o">();</span>
+
+          <span class="k">return</span> <span class="nc">ResponseEntity</span><span class="o">.</span><span class="na">created</span><span class="o">(</span><span class="n">uri</span><span class="o">).</span><span class="na">body</span><span class="o">(</span><span class="n">it</span><span class="o">);</span>
+        <span class="o">});</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>Note, how it makes use of the <a href="https://github.com/odrotbohm/spring-playground/tree/main/spring-web-tools#a-monadic-mappedpayload-type"><code class="language-plaintext highlighter-rouge">MappedPayloads</code></a> abstraction currently living in my <a href="https://github.com/odrotbohm/spring-playground"><code class="language-plaintext highlighter-rouge">spring-playground</code></a> repository.
+It provides an API to express the typical processing steps of a web request fluently: apply some validation, transformation of the payload, invoke business code, assemble a response representation.
+We simply accept the <code class="language-plaintext highlighter-rouge">LocationAndDrinks</code> instance deserialized by Jackson, create an <code class="language-plaintext highlighter-rouge">Order</code> instance from it, store that and then use Spring Data REST’s <code class="language-plaintext highlighter-rouge">PersistentEntityResourceAssembler</code> to produce a response following the usual rules of pointing to referenced aggregates etc.
+The pipeline will transparently handle binding errors by returning a <code class="language-plaintext highlighter-rouge">400 Bad Request</code> rendering the <code class="language-plaintext highlighter-rouge">Errors</code> instance as response, including support to internationalized error messages etc.
+Read more about this in <a href="https://github.com/odrotbohm/spring-playground/tree/main/spring-web-tools#a-monadic-mappedpayload-type">the documentation</a>.</p>
+
+<h2 id="advertising-the-order-creation-using-hal-forms">Advertising the order creation using HAL FORMS</h2>
+
+<p>Now that we’ve customized the step of creating an order in the first place, how does the client find out about it?
+The <a href="https://rwcbook.github.io/hal-forms/">HAL FORMS media type</a> allows to describe resource state transitions, and the payload structure expected for those.
+<a href="https://github.com/spring-projects/spring-hateoas/releases/tag/1.3.0">Spring HATEOAS 1.3</a> has shipped advanced support for that and allows us to easily create such forms by defining affordances.
+Affordances capture the semantics expressed by e.g. a Spring MVC controller method and depending on the configuration exposes those in the way a particular media type is defined.
+As of the Spring Data Pascal release train, Spring Data REST enabled projects generally enable the exposure of affordances as HAL FORMS, but they do not expose any forms automatically yet.</p>
+
+<p>To expose the order creation form we enrich the <code class="language-plaintext highlighter-rouge">RepositoryRootResource</code>’s <code class="language-plaintext highlighter-rouge">order</code> link with an affordance.
+All we need to do to achieve that is point at the method that is accepting the request in a <code class="language-plaintext highlighter-rouge">RepresentationModelProcessor</code>.</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">@Component</span>
+<span class="kd">class</span> <span class="nc">RootResourceModelProcessor</span>
+  <span class="kd">implements</span> <span class="nc">RepresentationModelProcessor</span><span class="o">&lt;</span><span class="nc">RepositoryLinksResource</span><span class="o">&gt;</span> <span class="o">{</span>
+
+  <span class="nd">@Override</span>
+  <span class="kd">public</span> <span class="nc">RepositoryLinksResource</span> <span class="nf">process</span><span class="o">(</span><span class="nc">RepositoryLinksResource</span> <span class="n">model</span><span class="o">)</span> <span class="o">{</span>
+
+    <span class="c1">// We point to the method we want to advertise</span>
+    <span class="kt">var</span> <span class="n">affordance</span> <span class="o">=</span> <span class="n">afford</span><span class="o">(</span><span class="n">methodOn</span><span class="o">(</span><span class="nc">OrderController</span><span class="o">.</span><span class="na">class</span><span class="o">)</span>
+      <span class="o">.</span><span class="na">placeOrder</span><span class="o">(</span><span class="kc">null</span><span class="o">,</span> <span class="kc">null</span><span class="o">,</span> <span class="kc">null</span><span class="o">));</span>
+
+    <span class="c1">// Add the affordance to the orders link</span>
+    <span class="k">return</span> <span class="n">model</span><span class="o">.</span><span class="na">mapLink</span><span class="o">(</span><span class="nc">LinkRelation</span><span class="o">.</span><span class="na">of</span><span class="o">(</span><span class="s">"orders"</span><span class="o">),</span> <span class="n">link</span> <span class="o">-&gt;</span> <span class="o">{</span>
+      <span class="k">return</span> <span class="n">link</span><span class="o">.</span><span class="na">andAffordance</span><span class="o">(</span><span class="n">affordance</span><span class="o">);</span>
+    <span class="o">});</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>Note, how we, in a media type independent way, describe what’s to be advertised from the root resource.
+We deliberately guide the client to propose a state transition using the controller method pointed to.
+Alternatively, we could have built the affordance manually using Spring HATEOAS’ <a href="https://docs.spring.io/spring-hateoas/docs/1.3.0/reference/html/#server.affordances.api"><code class="language-plaintext highlighter-rouge">AffordanceBuilder</code> API</a>.
+Clients that continue to request HAL won’t see any of this, but ones that understand HAL FORMs can now request the resource using an <code class="language-plaintext highlighter-rouge">Accept</code> header set to <code class="language-plaintext highlighter-rouge">application/prs.hal-forms+json</code> and see the following:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>GET /
+Accept: application/prs.hal-forms+json
+</code></pre></div></div>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="err">…</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"_templates"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"default"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+      </span><span class="nl">"method"</span><span class="p">:</span><span class="w"> </span><span class="s2">"post"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"properties"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+        </span><span class="p">{</span><span class="w">
+          </span><span class="nl">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"location"</span><span class="p">,</span><span class="w">
+          </span><span class="nl">"options"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+            </span><span class="nl">"inline"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+              </span><span class="s2">"Zum mitnehmen"</span><span class="p">,</span><span class="w">
+              </span><span class="s2">"Vor Ort"</span><span class="w">
+            </span><span class="p">],</span><span class="w">
+            </span><span class="nl">"maxItems"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="w">
+          </span><span class="p">},</span><span class="w">
+          </span><span class="nl">"prompt"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Ort"</span><span class="p">,</span><span class="w">
+          </span><span class="nl">"required"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w">
+          </span><span class="nl">"value"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Zum mitnehmen"</span><span class="w">
+        </span><span class="p">},</span><span class="w">
+        </span><span class="p">{</span><span class="w">
+          </span><span class="nl">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"drinks"</span><span class="p">,</span><span class="w">
+          </span><span class="nl">"options"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+            </span><span class="nl">"link"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+              </span><span class="nl">"href"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://localhost:8080/drinks/by-name{?q}"</span><span class="p">,</span><span class="w">
+              </span><span class="nl">"templated"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
+            </span><span class="p">},</span><span class="w">
+            </span><span class="nl">"minItems"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="w">
+          </span><span class="p">},</span><span class="w">
+          </span><span class="nl">"prompt"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Getränke"</span><span class="w">
+        </span><span class="p">}</span><span class="w">
+      </span><span class="p">],</span><span class="w">
+      </span><span class="nl">"target"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://localhost:8080/orders"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"title"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Eine Bestellung erzeugen"</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<p>There’s quite a lot going on here.
+The response contains a <code class="language-plaintext highlighter-rouge">_template</code> rendered for the affordance that we described in our <code class="language-plaintext highlighter-rouge">RepresentationModelProcessor</code>.
+According to the HAL FORMS spec, if only one is contained in it, it’s named <code class="language-plaintext highlighter-rouge">default</code>.
+The <code class="language-plaintext highlighter-rouge">target</code> and <code class="language-plaintext highlighter-rouge">method</code> attributes are derived from the controller method we pointed to and also, the <code class="language-plaintext highlighter-rouge">LocationAndDrinks</code>’ payload type has been unfolded and its properties are advertised.
+We have both the <code class="language-plaintext highlighter-rouge">title</code> and <code class="language-plaintext highlighter-rouge">prompt</code> attributes internationalized to German using a simple resource bundle as described in <a href="https://docs.spring.io/spring-hateoas/docs/current/reference/html/#mediatypes.hal-forms.i18n">Spring HATEOAS’ reference documentation</a>.</p>
+
+<p>Both properties use the <code class="language-plaintext highlighter-rouge">options</code> element, indicating that the value to be submitted for them has to be one or more items from a given list of options.
+For <code class="language-plaintext highlighter-rouge">location</code>, that list is a simple inline list of text values.
+They in turn an internationalized variants of the <code class="language-plaintext highlighter-rouge">Location</code> enum that’s part of the server side model handled by Spring Data REST’s automatic enum translation feature.</p>
+
+<p>However, the slightly more interesting case is the option definition for <code class="language-plaintext highlighter-rouge">drink</code>.
+We can express that the list of available options is dynamic, and the values to be provided for selection are available via a particular (templated) URI.
+HAL FORMS defines that, unless otherwise specified, the target resource is supposed to return a collection of either scalar values, or a dictionary with fields <code class="language-plaintext highlighter-rouge">value</code> and <code class="language-plaintext highlighter-rouge">prompt</code>.
+Thus, we now expose a dedicated resource blending into the <code class="language-plaintext highlighter-rouge">/drinks</code> URI space from <code class="language-plaintext highlighter-rouge">DrinksOptions</code>:</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+<span class="nd">@BasePathAwareController</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">DrinksOptions</span> <span class="o">{</span>
+
+  <span class="kd">private</span> <span class="kd">final</span> <span class="nc">Drinks</span> <span class="n">drinks</span><span class="o">;</span>
+  <span class="kd">private</span> <span class="kd">final</span> <span class="nc">TypedEntityLinks</span><span class="o">&lt;</span><span class="nc">Drink</span><span class="o">&gt;</span> <span class="n">links</span><span class="o">;</span>
+
+  <span class="cm">/* Constructor omitted */</span>
+
+  <span class="nd">@GetMapping</span><span class="o">(</span><span class="s">"/drinks/by-name"</span><span class="o">)</span>
+  <span class="kd">public</span> <span class="nc">HttpEntity</span><span class="o">&lt;?&gt;</span> <span class="n">getOptions</span><span class="o">(</span><span class="nd">@RequestParam</span> <span class="nc">Optional</span><span class="o">&lt;</span><span class="nc">String</span><span class="o">&gt;</span> <span class="n">q</span><span class="o">)</span> <span class="o">{</span>
+
+    <span class="kt">var</span> <span class="n">sort</span> <span class="o">=</span> <span class="n">sort</span><span class="o">(</span><span class="nc">Drink</span><span class="o">.</span><span class="na">class</span><span class="o">).</span><span class="na">by</span><span class="o">(</span><span class="nl">Drink:</span><span class="o">:</span><span class="n">getName</span><span class="o">).</span><span class="na">ascending</span><span class="o">();</span>
+
+    <span class="kt">var</span> <span class="n">options</span> <span class="o">=</span> <span class="n">q</span><span class="o">.</span><span class="na">map</span><span class="o">(</span><span class="n">it</span> <span class="o">-&gt;</span> <span class="n">drinks</span><span class="o">.</span><span class="na">findByNameContaining</span><span class="o">(</span><span class="n">it</span><span class="o">,</span> <span class="n">sort</span><span class="o">))</span>
+        <span class="o">.</span><span class="na">orElseGet</span><span class="o">(()</span> <span class="o">-&gt;</span> <span class="n">drinks</span><span class="o">.</span><span class="na">findAll</span><span class="o">(</span><span class="n">sort</span><span class="o">))</span>
+        <span class="o">.</span><span class="na">map</span><span class="o">(</span><span class="k">this</span><span class="o">::</span><span class="n">toPromptedValue</span><span class="o">)</span>
+        <span class="o">.</span><span class="na">toList</span><span class="o">();</span>
+
+    <span class="kt">var</span> <span class="n">model</span> <span class="o">=</span> <span class="nc">HalModelBuilder</span><span class="o">.</span><span class="na">halModel</span><span class="o">()</span>
+        <span class="o">.</span><span class="na">embed</span><span class="o">(</span><span class="n">options</span><span class="o">,</span> <span class="nc">LinkRelation</span><span class="o">.</span><span class="na">of</span><span class="o">(</span><span class="s">"drinks"</span><span class="o">))</span>
+        <span class="o">.</span><span class="na">build</span><span class="o">();</span>
+
+    <span class="k">return</span> <span class="nc">ResponseEntity</span><span class="o">.</span><span class="na">ok</span><span class="o">(</span><span class="n">model</span><span class="o">);</span>
+  <span class="o">}</span>
+
+  <span class="nc">HalFormsPromptedValue</span> <span class="nf">toPromptedValue</span><span class="o">(</span><span class="nc">Drink</span> <span class="n">drink</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">return</span> <span class="nc">HalFormsPromptedValue</span><span class="o">.</span><span class="na">of</span><span class="o">(</span><span class="n">drink</span><span class="o">.</span><span class="na">getName</span><span class="o">(),</span>
+      <span class="n">links</span><span class="o">.</span><span class="na">linkToItemResource</span><span class="o">(</span><span class="n">drink</span><span class="o">).</span><span class="na">getHref</span><span class="o">())</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>The request is answered by either looking up all drinks or applying a name filter, mapping the <code class="language-plaintext highlighter-rouge">Drink</code> instances to expose their name as prompt, and the URI they’re exposed under as value.
+Thus, the responses look as follows:</p>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"_embedded"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"drinks"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+      </span><span class="p">{</span><span class="w"> </span><span class="nl">"prompt"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Cappuchino"</span><span class="p">,</span><span class="w"> </span><span class="nl">"value"</span><span class="p">:</span><span class="w"> </span><span class="s2">"…/drinks/462a692d-…"</span><span class="w"> </span><span class="p">},</span><span class="w">
+      </span><span class="p">{</span><span class="w"> </span><span class="nl">"prompt"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Java Chip"</span><span class="p">,</span><span class="w"> </span><span class="nl">"value"</span><span class="p">:</span><span class="w"> </span><span class="s2">"…/drinks/07217680-…"</span><span class="w"> </span><span class="p">}</span><span class="w">
+    </span><span class="p">]</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<p>The client is now supposed to follow the <code class="language-plaintext highlighter-rouge">link</code> attribute of the <code class="language-plaintext highlighter-rouge">options</code> document found in the form, and – depending on the <code class="language-plaintext highlighter-rouge">minItems</code>/<code class="language-plaintext highlighter-rouge">maxItems</code> arrangement – offer a selection control for the values returned.
+The server is even prepared to serve some kind of auto-completion by taking the partial user input as query parameter (through the exposed template variable).
+It would then submit the form to the URI described in <code class="language-plaintext highlighter-rouge">target</code> and use the values backing the individual option items.
+The options configuration is added via the <code class="language-plaintext highlighter-rouge">HalFormsConfiguration</code> bean located in <code class="language-plaintext highlighter-rouge">JacksonCustomizations</code>.</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">@Configuration</span><span class="o">(</span><span class="n">proxyBeanMethods</span> <span class="o">=</span> <span class="kc">false</span><span class="o">)</span>
+<span class="kd">class</span> <span class="nc">JacksonCustomizations</span> <span class="o">{</span>
+
+  <span class="nd">@Bean</span>
+  <span class="nc">HalFormsConfiguration</span> <span class="nf">halFormsConfiguration</span><span class="o">()</span> <span class="o">{</span>
+
+    <span class="nc">Supplier</span><span class="o">&lt;</span><span class="nc">Link</span><span class="o">&gt;</span> <span class="n">drinksOptionsUri</span> <span class="o">=</span> <span class="n">linkTo</span><span class="o">(</span><span class="n">methodOn</span><span class="o">(</span><span class="nc">DrinksOptions</span><span class="o">.</span><span class="na">class</span><span class="o">)</span>
+      <span class="o">.</span><span class="na">getOptions</span><span class="o">(</span><span class="nc">Optional</span><span class="o">.</span><span class="na">empty</span><span class="o">()))</span>
+      <span class="o">.</span><span class="na">withSelfRel</span><span class="o">()</span>
+      <span class="o">.</span><span class="na">withType</span><span class="o">(</span><span class="nc">MediaTypes</span><span class="o">.</span><span class="na">HAL_JSON_VALUE</span><span class="o">);</span>
+
+    <span class="k">return</span> <span class="k">new</span> <span class="nf">HalFormsConfiguration</span><span class="o">()</span>
+        <span class="o">.</span><span class="na">withPattern</span><span class="o">(</span><span class="nc">CreditCardNumber</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="nc">CreditCardNumber</span><span class="o">.</span><span class="na">REGEX</span><span class="o">)</span>
+        <span class="o">.</span><span class="na">withOptions</span><span class="o">(</span><span class="nc">LocationAndDrinks</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="s">"location"</span><span class="o">,</span>
+            <span class="n">it</span> <span class="o">-&gt;</span> <span class="nc">HalFormsOptions</span><span class="o">.</span><span class="na">inline</span><span class="o">(</span><span class="nc">Location</span><span class="o">.</span><span class="na">values</span><span class="o">())</span>
+              <span class="o">.</span><span class="na">withSelectedValue</span><span class="o">(</span><span class="nc">Location</span><span class="o">.</span><span class="na">TAKE_AWAY</span><span class="o">)</span>
+              <span class="o">.</span><span class="na">withMaxItems</span><span class="o">(</span><span class="mi">1L</span><span class="o">))</span>
+        <span class="o">.</span><span class="na">withOptions</span><span class="o">(</span><span class="nc">LocationAndDrinks</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="s">"drinks"</span><span class="o">,</span>
+            <span class="n">it</span> <span class="o">-&gt;</span> <span class="nc">HalFormsOptions</span><span class="o">.</span><span class="na">remote</span><span class="o">(</span><span class="n">drinksOptionsUri</span><span class="o">.</span><span class="na">get</span><span class="o">())</span>
+              <span class="o">.</span><span class="na">withMinItems</span><span class="o">(</span><span class="mi">1L</span><span class="o">));</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+<p>See how we define inline options for the <code class="language-plaintext highlighter-rouge">LocationAndDrinks.location</code> property by simply pointing to the enum values and set up the remote options for <code class="language-plaintext highlighter-rouge">drinks</code> by constructing a URI.</p>
+
+<p>A similar form has been exposed for the process step of issuing a payment (see <code class="language-plaintext highlighter-rouge">PaymentOrderModelProcessor</code>).
+Note, how it is only conditionally added to the representations using <code class="language-plaintext highlighter-rouge">RepresentationModel.mapLinkIf(…)</code> which means that the form will only be visible to clients if the order is to be paid in the first place implementing the hypermedia as the engine of application state idea.
+The <code class="language-plaintext highlighter-rouge">HalFormsConfiguration</code> has set up an explicit pattern for the <code class="language-plaintext highlighter-rouge">CreditCardNumber</code> domain type (see above).
+This causes the form derived from <code class="language-plaintext highlighter-rouge">PaymentForm</code> (the type mapping the payload) expose that pattern as <code class="language-plaintext highlighter-rouge">regex</code> for the <code class="language-plaintext highlighter-rouge">number</code> field.</p>
+
+<h2 id="hal-explorer">HAL Explorer</h2>
+
+<p>It’s not by accident that the just released 0.16.0 version of the <a href="https://github.com/toedter/hal-explorer">HAL Explorer library</a> maintained by Spring HATEOAS community veteran <a href="https://twitter.com/kaitoedter">Kai Tödter</a> has shipped extended support for HAL FORMS in general and the <code class="language-plaintext highlighter-rouge">options</code> field in particular.
+Kai has helped to shape the addition of the <code class="language-plaintext highlighter-rouge">options</code> element to the HAL FORMS significantly, and I am glad that we could get Spring Data REST’s HAL Explorer module to be updated to consume the WebJAR of that version for the Pascal release.
+That means, the advanced support for HAL FORMS in Spring HATEOAS and Spring Data REST can be visualized right away.
+Let’s have a quick walk through the individual process steps using the HAL Explorer.</p>
+
+<p>To start the application, simply clone the sample project repository, move into the <code class="language-plaintext highlighter-rouge">server</code> directory, run <code class="language-plaintext highlighter-rouge">./mvnw spring-boot:run</code> and point your browser to <code class="language-plaintext highlighter-rouge">http://localhost:8080</code>.
+The HAL Explorer will show up and issue an HTTP request asking for HAL FORMS to the root of the API.
+The above mentioned form returned will cause the UI show that it found a form.</p>
+
+<div style="text-align: center">
+  <img src="/assets/images/restbucks/place-order-form-1.png" />
+</div>
+
+<p>Note, how the internationalized title returned in the form is used for display purposes.
+Clicking on the plus icon will reveal the form and allow users to actually fill it out:</p>
+
+<div style="text-align: center">
+  <img src="/assets/images/restbucks/place-order-form-2.png" />
+</div>
+
+<p>See how HAL Explorer advertises the properties required to be submitted, how it has rendered a single-value selection drop-down menu for the location as well as a multi-select element for the drinks, populated with the values obtained from the resource.
+In the body section of the form you can also see the actual payload that HAL Explorer is going to submit to the server.
+If you select a second element from the “Getränke” section, it will automatically add that to the array value of the <code class="language-plaintext highlighter-rouge">drinks</code> field.</p>
+
+<p>Once we submitted the form, the client follows the <code class="language-plaintext highlighter-rouge">Location</code> header of the <code class="language-plaintext highlighter-rouge">201 Created</code> response.
+As the order is now in “payment expected” state, it exposes both the <code class="language-plaintext highlighter-rouge">restbucks:payment</code> link as well as a form to submit the payment:</p>
+
+<div style="text-align: center">
+  <img src="/assets/images/restbucks/payment-form-1.png" />
+</div>
+
+<p>We can again click the button to reveal the full form:</p>
+
+<div style="text-align: center">
+  <img src="/assets/images/restbucks/payment-form-2.png" />
+</div>
+
+<p>See how the client has made use of the <code class="language-plaintext highlighter-rouge">regex</code> field of the form definition to automatically apply validation to the input field, and reports the error, as we’re still lacking to enter the 16th digit of the credit card number.</p>
+
+<p>While HAL Explorer is of course not a UI that you’d like to expose to end users, it is a great tool to make a hypermedia API discoverable by client developers.
+Especially, as – in contrast to other approaches – does not only inspect static API description, but also integrates with the dynamic nature of hypermedia APIs nicely.</p>
+
+<h1 id="summary">Summary</h1>
+
+<p>That’s been quite a ride!
+I hope you could get an impression of how the features shipped in the latest Spring HATEOAS and Spring Data releases help you to build richer APIs and at the same time reduce the amount of persistence technology induced boilerplate in your domain model.
+There’s more in the pipeline.
+In particular, I am going to improve on the testing and documentation story, so that you get an impression of how to use Spring REST Docs to document hypermedia APIs and package that documentation right with the application so that it’s discoverable by HAL Explorer.
+Also, I’d like to polish up my Android client implementation also contained in the repository to make more extensive use of the affordances exposed by the API.</p>
+
+<p>Anything you liked in particular?
+Suggestions to make what to improve on?
+Please leave a comment below!</p>]]></content><author><name>Oliver Drotbohm</name><email>info@odrotbohm.de</email></author><category term="restbucks" /><category term="spring-data" /><category term="java" /><category term="ddd" /><category term="jmolecules" /></entry><entry><title type="html">Architecturally evident code with jMolecules</title><link href="https://www.odrotbohm.de/2021/02/Architecturally-evident-code-with-jMolecules/" rel="alternate" type="text/html" title="Architecturally evident code with jMolecules" /><published>2021-02-22T22:51:00+01:00</published><updated>2021-02-22T22:51:00+01:00</updated><id>https://www.odrotbohm.de/2021/02/Architecturally-evident-code-with-jMolecules</id><content type="html" xml:base="https://www.odrotbohm.de/2021/02/Architecturally-evident-code-with-jMolecules/"><![CDATA[<p>Expressing architectural concepts in code often stops at naming conventions and technologies implicitly describing these concepts. <a href="http://jmolecules.org">jMolecules</a> provides annotations and types to describe architectural context and technology specific integration to derive concept specific default mappings and boilerplate code to minimize the gap between architectural idea and the code written to implement those.</p>
+
+<p><em>Note: This is a follow up blog post to <a href="http://odrotbohm.de/2020/03/Implementing-DDD-Building-Blocks-in-Java/">“Implementing DDD Building Blocks in Java”</a> as the libraries discussed in that have evolved significantly.
+While I thought about updating the original article I eventually decided to write a completely new one as the extend of the changes is too great.</em></p>
+
+<h2 id="the-architecture-code-gap">The architecture code gap</h2>
+
+<p>The general journey from architectural idea usually follows the following pattern:
+the team has a rough idea of the fundamental logical structure of the code they want to write.
+That structure can be driven by patterns solely established within the team but is usually influenced by widely adapted architectural approaches like Ports and Adapters or Domain-Driven Design building blocks like entities, aggregates, repositories and services.
+The teams agree on a strategy to actually implement these concepts.
+The means to achieve that commonly range from naming conventions for individual types or packages and package structures.
+Then, the final step towards running code is mapping the logical and technical constraints implied by the concept to the implementation technologies.</p>
+
+<p>Let us take a look at a very simple example.
+Assume a simple <code class="language-plaintext highlighter-rouge">Customer</code> aggregate that is responsible to implement business constraints.
+For example, we should be allowed to assign multiple addresses to the customer, but at least a single <code class="language-plaintext highlighter-rouge">Address</code> instance needs to be assigned to it.
+This is admittedly simplistic but the complexity of the constraints does not actually matter to the point I am trying to make.
+Let us further assume, we would want to map the model code to the database directly using JPA and Spring Data repositories.
+I know this is a topic worth debating on its own, but let us stick with that for now.
+Even in that very reduced example, the actual implementation has significant impact on the code to be written:</p>
+
+<ul>
+  <li>The concept of an aggregate in the code base is established by the presence of an entity and a corresponding repository.</li>
+  <li>The implementation of the root entity of the aggregate has to adhere to some constraints implied by JPA: a default constructor is required, explicit, embedded identifier types have to implement <code class="language-plaintext highlighter-rouge">Serializable</code>, etc.</li>
+  <li>We need to apply some default mappings that are expressions of the constraints implied by the roles of the individual types and the overall arrangement: the dedicated identifier type has to be annotated with <code class="language-plaintext highlighter-rouge">@EmbeddedId</code>.
+The list of addresses has to be mapped as cascading <code class="language-plaintext highlighter-rouge">@OneToMany</code> relationship to express the governing nature of the conceptual aggregate.</li>
+</ul>
+
+<p>There might be well justified exceptions to those mappings but fundamentally, there are rules that can and have to be applied to express the logical concept.
+Zooming out a bit, there are a couple of things going on here at the same time.
+First, the logical concept of an aggregate is not explicit.
+It is scattered amongst different technologies that kind of help expressing the concept but suffer a fundamental problem themselves, which is – second – they are not designed with the architectural abstraction in mind in the first place.
+Arguably, Spring Data is built around the concept of a DDD repository. Also, Spring provides stereotype annotations like <code class="language-plaintext highlighter-rouge">@Service</code> and <code class="language-plaintext highlighter-rouge">@Repository</code> to assign roles to container managed components.
+However, they are driven by the needs of the particular technology’s requirements and functionality like applying transactions and persistence exception translation in the examples given.</p>
+
+<p class="teaser">
+What if we could approach this differently?
+What if we could express the well established architectural and design concepts explicitly and the technology mappings or at least more reasonable defaults for them would be derived from those?
+</p>
+
+<p><a name="jmolecules"></a></p>
+<h2 id="jmolecules">jMolecules</h2>
+
+<p>Let us take it one step at a time.
+<a href="http://jmolecules.org">jMolecules</a> is a project that attempts to tackle the first step: expressing architectural concepts in code directly, either through annotations or interfaces.
+It has evolved from the jDDD library discussed in <a href="http://odrotbohm.de/2020/03/Implementing-DDD-Building-Blocks-in-Java/">this earlier blog post</a> but found a new home in the <a href="http://xmolecules.org/">xMolecules project</a> that in turn attempts to provide similar architectural abstractions for different programming ecosystems.</p>
+
+<p>So we would start by using the Domain-Driven Design abstractions provided by jMolecules in our domain model:</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">org.jmolecules.ddd.types.AggregateRoot</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">org.jmolecules.ddd.types.Entity</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">org.jmolecules.ddd.types.Identifier</span><span class="o">;</span>
+
+<span class="kd">class</span> <span class="nc">Customer</span> <span class="kd">implements</span> <span class="nc">AggregateRoot</span><span class="o">&lt;</span><span class="nc">Customer</span><span class="o">,</span> <span class="nc">CustomerId</span><span class="o">&gt;</span> <span class="o">{</span>
+
+  <span class="kd">private</span> <span class="kd">final</span> <span class="nc">CustomerId</span> <span class="n">id</span><span class="o">;</span>
+  <span class="kd">private</span> <span class="nc">List</span><span class="o">&lt;</span><span class="nc">Address</span><span class="o">&gt;</span> <span class="n">addresses</span><span class="o">;</span>
+
+  <span class="cm">/* Other properties and business methods omitted. */</span>
+
+  <span class="nd">@Value</span><span class="o">(</span><span class="n">staticConstructor</span> <span class="o">=</span> <span class="s">"of"</span><span class="o">)</span>
+  <span class="kd">public</span> <span class="kd">static</span> <span class="kd">class</span> <span class="nc">CustomerId</span> <span class="kd">implements</span> <span class="nc">Identifier</span> <span class="o">{</span>
+    <span class="kd">private</span> <span class="kd">final</span> <span class="no">UUID</span> <span class="n">id</span><span class="o">;</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+
+<span class="kd">class</span> <span class="nc">Address</span> <span class="kd">implements</span> <span class="nc">Entity</span><span class="o">&lt;</span><span class="nc">Customer</span><span class="o">,</span> <span class="nc">AddressId</span><span class="o">&gt;</span> <span class="o">{</span>
+
+  <span class="cm">/* Other properties and business methods omitted. */</span>
+
+  <span class="nd">@Value</span><span class="o">(</span><span class="n">staticConstructor</span> <span class="o">=</span> <span class="s">"of"</span><span class="o">)</span>
+  <span class="kd">static</span> <span class="kd">class</span> <span class="nc">AddressId</span> <span class="kd">implements</span> <span class="nc">Identifier</span> <span class="o">{</span>
+    <span class="kd">private</span> <span class="kd">final</span> <span class="no">UUID</span> <span class="n">id</span><span class="o">;</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>We’re able to express Domain-Driven Design concepts here:</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">CustomerId</code> and <code class="language-plaintext highlighter-rouge">AddressId</code> are identifiers.</li>
+  <li><code class="language-plaintext highlighter-rouge">Customer</code> is an aggregate with <code class="language-plaintext highlighter-rouge">CustomerId</code> as its identifier type.</li>
+  <li><code class="language-plaintext highlighter-rouge">Address</code> is an entity belonging to the <code class="language-plaintext highlighter-rouge">Customer</code> aggregate using <code class="language-plaintext highlighter-rouge">AddressId</code> as identifier type.</li>
+</ul>
+
+<p>This looks very neat so far.
+Except the slightly verbose identifier wrapper types, we are writing only the minimal amount of code necessary and the higher level concepts are both explicitly visible to the developers and also extractable for tools that might want to derive documentation.
+However, if this code was supposed to be persisted using for example JPA, we would now have to go ahead and add quite a bit of boilerplate annotations and implementation code:</p>
+
+<ul>
+  <li>Both <code class="language-plaintext highlighter-rouge">Address</code> and <code class="language-plaintext highlighter-rouge">Customer</code> would need to be annotated with JPA’s <code class="language-plaintext highlighter-rouge">@Entity</code> and get default constructors.
+As we can only <code class="language-plaintext highlighter-rouge">null</code> the properties, this would effectively prevent us from imposing non-nullability constraints on any fields.</li>
+  <li>The implementations of <code class="language-plaintext highlighter-rouge">Identifier</code> would have to additionally implement <code class="language-plaintext highlighter-rouge">Serializable</code> and ideally also declare a serial version UUID.</li>
+  <li>We would have to annotate the identifier types as <code class="language-plaintext highlighter-rouge">@Embeddable</code>, the identifier fields within the entities as <code class="language-plaintext highlighter-rouge">@EmbeddedId</code> and map the <code class="language-plaintext highlighter-rouge">addresses</code> property using an <code class="language-plaintext highlighter-rouge">@OneToMany</code>.</li>
+</ul>
+
+<p><a name="jmolecules-integrations"></a></p>
+<h2 id="jmolecules-technology-integrations">jMolecules technology integrations</h2>
+
+<p>Besides the core artifacts containing abstractions to express architectural patterns, jMolecules provides a set of <a href="https://github.com/xmolecules/jmolecules-integrations">technology integration libraries</a>.
+At its heart, there is a ByteBuddy plugin that will translate jMolecules annotations and interfaces into the technology specific annotations and declarations to make sure they work out of the box within in a particular technology context.
+The complete example can be found <a href="https://github.com/xmolecules/jmolecules-integrations/tree/main/jmolecules-examples/jmolecules-spring-data-jpa">here</a>.</p>
+
+<div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;build&gt;</span>
+  <span class="nt">&lt;plugins&gt;</span>
+    <span class="nt">&lt;plugin&gt;</span>
+      <span class="nt">&lt;groupId&gt;</span>net.bytebuddy<span class="nt">&lt;/groupId&gt;</span>
+      <span class="nt">&lt;artifactId&gt;</span>byte-buddy-maven-plugin<span class="nt">&lt;/artifactId&gt;</span>
+      <span class="nt">&lt;version&gt;</span>1.10.21<span class="nt">&lt;/version&gt;</span>
+      <span class="nt">&lt;executions&gt;</span>
+        <span class="nt">&lt;execution&gt;</span>
+          <span class="nt">&lt;goals&gt;</span>
+            <span class="nt">&lt;goal&gt;</span>transform<span class="nt">&lt;/goal&gt;</span>
+          <span class="nt">&lt;/goals&gt;</span>
+        <span class="nt">&lt;/execution&gt;</span>
+      <span class="nt">&lt;/executions&gt;</span>
+      <span class="nt">&lt;dependencies&gt;</span>
+        <span class="nt">&lt;dependency&gt;</span>
+          <span class="nt">&lt;groupId&gt;</span>org.jmolecules.integrations<span class="nt">&lt;/groupId&gt;</span>
+          <span class="nt">&lt;artifactId&gt;</span>jmolecules-bytebuddy<span class="nt">&lt;/artifactId&gt;</span>
+          <span class="nt">&lt;version&gt;</span>0.1.0<span class="nt">&lt;/version&gt;</span>
+        <span class="nt">&lt;/dependency&gt;</span>
+      <span class="nt">&lt;/dependencies&gt;</span>
+    <span class="nt">&lt;/plugin&gt;</span>
+  <span class="nt">&lt;/plugins&gt;</span>
+<span class="nt">&lt;/build&gt;</span>
+</code></pre></div></div>
+
+<p>The <code class="language-plaintext highlighter-rouge">jmolecules-bytebuddy</code> plugin will – depending on the classpath arrangement of the project being built – inspect the code to be compiled for architectural concepts expressed via jMolecules annotations and types.
+It will then add the technology specific annotations that are required to implement the concept and add it to the code compiled.</p>
+
+<p>With that plugin integrated into the build, the code <code class="language-plaintext highlighter-rouge">Customer</code> aggregate code shown above is indeed a fully functional JPA entity.
+All default constructors, additional interfaces and default mappings as described above will be generated.
+Also, if the nullability annotations arrangement of the type describes fields as non-nullable, a generated <code class="language-plaintext highlighter-rouge">@PrePersist</code>/<code class="language-plaintext highlighter-rouge">@PostLoad</code> method will verify the instance to be persisted or just loaded to be in valid state, in other words, that no non-nullable fields are actually <code class="language-plaintext highlighter-rouge">null</code>.</p>
+
+<h3 id="spring-integration">Spring integration</h3>
+
+<p>Besides the integration for JPA, the ByteBuddy plugin also translates jMolecules <code class="language-plaintext highlighter-rouge">@Service</code>, <code class="language-plaintext highlighter-rouge">@Repository</code> etc. annotations into their Spring counterparts so that application components can stay free of Spring annotations for the sole purpose of component definition but still work out of the box with it.</p>
+
+<p>Also, jMolecules’ <a href="https://github.com/xmolecules/jmolecules/blob/1.1.0/jmolecules-events/src/main/java/org/jmolecules/event/annotation/DomainEventHandler.java"><code class="language-plaintext highlighter-rouge">@DomainEventHandler</code></a> annotation is translate into Spring’s <code class="language-plaintext highlighter-rouge">@EventListener</code> to implement annotation driven event listeners.</p>
+
+<h2 id="summary">Summary</h2>
+
+<p>jMolecules allows to express architectural concepts like Domain-Driven Design building blocks as annotations or types within Java code.
+Its integration library projects those concepts into particular technologies like JPA and Spring.</p>]]></content><author><name>Oliver Drotbohm</name><email>info@odrotbohm.de</email></author><category term="java" /><category term="ddd" /><category term="jmolecules" /></entry><entry><title type="html">Implementing DDD Building Blocks in Java</title><link href="https://www.odrotbohm.de/2020/03/Implementing-DDD-Building-Blocks-in-Java/" rel="alternate" type="text/html" title="Implementing DDD Building Blocks in Java" /><published>2020-03-17T16:25:00+01:00</published><updated>2020-03-17T16:25:00+01:00</updated><id>https://www.odrotbohm.de/2020/03/Implementing-DDD-Building-Blocks-in-Java</id><content type="html" xml:base="https://www.odrotbohm.de/2020/03/Implementing-DDD-Building-Blocks-in-Java/"><![CDATA[<p><em>NOTE: This post has been largely superseded by “Architecturally evident code with jMolecules”.
+Make sure you rather read this one for the most up to date state of affairs.</em></p>
+
+<p>When it comes to implementing building blocks of DDD, developers often struggle to find a good balance between conceptual purity and technical pragmatism.
+In this article I’m going to discuss an experimental idea to express some of tactical design concepts of DDD in Java code and derive the metadata to e.g. implement persistence without polluting the domain model with annotations on the one hand and an additional mapping layer on the other.</p>
+
+<h2 id="context">Context</h2>
+
+<p>In Java applications the building blocks of Domain-Driven Design can be implemented in a variety of ways.
+Those ways usually make different trade-offs in decoupling the actual domain model from technology specific aspects.
+A lot of Java projects err on the side of still annotating their model classes with e.g. JPA annotations for easy persistence so that they don’t have to maintain  a separate persistence model.
+Whether that’s a good idea is out of scope for this article.
+The primary focus of it is to see how we make the model more focused on DDD even in that case.</p>
+
+<p>Another aspect we’re going to touch on is how to make DDD building blocks visible within the code.
+Often a lot of them can be indirectly identified, e.g. by analyzing that the domain type managed by a Spring Data repository having to be an aggregate by definition.
+However, in that particular case we’re relying on a particular persistence technology to be in use to derive exactly that information.
+Also, it would be nice if we could reason about the role of a type by looking at it without any other context.</p>
+
+<p><a name="sample"></a></p>
+<h2 id="sample">Sample</h2>
+
+<p>Let’s start with a quick example that allows us to highlight the challenges.
+Note, that the model is not the only way you could design it.
+I am just describing what could be the result of a design in a particular context.
+It’s about how an aggregate, entity or value object can be represented in code and the effect of one particular way of doing that.
+We model <code class="language-plaintext highlighter-rouge">Customer</code>s that consist of <code class="language-plaintext highlighter-rouge">Address</code>es, <code class="language-plaintext highlighter-rouge">Order</code>s that consist of <code class="language-plaintext highlighter-rouge">LineItem</code>s which in turn point to <code class="language-plaintext highlighter-rouge">Product</code>s and point to the <code class="language-plaintext highlighter-rouge">Customer</code> that placed the order.
+Both <code class="language-plaintext highlighter-rouge">Customer</code> and <code class="language-plaintext highlighter-rouge">Order</code> are aggregates conceptually.</p>
+
+<p><strong>A sample excerpt domain model</strong></p>
+
+<p style="text-align: center;"><img src="/assets/images/sample.svg" alt="Sample UML" /></p>
+
+<p>Let’s start with the <code class="language-plaintext highlighter-rouge">Order</code>’s relationship to the <code class="language-plaintext highlighter-rouge">Customer</code>
+aggregate. A very naive representation in code that uses JPA annotations
+directly would probably look something like this:</p>
+
+<figure class="highlight"><pre><code class="language-java" data-lang="java"><span class="nd">@Entity</span>
+<span class="kd">class</span> <span class="nc">Order</span> <span class="o">{</span>
+  <span class="nd">@EmbeddedId</span> <span class="nc">OrderId</span> <span class="n">id</span><span class="o">;</span>
+  <span class="nd">@ManyToOne</span> <span class="nc">Customer</span> <span class="n">customer</span><span class="o">;</span>
+  <span class="nd">@OneToMany</span> <span class="nc">List</span><span class="o">&lt;</span><span class="nc">LineItem</span><span class="o">&gt;</span> <span class="n">items</span><span class="o">;</span>
+<span class="o">}</span>
+
+<span class="nd">@Entity</span>
+<span class="kd">class</span> <span class="nc">LineItem</span> <span class="o">{</span>
+  <span class="nd">@ManyToOne</span> <span class="nc">Product</span> <span class="n">product</span><span class="o">.</span>
+<span class="o">}</span>
+
+<span class="nd">@Entity</span>
+<span class="kd">class</span> <span class="nc">Customer</span> <span class="o">{</span>
+  <span class="nd">@EmbeddedId</span> <span class="nc">CustomerId</span> <span class="n">id</span><span class="o">;</span>
+<span class="o">}</span></code></pre></figure>
+
+<p>While this constitutes working code, a lot of the semantics of the model remain implicit.
+In JPA, the most coarse grained concept is an entity.
+It doesn’t know about aggregates.
+It will also automatically use eager loading for to-one relationships.
+For a cross aggregate relationship that is not what we want.</p>
+
+<p>A technology focused reaction would be to switch to lazy loading.
+That however creates a new problems, we’re on a start to dig down a rabbit hole and actually have moved away from domain modeling to modeling technology, something we wanted to avoid in the first place.
+We also might want to resort to rather only map identifiers instead of aggregate types, e.g. replacing <code class="language-plaintext highlighter-rouge">Customer</code> with <code class="language-plaintext highlighter-rouge">CustomerId</code> in <code class="language-plaintext highlighter-rouge">Order</code>.
+While that solves the cascading problem, it’s now even less clear that this property effectively establishes a cross aggregate relationship.</p>
+
+<p>For the <code class="language-plaintext highlighter-rouge">LineItem</code>s referenced, a proper default mapping would rather be eager loading (instead of lazy) and cascading all operations as the aggregate usually governs the life cycle of its internals.</p>
+
+<p><a name="idea"></a></p>
+<h2 id="the-idea">The idea</h2>
+
+<p>To improve the situation described above, we could start introducing types that allow us to explicitly assign roles to model artifacts and constrain the composition of them by using generics.
+Let’s start with those (most of them originally described in John Sullivan’s <a href="http://scabl.blogspot.com/2015/04/aeddd-9.html">Advancing Enterprise DDD - Reinstating the Aggregate</a> but slightly renamed alongside the attempt to turn this into a library).</p>
+
+<figure class="highlight"><pre><code class="language-java" data-lang="java"><span class="kd">interface</span> <span class="nc">Identifier</span> <span class="o">{}</span>
+
+<span class="kd">interface</span> <span class="nc">Identifiable</span><span class="o">&lt;</span><span class="no">ID</span> <span class="kd">extends</span> <span class="nc">Identifier</span><span class="o">&gt;</span> <span class="o">{</span>
+  <span class="no">ID</span> <span class="nf">getId</span><span class="o">();</span>
+<span class="o">}</span>
+
+<span class="kd">interface</span> <span class="nc">Entity</span><span class="o">&lt;</span><span class="no">T</span> <span class="kd">extends</span> <span class="nc">AggregateRoot</span><span class="o">&lt;</span><span class="no">T</span><span class="o">,</span> <span class="o">?&gt;,</span> <span class="no">ID</span> <span class="kd">extends</span> <span class="nc">Identifier</span><span class="o">&gt;</span>
+  <span class="kd">extends</span> <span class="nc">Identifiable</span><span class="o">&lt;</span><span class="no">ID</span><span class="o">&gt;</span> <span class="o">{}</span>
+
+<span class="kd">interface</span> <span class="nc">AggregateRoot</span><span class="o">&lt;</span><span class="no">T</span> <span class="kd">extends</span> <span class="nc">AggregateRoot</span><span class="o">&lt;</span><span class="no">T</span><span class="o">,</span> <span class="no">ID</span><span class="o">&gt;,</span> <span class="no">ID</span> <span class="kd">extends</span> <span class="nc">Identifier</span><span class="o">&gt;</span>
+  <span class="kd">extends</span> <span class="nc">Entity</span><span class="o">&lt;</span><span class="no">T</span><span class="o">,</span> <span class="no">ID</span><span class="o">&gt;</span> <span class="o">{}</span>
+
+<span class="kd">interface</span> <span class="nc">Association</span><span class="o">&lt;</span><span class="no">T</span> <span class="kd">extends</span> <span class="nc">AggregateRoot</span><span class="o">&lt;</span><span class="no">T</span><span class="o">,</span> <span class="no">ID</span><span class="o">&gt;,</span> <span class="no">ID</span> <span class="kd">extends</span> <span class="nc">Identifier</span><span class="o">&gt;</span>
+  <span class="kd">extends</span> <span class="nc">Identifiable</span><span class="o">&lt;</span><span class="no">ID</span><span class="o">&gt;</span> <span class="o">{}</span></code></pre></figure>
+
+<p><code class="language-plaintext highlighter-rouge">Identifier</code> is just a marker interface to equip identifier types with. That encourages dedicated types to describe identifiers.
+Primary intent of that is to avoid every entity to be identified by a common type (such as <code class="language-plaintext highlighter-rouge">Long</code> or <code class="language-plaintext highlighter-rouge">UUID</code>).
+While that might seem like a good idea from a persistence point of view it’s easy to mix up a <code class="language-plaintext highlighter-rouge">Customer</code>’s identifier with an <code class="language-plaintext highlighter-rouge">Order</code>’s one.
+Explicit identifier types avoid that problem.</p>
+
+<p>A DDD <code class="language-plaintext highlighter-rouge">Entity</code> is an identifiable concept which means it needs to expose its identifier. It is also bound to an <code class="language-plaintext highlighter-rouge">AggregateRoot</code>.
+That might seem counter intuitive at first but it allows to verify that an <code class="language-plaintext highlighter-rouge">Entity</code> such as <code class="language-plaintext highlighter-rouge">LineItem</code> is not accidentally referred to from a different aggregate.
+Using those interfaces we can set up static code analysis tooling to verify our model structure.</p>
+
+<p><code class="language-plaintext highlighter-rouge">Association</code> is basically an indirection towards a related aggregate’s identifier that purely serves expressiveness within the model.</p>
+
+<p>These interfaces and all subsequently mentioned code are available through a library called <em>jDDD</em>, living in <a href="https://github.com/odrotbohm/jddd">this GitHub repository</a>.</p>
+
+<p><a name="explicit-building-blocks"></a></p>
+<h3 id="explicit-building-blocks-in-our-sample">Explicit building blocks in our sample</h3>
+
+<p>What would our model look like with these concepts applied (JPA annotations not declared for clarity, code to be found <a href="https://github.com/odrotbohm/jddd/tree/master/jddd-examples/jddd-spring-data-jpa">here</a>)?</p>
+
+<figure class="highlight"><pre><code class="language-java" data-lang="java"><span class="kd">class</span> <span class="nc">OrderId</span> <span class="kd">implements</span> <span class="nc">Identifier</span> <span class="o">{}</span> <span class="c1">// same for other ID types</span>
+
+<span class="kd">class</span> <span class="nc">Order</span> <span class="kd">implements</span> <span class="nc">AggregateRoot</span><span class="o">&lt;</span><span class="nc">Order</span><span class="o">,</span> <span class="nc">OrderId</span><span class="o">&gt;</span> <span class="o">{</span>
+  <span class="nc">OrderId</span> <span class="n">id</span><span class="o">;</span>
+  <span class="nc">CustomerAssociation</span> <span class="n">customer</span><span class="o">;</span>
+  <span class="nc">List</span><span class="o">&lt;</span><span class="nc">LineItem</span><span class="o">&gt;</span> <span class="n">items</span><span class="o">;</span>
+<span class="o">}</span>
+
+<span class="kd">class</span> <span class="nc">LineItem</span> <span class="kd">implements</span> <span class="nc">Entity</span><span class="o">&lt;</span><span class="nc">Order</span><span class="o">,</span> <span class="nc">LineItemId</span><span class="o">&gt;</span> <span class="o">{</span> <span class="err">…</span> <span class="o">}</span>
+
+<span class="kd">class</span> <span class="nc">CustomerAssociation</span> <span class="kd">implements</span> <span class="nc">Association</span><span class="o">&lt;</span><span class="nc">Customer</span><span class="o">,</span> <span class="nc">CustomerId</span><span class="o">&gt;</span> <span class="o">{</span> <span class="err">…</span> <span class="o">}</span>
+
+<span class="kd">class</span> <span class="nc">Customer</span> <span class="kd">implements</span> <span class="nc">AggregateRoot</span><span class="o">&lt;</span><span class="nc">Customer</span><span class="o">,</span> <span class="nc">CustomerId</span><span class="o">&gt;</span> <span class="o">{</span> <span class="err">…</span> <span class="o">}</span></code></pre></figure>
+
+<p>With that we can extract a lot of additional information from looking at
+the types and the fields alone:</p>
+
+<ul>
+  <li>The identifier type for <code class="language-plaintext highlighter-rouge">Order</code> is <code class="language-plaintext highlighter-rouge">OrderId</code>, something we could’ve derived before but only involving JPA annotation interpretation.</li>
+  <li><code class="language-plaintext highlighter-rouge">LineItem</code> is an entity belonging to the <code class="language-plaintext highlighter-rouge">Order</code> aggregate.</li>
+  <li>The <code class="language-plaintext highlighter-rouge">customer</code> property clearly indicates it’s represents an association towards the <code class="language-plaintext highlighter-rouge">Customer</code> aggregate.</li>
+</ul>
+
+<p>It’s a pretty straight forward task to implement a verification of e.g. entities only being held in their owning aggregates using tools like <a href="https://jqassistant.org/">jQAssistant</a> or <a href="https://www.archunit.org/">ArchUnit</a>.
+Also the information can be extracted, used for documentation etc.</p>
+
+<p><a name="persistence-technology"></a></p>
+<h3 id="adapting-fundamental-persistence-technology">Adapting fundamental persistence technology</h3>
+
+<p>While all of this is nice, we still face the challenge of having to map this to a data store eventually, in this case assuming JPA.
+As identified before there are some default mapping rules we’d need to apply that result in boilerplate annotating of the model.
+Some examples of such steps:</p>
+
+<ul>
+  <li>All entities will need to be annotated with <code class="language-plaintext highlighter-rouge">@javax.persistence.Entity</code>.</li>
+  <li>Identifier types will need to become <code class="language-plaintext highlighter-rouge">@Embeddable</code>, the identifier (read: an entity’s property with a type assignable to <code class="language-plaintext highlighter-rouge">Identifier</code>) mapped as <code class="language-plaintext highlighter-rouge">@EmbeddedId</code>.
+In e.g. Hibernate embedded identifiers also need to implement <code class="language-plaintext highlighter-rouge">Serializable</code> (for potential usability in a second-level cache).</li>
+  <li><code class="language-plaintext highlighter-rouge">Entity</code> properties within an aggregate could get relationship mappings defaulted to <code class="language-plaintext highlighter-rouge">@OneToOne</code> or <code class="language-plaintext highlighter-rouge">@OneToMany</code> with eager fetching as it’s reasonable to assume the aggregate controls their lifecycle.</li>
+  <li>Implementations of <code class="language-plaintext highlighter-rouge">Association</code> will have to be embeddables as well.</li>
+</ul>
+
+<p>How do we actually massage these defaults into the types from the outside? I have a <a href="https://github.com/odrotbohm/jddd/tree/master/jddd-jpa">prototypical implementation based on ByteBuddy</a> available. It ships a <a href="https://github.com/odrotbohm/jddd/blob/1ca9d08a23b17454c4b2c5b3e09ab3cfcb1e907b/jddd-jpa/src/main/java/org/jddd/jpa/JDddJpaPlugin.java"><code class="language-plaintext highlighter-rouge">JpaPlugin</code></a> implementing ByteBuddy’s <code class="language-plaintext highlighter-rouge">Plugin</code> interface for usage from its build plugins like this:</p>
+
+<p><em>Using the ByteBuddy JPA plugin to default JPA annotations based on DDD
+concepts.</em></p>
+
+<figure class="highlight"><pre><code class="language-xml" data-lang="xml"><span class="nt">&lt;plugin&gt;</span>
+  <span class="nt">&lt;groupId&gt;</span>net.bytebuddy<span class="nt">&lt;/groupId&gt;</span>
+  <span class="nt">&lt;artifactId&gt;</span>byte-buddy-maven-plugin<span class="nt">&lt;/artifactId&gt;</span>
+  <span class="nt">&lt;version&gt;</span>${bytebuddy.version}<span class="nt">&lt;/version&gt;</span>
+  <span class="nt">&lt;executions&gt;</span>
+    <span class="nt">&lt;execution&gt;</span>
+      <span class="nt">&lt;goals&gt;</span>
+        <span class="nt">&lt;goal&gt;</span>transform<span class="nt">&lt;/goal&gt;</span>
+      <span class="nt">&lt;/goals&gt;</span>
+    <span class="nt">&lt;/execution&gt;</span>
+  <span class="nt">&lt;/executions&gt;</span>
+  <span class="nt">&lt;configuration&gt;</span>
+    <span class="nt">&lt;transformations&gt;</span>
+      <span class="nt">&lt;transformation&gt;</span>
+        <span class="nt">&lt;plugin&gt;</span>….JDddJpaPlugin<span class="nt">&lt;/plugin&gt;</span>
+      <span class="nt">&lt;/transformation&gt;</span>
+    <span class="nt">&lt;/transformations&gt;</span>
+  <span class="nt">&lt;/configuration&gt;</span>
+<span class="nt">&lt;/plugin&gt;</span></code></pre></figure>
+
+<p>The plugin would essentially work as follows:</p>
+
+<ol>
+  <li>Identify the DDD concept by checking whether the type handed to the <code class="language-plaintext highlighter-rouge">Plugin</code> implements any of the interfaces of interest.</li>
+  <li>For each concept inspect type and fields for existing annotations and — if not present — add the default appropriate for the relationship at hand.</li>
+</ol>
+
+<p><a name="spring-data"></a></p>
+<h3 id="integration-with-spring-data">Integration with Spring Data</h3>
+
+<p>A final step we can take in terms of letting persistence technology adapt to the information available in the type system is the question how to resolve <code class="language-plaintext highlighter-rouge">Associations</code> easily.
+Our aforementioned sample contains these interfaces which at some point could actually make it int Spring Data:</p>
+
+<figure class="highlight"><pre><code class="language-java" data-lang="java"><span class="kd">interface</span> <span class="nc">AggregateLookup</span><span class="o">&lt;</span><span class="no">T</span> <span class="kd">extends</span> <span class="nc">AggregateRoot</span><span class="o">&lt;</span><span class="no">T</span><span class="o">,</span> <span class="no">ID</span><span class="o">&gt;,</span> <span class="no">ID</span> <span class="kd">extends</span> <span class="nc">Identifier</span><span class="o">&gt;</span> <span class="o">{</span>
+  <span class="nc">Optional</span><span class="o">&lt;</span><span class="no">T</span><span class="o">&gt;</span> <span class="nf">findById</span><span class="o">(</span><span class="no">ID</span> <span class="n">id</span><span class="o">);</span>
+<span class="o">}</span>
+
+<span class="kd">interface</span> <span class="nc">AssociationResolver</span><span class="o">&lt;</span><span class="no">T</span> <span class="kd">extends</span> <span class="nc">AggregateRoot</span><span class="o">&lt;</span><span class="no">T</span><span class="o">,</span> <span class="no">ID</span><span class="o">&gt;,</span> <span class="no">ID</span> <span class="kd">extends</span> <span class="nc">Identifier</span><span class="o">&gt;</span>
+  <span class="kd">extends</span> <span class="nc">AggregateLookup</span><span class="o">&lt;</span><span class="no">T</span><span class="o">,</span> <span class="no">ID</span><span class="o">&gt;</span> <span class="o">{</span>
+
+  <span class="k">default</span> <span class="nc">Optional</span><span class="o">&lt;</span><span class="no">T</span><span class="o">&gt;</span> <span class="nf">resolve</span><span class="o">(</span><span class="nc">Association</span><span class="o">&lt;</span><span class="no">T</span><span class="o">,</span> <span class="no">ID</span><span class="o">&gt;</span> <span class="n">association</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">return</span> <span class="nf">findById</span><span class="o">(</span><span class="n">association</span><span class="o">.</span><span class="na">getId</span><span class="o">());</span>
+  <span class="o">}</span>
+
+  <span class="k">default</span> <span class="no">T</span> <span class="nf">resolveRequired</span><span class="o">(</span><span class="nc">Association</span><span class="o">&lt;</span><span class="no">T</span><span class="o">,</span> <span class="no">ID</span><span class="o">&gt;</span> <span class="n">association</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">return</span> <span class="nf">resolve</span><span class="o">(</span><span class="n">association</span><span class="o">).</span><span class="na">orElseThrow</span><span class="o">(</span>
+      <span class="o">()</span> <span class="o">-&gt;</span> <span class="k">new</span> <span class="nc">IllegalArgumentException</span><span class="o">(</span>
+        <span class="nc">String</span><span class="o">.</span><span class="na">format</span><span class="o">(</span><span class="s">"Could not resolve association %s!"</span><span class="o">,</span> <span class="n">association</span><span class="o">)));</span>
+  <span class="o">}</span>
+<span class="o">}</span></code></pre></figure>
+
+<p><code class="language-plaintext highlighter-rouge">AggregateLookup.findById(…)</code> is essentially equivalent to <code class="language-plaintext highlighter-rouge">CrudRepository.findById(…)</code> which is not a coincidence.
+<code class="language-plaintext highlighter-rouge">AssociationResolver</code> exposes methods that resolve the <code class="language-plaintext highlighter-rouge">Association</code> via the <code class="language-plaintext highlighter-rouge">findById(…)</code> method using the association’s exposed identifier.
+This allows a <code class="language-plaintext highlighter-rouge">CustomerRepository</code> to look like this and work out of the box without any further changes.</p>
+
+<figure class="highlight"><pre><code class="language-java" data-lang="java"><span class="kd">interface</span> <span class="nc">Customers</span> <span class="kd">extends</span>
+  <span class="n">o</span><span class="o">.</span><span class="na">s</span><span class="o">.</span><span class="na">d</span><span class="o">.</span><span class="na">r</span><span class="o">.</span><span class="na">Repository</span><span class="o">&lt;</span><span class="nc">Customer</span><span class="o">,</span> <span class="nc">CustomerId</span><span class="o">&gt;,</span>
+  <span class="nc">AssociationResolver</span><span class="o">&lt;</span><span class="nc">Customer</span><span class="o">,</span> <span class="nc">CustomerId</span><span class="o">&gt;</span> <span class="o">{</span> <span class="err">…</span> <span class="o">}</span>
+
+<span class="nc">Order</span> <span class="n">order</span> <span class="o">=</span> <span class="err">…</span> <span class="c1">// obtain order</span>
+<span class="nc">Customers</span> <span class="n">customers</span> <span class="o">=</span> <span class="err">…</span> <span class="c1">// obtain repository</span>
+
+<span class="nc">Optional</span><span class="o">&lt;</span><span class="nc">Customer</span><span class="o">&gt;</span> <span class="n">customer</span> <span class="o">=</span> <span class="n">customers</span><span class="o">.</span><span class="na">resolve</span><span class="o">(</span><span class="n">order</span><span class="o">.</span><span class="na">getCustomer</span><span class="o">());</span></code></pre></figure>
+
+<p>Note, how <code class="language-plaintext highlighter-rouge">Customers</code> is a standard Spring Data repository and we can easily, explicitly resolve associations to other aggregates via their repositories.</p>
+
+<p><a name="open-questions"></a></p>
+<h3 id="open-questions-and-outlook">Open questions and outlook</h3>
+
+<p><strong>Would the interfaces something you’d be willing to let your domain code depend on?</strong> – I know this is an extremely controversial topic.
+There’s a group of people that doesn’t bother at all and that would’ve happily depended on such interfaces if they were part of e.g. Spring Data.
+Others are rightfully concerned about keeping their domain model as independent of technology aspects as possible.
+However, there is a middle ground.
+If you think about it: implementing your domain model in a programming language is technical coupling as well.
+Using date abstractions in your model is, using e.g. the money APIs is.
+I think that one can argue that it’s okay to depend on some technology if the library depended on is <em>focussed</em> and the effort to remove it is small.
+What we have here is a set of interfaces that allows us to make DDD concepts explicit that previously had been implicit.
+That’s just in line with the spirit of DDD in the first place.</p>
+
+<p><strong>Is requiring <code class="language-plaintext highlighter-rouge">Identifier</code> to restrictive?</strong> — The generics bounds to <code class="language-plaintext highlighter-rouge">ID extends Identifier</code> eliminate the possibility to use simple types (<code class="language-plaintext highlighter-rouge">Long</code>, <code class="language-plaintext highlighter-rouge">UUID</code>) as identifiers.
+While this is intentional to some degree it might also be considered too invasive.</p>
+
+<p><strong>Is the persistence setup too confusing?</strong> — while the concept specific defaulting is nice, it also might create some confusion, especially to developers that are used to seeing JPA annotations.
+“How is this working at all?” is a question likely to come up easily.
+What do the new defaults look like?</p>
+
+<p><strong>Further persistence technology integration</strong> — It might make sense for other persistence integrations to also provide mapping defaults based on rules applicable to DDD building blocks.
+This could mean both other ByteBuddy plugins but also the optional inspection of the building block interfaces to reason about the model.</p>
+
+<p><strong>Build integration</strong> — While integrating the defaulting via ByteBuddy works well, it feels bit awkward to see nothing happen if everything goes well, which might just be something to get used to.
+Errors result in failing builds on the command line, which is fine.
+The integration with Eclipse however has some issues: first, the ByteBuddy Maven plugin is currently not running by default because apparently it’s lacking the metadata necessary for m2e to know what to do.
+You can get this to work by tweaking the m2e lifecycle mappings file adding the following configuration block:</p>
+
+<p><em>Declaring the ByteBuddy Maven plugin</em></p>
+
+<figure class="highlight"><pre><code class="language-xml" data-lang="xml"><span class="nt">&lt;pluginExecution&gt;</span>
+  <span class="nt">&lt;pluginExecutionFilter&gt;</span>
+    <span class="nt">&lt;groupId&gt;</span>net.bytebuddy<span class="nt">&lt;/groupId&gt;</span>
+    <span class="nt">&lt;artifactId&gt;</span>byte-buddy-maven-plugin<span class="nt">&lt;/artifactId&gt;</span>
+    <span class="nt">&lt;versionRange&gt;</span>[0.0.1,)<span class="nt">&lt;/versionRange&gt;</span>
+    <span class="nt">&lt;goals&gt;</span>
+      <span class="nt">&lt;goal&gt;</span>transform<span class="nt">&lt;/goal&gt;</span>
+    <span class="nt">&lt;/goals&gt;</span>
+  <span class="nt">&lt;/pluginExecutionFilter&gt;</span>
+  <span class="nt">&lt;action&gt;</span>
+    <span class="nt">&lt;execute&gt;</span>
+      <span class="nt">&lt;runOnIncremental&gt;</span>true<span class="nt">&lt;/runOnIncremental&gt;</span>
+    <span class="nt">&lt;/execute&gt;</span>
+  <span class="nt">&lt;/action&gt;</span>
+<span class="nt">&lt;/pluginExecution&gt;</span></code></pre></figure>
+
+<p>That said, errors in the plugin execution are signaled via a marker on the <code class="language-plaintext highlighter-rouge">pom.xml</code> and the <code class="language-plaintext highlighter-rouge">&lt;execution /&gt;</code> element of the plugin declaration.
+The hover then contains the stack trace of the exception produced by the plugin. While this is fine, it’s not very convenient.
+I’ve filed <a href="https://github.com/raphw/byte-buddy/issues/820">a ticket</a> to ask for improvement.</p>
+
+<p><a name="summary"></a></p>
+<h2 id="summarytldr">Summary — tl;dr</h2>
+
+<p>The article described common problems expressing DDD building blocks while designing domain models and directly mapping them onto persistence technology like JPA.
+A set of interfaces describing the building blocks as well as their relationships was suggested potentially shipped as a library.
+Improved JPA default mappings based on those building blocks were implemented using a ByteBuddy <code class="language-plaintext highlighter-rouge">Plugin</code>.
+Additional Spring Data integration was suggested to make it easy to resolve associations between aggregates explicitly.</p>
+
+<p>The library and sample code lives in this <a href="https://github.com/odrotbohm/jddd">GitHub repository</a>.
+Binaries currently available from the <a href="https://repo.spring.io/libs-snapshot/org/jddd">Spring Artifactory repository</a>:</p>
+
+<figure class="highlight"><pre><code class="language-xml" data-lang="xml"><span class="nt">&lt;repositories&gt;</span>
+  <span class="nt">&lt;repository&gt;</span>
+    <span class="nt">&lt;id&gt;</span>spring-libs-snapshot<span class="nt">&lt;/id&gt;</span>
+    <span class="nt">&lt;url&gt;</span>https://repo.spring.io/libs-snapshot<span class="nt">&lt;/url&gt;</span>
+  <span class="nt">&lt;/repository&gt;</span>
+<span class="nt">&lt;/repositories&gt;</span>
+
+<span class="nt">&lt;dependencies&gt;</span>
+  <span class="nt">&lt;dependency&gt;</span>
+    <span class="nt">&lt;groupId&gt;</span>org.jddd<span class="nt">&lt;/groupId&gt;</span>
+    <span class="nt">&lt;artifactId&gt;</span>jdd-core<span class="nt">&lt;/artifactId&gt;</span>
+    <span class="nt">&lt;version&gt;</span>0.0.1-SNAPSHOT<span class="nt">&lt;/version&gt;</span> <span class="c">&lt;!-- Replace with current version if needed --&gt;</span>
+  <span class="nt">&lt;/dependency&gt;</span>
+<span class="nt">&lt;/dependencies&gt;</span></code></pre></figure>
+
+<p>Looking forward to your feedback, questions and comments!</p>]]></content><author><name>Oliver Drotbohm</name><email>info@odrotbohm.de</email></author><category term="java" /><category term="ddd" /></entry><entry><title type="html">Evolving Distributed Systems</title><link href="https://www.odrotbohm.de/2016/10/evolving-distributed-systems/" rel="alternate" type="text/html" title="Evolving Distributed Systems" /><published>2016-10-09T13:25:00+02:00</published><updated>2016-10-09T13:25:00+02:00</updated><id>https://www.odrotbohm.de/2016/10/evolving-distributed-systems</id><content type="html" xml:base="https://www.odrotbohm.de/2016/10/evolving-distributed-systems/"><![CDATA[<p>I’ve recently been pulled into <a href="https://twitter.com/olivergierke/status/782958179391004672">a discussion</a> about the effect of contracts in distributed systems both technically and regarding team communication.
+As usual, 140 characters are quite a limitation for reasonable discussion I thought I’d summarize my ideas here.</p>
+
+<p><a name="context"></a></p>
+
+<h2 id="where-do-we-come-from">Where do we come from?</h2>
+
+<p>Let’s get the elephant out of the room: everyone is talking about microservices these days.
+Just like so many others, I’ve never been a fan of the term, as it implies a focus on <em>size</em> and <em>small</em>.
+While there are definitely <a href="https://vimeo.com/148843366">advantages to smaller</a> — but that raises the question: “Smaller than what?”
+We need to come up with a proper context.
+Assuming we’re about to ship the same amount of functionality, the smaller the systems, the more of them we usually have to deal with.
+That in turn creates new and most certainly <em>different</em> challenges — both organizationally and from a systems architecture point of view.</p>
+
+<p>I usually prefer to speak of “a system of systems”.
+I don’t care much about size for the sake of size if a system meets its functional and non-functional requirements.
+It’s interesting to observe people assuming a system on the one side of the size spectrum (i.e. a single, monolithic application) is fundamentally flawed and problematic per se, but hardly anyone looks a the risks and negative side effects of potentially over-dividing a system.</p>
+
+<p>So let’s stay with the assumption that we build a system of systems and let’s take a look of the effects on the architecture of such a division.</p>
+
+<p><a name="inter-systems-communication"></a></p>
+
+<h2 id="effect-on-inter-system-communication">Effect on inter-system communication</h2>
+
+<p>If a system is comprised of systems in turn, a crucial aspect of the overall architecture is if and how the individual systems communicate with each other.
+The approach I usually see here is that they expose APIs — usually HTTP &amp; JSON (aka. street-REST) based — and a request they serve involves actively reaching out to other services in the system.</p>
+
+<p>This approach has a couple of important effects: a user request to the overall system causes quite a few internal requests, systems calling other systems, which — without any mitigating means — causes latency to pile up.
+Also, a lot of API surface has to be created and maintained which usually causes the teams to slow down as changes have to be synchronized, API “versions” are created (which <a href="https://www.infoq.com/news/2013/12/api-versioning">creates effort</a>).
+More on that below.</p>
+
+<p>To mitigate the former, a quick technical answer is found: communication needs to be done asynchronously and in a reactive way.
+Even with that in places use of HTTP and REST in general is deemed inappropriate and especially non-performant, so that “more efficient”, usually more RPC-style communication protocols are recommended.
+There’s a certain irony in the latter, as most usage of HTTP I usually see, follows RPC mechanisms more than it does follow REST constraints in the first place and it’s weird to see people hope to avoid getting the effects of RPC-style communication when they use HTTP RCP-style.</p>
+
+<p><a name="solving-the-right-problem"></a></p>
+
+<h2 id="are-we-solving-the-right-problem">Are we solving the right problem?</h2>
+
+<p>Let’s take a step back and think about what our architecture was supposed to support in the first place: we wanted to achieve business agility.
+We wanted to build software around business teams and features, so that can ship new functionality <em>without having to wait for other teams</em>.
+This means, when defining our systems architecture, we need to enable the individual systems to evolve <em>independently</em> of the others, too, right?</p>
+
+<p>The first question we can raise here is, whether it is a good idea to let the systems communicate a lot, as communication means we need to agree on an API in the first place, which in turn creates coupling.
+The least coupling of systems is achieved amongst the ones that don’t speak to each other at all, which basically boils down to the first law of distributed computing: don’t do it.</p>
+
+<p>Also note how the over-partitioning of the system described above results in the requirement of evolvability — the primary driver behind our architecture — getting intermingled with the aspect of efficiency.
+To a large degree, low coupling and efficiency are contradicting requirements in the first place.
+This seems to indicate that we should try to avoid the separation in places where efficiency is concern of great priority.</p>
+
+<p><a name="scs"></a></p>
+
+<h2 id="self-contained-systems-scs">Self-Contained Systems (SCS)</h2>
+
+<p>An interesting approach to the separation of a system into systems are <a href="http://scs-architecture.org/">Self-Contained Systems (SCS)</a>.
+The fundamental idea of SCS is simple: you comprise a systems of web-applications per a <a href="http://martinfowler.com/bliki/BoundedContext.html">Domain-Driven Design Bounded Context</a>, i.e. the primary separation aspect is business capabilities.
+Technical separation is a downstream concern (potentially using even smaller microservices) and can be used <em>within</em> an SCS but it’s regarded an implementation detail.</p>
+
+<p>Here is the most crucial aspects of SCS within the current context of discussion:
+Self-Contained Systems strictly try to avoid inter-systems communication when serving user requests, which means they act on local (potentially replicated) data only and rather expose events potentially relevant to other parties instead of notifying them explicitly.
+Inter-systems communication can be implemented separately using messaging or the scheduled pulling of events from other systems.</p>
+
+<p>What seems like a quite strict and limiting restriction in the first place has an important upside: it alone removes — or at least mitigates — a lot of the downstream problems that had to be handled in the unrestricted approach described above.
+Not having to deal with the accumulated latency and perceived poor performance of inter-process calls, we can now concentrate on the aspect of our architecture that we considered most important in the first place: independent evolvability.</p>
+
+<p><a name="api-evolution"></a></p>
+
+<h2 id="api-evolution">API evolution</h2>
+
+<p>Let’s assume we have two systems (potentially SCS) that we decided need to talk to each other.
+When designing the inter-systems communication and deciding for a particular technology we again need to think about the fundamental goal of the separation in the first place: independent evolvability.</p>
+
+<p>What does independent evolvability actually mean? Fundamentally, it means that we’re able to deploy a new version of one of the participants — don’t mix up “version” with “API version” here, I’ll get to that in a second — without breaking the other.
+That means, the ability to change either side of the communication without turning that into a breaking change is a key aspect in the design and choice of technology for such communication.</p>
+
+<p><a name="rest"></a></p>
+
+<h2 id="rest">REST</h2>
+
+<p>If you read up on Roy’s thesis and the <a href="https://www.ics.uci.edu/~fielding/pubs/dissertation/web_arch_domain.htm#sec_4_1">requirements the World Wide Web imposed on its architecture</a>, you’ll find that it basically reads like a description for the requirements imposed on micro-service architectures.
+That shouldn’t be a surprise as the web is basically the most distributed system ever built in the first place.
+Turn that around and you’ll realize that it might not be bad to follow the ideas of the web when building a distributed system that’s supposed to scale and evolve.</p>
+
+<p>Evolvability is a key aspect of the architectural style REST:</p>
+
+<blockquote>
+  <p>…, extensibility allows us to avoid getting stuck forever with the limitations of what was deployed.
+Even if it were possible to build a software system that perfectly matches the requirements of its users, those requirements will change over time just as society changes over time.
+A system intending to be as long-lived as the Web must be prepared for change. — Roy T. Fielding, <a href="https://www.ics.uci.edu/~fielding/pubs/dissertation/web_arch_domain.htm#sec_4_1_2">Architectural Styles and Design of Network-based Software Architectures (Section 4.1.2)</a></p>
+</blockquote>
+
+<p>That might raise the question why people complain about it being non-performant and inappropriate for distributed systems?
+A pretty obvious observations in most of the claims I see is that people use HTTP in a way that’s more RPC-like than it is REST.
+That usually includes ignoring key constraints that are important to the architectural effects REST promises.</p>
+
+<p>In software, an architectural style describes a set of constraints that — if followed — lead to certain traits of a system.
+It might be a REST-special thing, but people seem to assume they could get the benefits of it entirely but pick and choose only the constraints that are easy to implement.
+Unfortunately, that’s not how it works.
+Hypermedia is a required constraint for a REST API, especially, if the pursued effect of applying the style is evolvability.</p>
+
+<p>On the other hand, being the most performant communication has never been a primary driver of HTTP as it favors low coupling and scalability over efficiency.
+That doesn’t mean the latter is totally out of scope: there’s caching, there’s compression, there are partial responses, there is support for (binary) media types etc.
+Still, these means are shaped in a way they don’t undermine the other traits deemed more important.</p>
+
+<p><a name="crud-apis"></a></p>
+
+<h2 id="the-problem-of-crud-apis">The problem of CRUD APIs</h2>
+
+<p>Let’s be honest, a lot of self-proclaimed REST APIs around these days are basically HTTP based CRUD APIs that expose database content as JSON.
+The effect of that is that the documentation and specification of those APIs is very focussed on describing the individual resources and the data fields found in the JSON (Swagger being the most prominent instance of a tool creating incentives to do exactly that).</p>
+
+<blockquote>
+  <p>The more generic your API, the more coupling you create.</p>
+</blockquote>
+
+<p>The motivation for that usually is that this generic approach allows easy client implementations “as they can all just behave the same way” or “it’s the easiest way to talk to a server”.
+Also, a lot of the specifics of the data — e.g. the field <code class="language-plaintext highlighter-rouge">status</code> in a representation of an order only being able to contain three different values — are easy to create, generate by inspecting server side code, a service description language etc.
+So what is the downside of that?</p>
+
+<ol>
+  <li>
+    <p><em>The service looking like that is hardly containing any business value.</em>
+It exposes <a href="https://speakerdeck.com/stilkov/wait-what-our-microservices-have-actual-human-users-1?slide=11">data, not business functionality</a>.
+There <em>is</em> a client somewhere implementing features, but it’s not on the server.</p>
+  </li>
+  <li>
+    <p><em>If there is some kind of logic — usually at least data validation — it has to be replicated on both the server and the client creating the coupling</em> we so desperately wanted to avoid in the first place as it has to be kept in sync.
+If there is some higher-level logic implemented that can be used via the API — a client being able to place an order, submit payment information etc. — it is completely implicit and the functionality to use that has to be implemented by <em>all</em> clients.
+Also, it means the clients will have to inspect the payload more closely, which reduces the legroom the server has to actually make changes to it.</p>
+  </li>
+  <li>
+    <p><em>The more your API is considered to provide data only, the more clients want a lot of control over the retrieval.</em>
+They want to be very specific about the fields a representation is supposed to return.
+They might even be able to formulate detailed predicates to filter collection resources.
+Giving in to these incentives is not even a problem per se, you just have to be aware of the consequences.
+You create strong coupling between the client and the server.
+Your clients might be able to gain a little efficiency but you pay for that with stronger coupling.
+Don’t be surprised to run into RPC-like characteristics of your remote communication, if you use HTTP in an RPC style.</p>
+  </li>
+</ol>
+
+<p>To summarize the situation: the more generic you make your API the less value you create with that API, the more coupling you create, as business logic is moved into clients.
+That’s something which is not the most intuitive thing to see and something that a lot of developers oversee.</p>
+
+<p><a name="contracts"></a></p>
+
+<h2 id="the-problem-of-contracts">The problem of contracts</h2>
+
+<p>The RPC-style approach to systems interacting then also usually leads to a strong focus on defining contracts between the systems, a desire to generate clients and server stubs so that the interaction can be tested etc.</p>
+
+<p>The idea of a contract between two communicating parties and the management of those contracts is quite a natural one to come to.
+It promises reliability and control.
+If both parties adhere to the contract, everything’s supposed to work, right?
+That’s not even wrong.
+However contracts imply a couple of downsides in the very special context we try to apply them in:</p>
+
+<ol>
+  <li>
+    <p><em>A contract requires parties to communicate in the first place.</em> Remember that we wanted to evolve systems <strong>independently</strong>?
+Once in a contractual agreement, every change has to be signed off by both sides.
+We introduce new reasons to talk when we wanted to actually reduce the friction.
+I totally acknowledge that the lack of communication might be a problem within an organization in the first place.
+However, if that’s the case, introducing something that creates more need to communicate can actually be a counter productive thing.
+Just because there’s more to talk about, it doesn’t fix the problem of non-communication in the first place.</p>
+  </li>
+  <li>
+    <p><em>Contracts are often set up in a way that they’re (or try to be) extremely specific, especially on the level of data formats exchanged.</em>
+What — if looked at, superficially — sounds like a great idea, can actually be a problem regarding evolvability as it creates incentives for clients to make assumptions they shouldn’t have made in the first place.
+If we start documenting all available values a field in the representation can have, the server will never ever be able to change it.
+This gets even worse if business rules are formulated based on those detailed descriptions, as it usually leads to clients implementing them that way (inspecting the payload closely), which replicates the business rules already present on the server and thus creates coupling — something we wanted to avoid in the first place.</p>
+  </li>
+  <li>
+    <p>The focus on defining the contract leads to the acceptance that changes to a system can only be implemented in a breaking way.
+This usually leads to teams completely ignoring other means to ship those changes because: “Hey, we have contracts!”.
+Thus a change in contract leading to what’s called “a version of the API”, which then raises the question how to version it.
+Hint: <a href="https://www.infoq.com/articles/roy-fielding-on-versioning">you don’t</a>.</p>
+  </li>
+</ol>
+
+<blockquote>
+  <p>A problem you can avoid is a problem you don’t have to fix.</p>
+</blockquote>
+
+<p>Generally speaking, my biggest problem with contracts is that they lead to the assumption that a change to an API needs to be a breaking one.
+It also leads to involved parties completely skipping the question how to bring themselves into a situation (by making architectural and technical decisions) so that much less changes are likely to be breaking ones.
+Again, a problem you can avoid is a problem you don’t have to fix.</p>
+
+<p>“Well,” I hear you say, “but there <em>is</em> shared semantics.
+We have to agree on something, right?”
+Exactly!
+I don’t dispute that fact, and I also don’t dispute that it’s a good thing to to come up with some sort of contract in the first place.
+I criticize two things: people overseeing the negative implications (or at least the effects subverting the original idea of the architecture) and blindly turning it into a tools problem: “Oh, I can generate this from that and I’ll be done.”
+Often times, tooling hides the negative effects it imposes its outcome by dazzling users with ease of applicability and fancy UIs.
+If it looks good, it’s got to be good, right?</p>
+
+<p>“Enough chitchat, what do you suggest instead?” — First of all, my core point is that in a system of systems context, you’re better of prioritizing the problem of <em>how to evolve your system in a non-breaking way</em> over the one of how to handle breaking changes: if a change is not a breaking one in the first place, there’s no need for communication when rolling out the feature, there’s no “new version”.
+You just ship.
+If required, the other party picks up the change asynchronously.
+But we were able to decouple the deployments of the system in the first place.</p>
+
+<p>“But <em>I</em> have to deal with breaking changes!” I hear you say.
+Fine, I answer.
+But I’d still argue a lot of them look like they’re breaking ones, because you’ve so finically painted yourself into a corner by ignoring the means technology exposes to turn your allegedly breaking changes into non-breaking ones.
+Which brings me back to the very often overlooked constraint REST brings in that regard: hypermedia.</p>
+
+<p><a name="hypermedia"></a></p>
+
+<h2 id="hypermedia-to-the-rescue">Hypermedia to the rescue</h2>
+
+<p>As mentioned before, the aspect of hypermedia (the presence of links in representations in the first place and its advanced partner Hypermedia As The Engine Of Application State (HATEOAS) is a key constraint within REST to enable evolvability in a system.
+The latter is a tool to indicate to clients <em>what</em> they can do with the resource at hand and <em>when</em> — or <em>if</em> at all — they can actually invoke certain functionality.
+As I’ve written up a concrete sample for the benefits of that approach in <a href="http://olivergierke.de/2016/04/benefits-of-hypermedia">this blog post</a>, I’d like to concentrate on the effect that this approach has on an architectural level.</p>
+
+<p>First, when using hypermedia, we need to focus on different things when designing and documenting APIs.
+Focus less on URLs, URL structures and the last nifty detail of fields in the representation (as that creates coupling).
+Focus more on the media type(s) served and the semantics of link relations:</p>
+
+<ul>
+  <li>What does it mean if a link with a certain name can be found?</li>
+  <li>Which HTTP method(s) can be used to follow that link?</li>
+  <li>What do I need to submit as payload?</li>
+  <li>What do I get as response?</li>
+</ul>
+
+<p>We effectively start to document resource <em>types</em>, not individual resources.
+In my opinion the very first question is the most important one to answer, as that’s gonna be the answer a client will build its state detection around: instead of inspecting a payload field for a certain value (e.g. <code class="language-plaintext highlighter-rouge">status : "payment expected"</code>), it can inspect the links available to decide whether to offer functionality in the UI (e.g. is the <code class="language-plaintext highlighter-rouge">payment</code> link present?).
+That approach shines especially in the area of security: instead of having to teach the client whether it is or is not allowed to do something to the system via a separate chain of requests to the server (did I hear you scream: <em>“INEFFICIENT!”</em>?), you can rather let the server decide whether to advertise that functionality in the first place.
+The client just picks up the link if present.
+You basically try to reduce as many decisions of the client to a plain “Yes or no?”.</p>
+
+<p>If that’s in place and clients adheres to those rules of not implementing business logic based on business fields in the representation, the server gains a lot more legroom for changes in the first place.
+In the best case that might allow us to teach the clients new tricks without having to change it in the first place, e.g. if a link shows up in a certain resource state the client didn’t explicitly expect it to appear but then just picks it up (again, please refer to the <a href="http://olivergierke.de/2016/04/benefits-of-hypermedia">other blog post</a> discussing the hypermedia example in detail).
+However, remember that automatically learning new trick wasn’t our primary goal in the first place, but being able to redeploy changed systems without breaking others.
+The most important bit here is that we avoid to document details of the API that create incentives to strongly couple the clients to those details.
+More information, more details often times is worse.</p>
+
+<p>That’s one of the reasons I am very critical with self-proclaimed REST (when they actually mean HTTP) design and description languages like RAML or Swagger.
+Trying to be both at the same time — specification of what the server should be <em>and</em> documentation to the client — they intermingle concerns and create a lot of incentives to expose implementation details to clients.
+Information that clients then make use of and by that tightly couple themselves to the server.
+Even worse, they create a kind of coupling that the designer or user of the described API might not even be aware of and which might not even be necessary.
+Some information might have ended up in the description to support the server implementation but eventually ends up in the client.</p>
+
+<p><a name="tl-dr"></a></p>
+
+<h2 id="tldr">tl;dr</h2>
+
+<p>To build an evolvable distributed system you want to get away with <em>just enough</em> inter-systems specification, not with <em>as much as tools can easily generate</em>.
+You want to focus on the ability to make non-breaking changes over handling breaking ones.
+You want to avoid the need for communication, not create incentives to increase it.</p>]]></content><author><name>Oliver Drotbohm</name><email>info@odrotbohm.de</email></author><category term="rest" /><category term="hypermedia" /><category term="microservices" /><category term="distributed systems" /><category term="scs" /></entry></feed>
